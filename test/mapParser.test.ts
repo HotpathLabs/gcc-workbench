@@ -1,0 +1,444 @@
+import * as assert from 'assert';
+import * as fs from 'fs';
+import * as path from 'path';
+import { parseMap, isGccMapFile, isJsSourceMap } from '../src/memoryMap/parsers/mapParser';
+
+const SAMPLES_DIR = path.join(__dirname, '..', '..', 'testcase', 'mapfilecase');
+
+function loadSample(name: string): string {
+    return fs.readFileSync(path.join(SAMPLES_DIR, name), 'utf-8');
+}
+
+describe('isGccMapFile', () => {
+    it('should detect a GCC map file', () => {
+        const text = loadSample('stm32f4.map');
+        assert.strictEqual(isGccMapFile(text), true);
+    });
+
+    it('should reject a non-map file', () => {
+        assert.strictEqual(isGccMapFile('hello world\nfoo bar\n'), false);
+    });
+});
+
+describe('isJsSourceMap', () => {
+    it('should detect a JS source map', () => {
+        const text = '{"version":3,"sources":["a.ts"],"mappings":"AAAA"}';
+        assert.strictEqual(isJsSourceMap(text), true);
+    });
+
+    it('should detect a pretty-printed JS source map', () => {
+        const text = '\n  {\n    "version": 3,\n    "mappings": "AAAA"\n  }\n';
+        assert.strictEqual(isJsSourceMap(text), true);
+    });
+
+    it('should not treat a GCC map as a JS source map', () => {
+        assert.strictEqual(isJsSourceMap(loadSample('stm32f4.map')), false);
+    });
+
+    it('should not treat an IAR-style map as a JS source map', () => {
+        const text = [
+            '###############################################################################',
+            '#',
+            '# IAR ELF Linker V9.60.1.354/W64 for ARM',
+            '#',
+            '###############################################################################',
+            '',
+            '*******************************************************************************',
+            '*** PLACEMENT SUMMARY',
+            '***',
+            '',
+            '"A1":  place at 0x08000000 { ro section .intvec };',
+        ].join('\n');
+        assert.strictEqual(isJsSourceMap(text), false);
+        assert.strictEqual(isGccMapFile(text), false);
+    });
+});
+
+describe('parseMap — STM32F4', () => {
+    let result: ReturnType<typeof parseMap>;
+
+    before(() => {
+        result = parseMap(loadSample('stm32f4.map'));
+    });
+
+    // ── Memory regions ──
+    it('should parse 3 memory regions (FLASH, RAM, CCMRAM)', () => {
+        const names = result.regions.map(r => r.name);
+        assert.deepStrictEqual(names, ['FLASH', 'RAM', 'CCMRAM']);
+    });
+
+    it('should parse FLASH origin as 0x08000000', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        assert.strictEqual(flash.origin, 0x08000000);
+    });
+
+    it('should parse FLASH length as 512K (0x80000)', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        assert.strictEqual(flash.length, 0x80000);
+    });
+
+    it('should parse RAM origin as 0x20000000', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        assert.strictEqual(ram.origin, 0x20000000);
+    });
+
+    it('should parse RAM length as 128K (0x20000)', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        assert.strictEqual(ram.length, 0x20000);
+    });
+
+    it('should parse CCMRAM origin as 0x10000000', () => {
+        const ccmram = result.regions.find(r => r.name === 'CCMRAM')!;
+        assert.strictEqual(ccmram.origin, 0x10000000);
+    });
+
+    it('should parse region attributes', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        assert.strictEqual(flash.attributes, 'xr');
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        assert.strictEqual(ram.attributes, 'xrw');
+    });
+
+    // ── Sections ──
+    it('should parse output sections', () => {
+        const sectionNames = result.sections.map(s => s.name);
+        assert.ok(sectionNames.includes('.isr_vector'), 'missing .isr_vector');
+        assert.ok(sectionNames.includes('.text'), 'missing .text');
+        assert.ok(sectionNames.includes('.rodata'), 'missing .rodata');
+        assert.ok(sectionNames.includes('.data'), 'missing .data');
+        assert.ok(sectionNames.includes('.bss'), 'missing .bss');
+    });
+
+    it('should parse .isr_vector at 0x08000000 with correct size', () => {
+        const isr = result.sections.find(s => s.name === '.isr_vector')!;
+        assert.strictEqual(isr.address, 0x08000000);
+        assert.strictEqual(isr.size, 0x188);
+    });
+
+    it('should parse .text section address and size', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        assert.strictEqual(text.address, 0x08000188);
+        assert.strictEqual(text.size, 0x2e64);
+    });
+
+    it('should assign FLASH sections to the FLASH region', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        assert.strictEqual(text.region, 'FLASH');
+    });
+
+    it('should assign RAM sections to the RAM region', () => {
+        const data = result.sections.find(s => s.name === '.data')!;
+        assert.strictEqual(data.region, 'RAM');
+        const bss = result.sections.find(s => s.name === '.bss')!;
+        assert.strictEqual(bss.region, 'RAM');
+    });
+
+    it('should compute used bytes for FLASH region', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        assert.ok(flash.used > 0, 'FLASH used should be > 0');
+        // .isr_vector (0x188) + .text (0x2e64) + .rodata (0x124) = 0x3110
+        assert.strictEqual(flash.used, 0x188 + 0x2e64 + 0x124);
+    });
+
+    it('should compute used bytes for RAM region', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        // .data (0x1c) + .bss (0x120) = 0x13c
+        assert.strictEqual(ram.used, 0x1c + 0x120);
+    });
+
+    // ── Symbols (16-digit hex addresses) ──
+    it('should parse symbols with 16-digit hex addresses', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        const main = text.symbols.find(s => s.name === '.text.main' || s.name === 'main');
+        assert.ok(main, 'should find main symbol in .text');
+        assert.strictEqual(main!.address, 0x080001c4);
+    });
+
+    it('should parse Reset_Handler symbol', () => {
+        const isr = result.sections.find(s => s.name === '.isr_vector');
+        const text = result.sections.find(s => s.name === '.text')!;
+        // Reset_Handler is a standalone symbol in .text section
+        const resetHandler = text.symbols.find(s => s.name === 'Reset_Handler');
+        assert.ok(resetHandler, 'should find Reset_Handler');
+        assert.strictEqual(resetHandler!.address, 0x08000188);
+    });
+
+    it('should parse wrapped symbol names (name on separate line)', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        // .text.SystemInit wraps to next line in the map file
+        const systemInit = text.symbols.find(s =>
+            s.name === '.text.SystemInit' || s.name === 'SystemInit'
+        );
+        assert.ok(systemInit, 'should find SystemInit');
+        assert.strictEqual(systemInit!.address, 0x080002e4);
+        assert.strictEqual(systemInit!.size, 0x48);
+    });
+
+    it('should include source file references for symbols', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        const mainSym = text.symbols.find(s => s.name === '.text.main');
+        assert.ok(mainSym, 'should find .text.main');
+        assert.ok(mainSym!.sourceFile?.includes('build/main.o'), `sourceFile should contain build/main.o, got: ${mainSym!.sourceFile}`);
+    });
+
+    it('should parse symbols in .data section', () => {
+        const data = result.sections.find(s => s.name === '.data')!;
+        assert.ok(data.symbols.length > 0, '.data should have symbols');
+        const sysClock = data.symbols.find(s => s.name === 'SystemCoreClock');
+        assert.ok(sysClock, 'should find SystemCoreClock in .data');
+        assert.strictEqual(sysClock!.address, 0x20000000);
+    });
+
+    it('should parse symbols in .bss section', () => {
+        const bss = result.sections.find(s => s.name === '.bss')!;
+        assert.ok(bss.symbols.length > 0, '.bss should have symbols');
+        const rxBuf = bss.symbols.find(s => s.name === 'rxBuffer');
+        assert.ok(rxBuf, 'should find rxBuffer in .bss');
+        assert.strictEqual(rxBuf!.address, 0x20000020);
+    });
+});
+
+describe('parseMap — STM32F103', () => {
+    let result: ReturnType<typeof parseMap>;
+
+    before(() => {
+        result = parseMap(loadSample('stm32f103.map'));
+    });
+
+    it('should parse 2 memory regions (FLASH, RAM)', () => {
+        const names = result.regions.map(r => r.name);
+        assert.deepStrictEqual(names, ['FLASH', 'RAM']);
+    });
+
+    it('should parse FLASH as 64K', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        assert.strictEqual(flash.origin, 0x08000000);
+        assert.strictEqual(flash.length, 0x10000);
+    });
+
+    it('should parse RAM as 20K', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        assert.strictEqual(ram.origin, 0x20000000);
+        assert.strictEqual(ram.length, 0x5000);
+    });
+
+    it('should parse .text section with multiple object files', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        assert.ok(text.symbols.length >= 5, `.text should have many symbols, got ${text.symbols.length}`);
+    });
+
+    it('should parse symbols from multiple object files in a single .text input section', () => {
+        const text = result.sections.find(s => s.name === '.text')!;
+        // main.o contributes main, SystemClock_Config, GPIO_Init, Error_Handler
+        const mainSym = text.symbols.find(s => s.name === 'main');
+        assert.ok(mainSym, 'should find main');
+        assert.strictEqual(mainSym!.address, 0x0800010c);
+
+        const gpioInit = text.symbols.find(s => s.name === 'GPIO_Init');
+        assert.ok(gpioInit, 'should find GPIO_Init');
+        assert.strictEqual(gpioInit!.address, 0x08000220);
+    });
+
+    it('should parse ._user_heap_stack section', () => {
+        const heap = result.sections.find(s => s.name === '._user_heap_stack');
+        assert.ok(heap, 'should find ._user_heap_stack');
+        assert.strictEqual(heap!.address, 0x20000220);
+        assert.strictEqual(heap!.size, 0x600);
+    });
+
+    it('should assign ._user_heap_stack to RAM region', () => {
+        const heap = result.sections.find(s => s.name === '._user_heap_stack')!;
+        assert.strictEqual(heap.region, 'RAM');
+    });
+
+    it('should parse .rodata with named symbols', () => {
+        const rodata = result.sections.find(s => s.name === '.rodata')!;
+        const version = rodata.symbols.find(s => s.name === 'version_string');
+        assert.ok(version, 'should find version_string');
+        assert.strictEqual(version!.address, 0x08001b54);
+    });
+
+    it('should compute correct RAM usage', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        // .data (0x1c) + .bss (0x200) + ._user_heap_stack (0x600) = 0x81c
+        assert.strictEqual(ram.used, 0x1c + 0x200 + 0x600);
+    });
+});
+
+describe('parseMap — region at address 0x0 with discarded sections', () => {
+    let result: ReturnType<typeof parseMap>;
+
+    before(() => {
+        result = parseMap(loadSample('region_at_zero.map'));
+    });
+
+    it('should parse BOOTROM region at origin 0x0', () => {
+        const bootrom = result.regions.find(r => r.name === 'BOOTROM')!;
+        assert.strictEqual(bootrom.origin, 0x0);
+        assert.strictEqual(bootrom.length, 0x4000);
+    });
+
+    it('should count discarded sections', () => {
+        assert.ok(result.discardedCount! >= 5, `expected at least 5 discarded, got ${result.discardedCount}`);
+        assert.ok(result.discardedSize! > 0, 'discarded size should be > 0');
+    });
+
+    it('should not assign discarded sections to BOOTROM region', () => {
+        const bootrom = result.regions.find(r => r.name === 'BOOTROM')!;
+        // Only .boot_header (0x200) should be in BOOTROM, not discarded sections
+        assert.strictEqual(bootrom.sections.length, 1, `BOOTROM should have 1 section, got: ${bootrom.sections.map(s => s.name).join(', ')}`);
+        assert.strictEqual(bootrom.sections[0].name, '.boot_header');
+        assert.strictEqual(bootrom.used, 0x200);
+    });
+
+    it('should not add discarded entries as symbols in the last section', () => {
+        const bss = result.sections.find(s => s.name === '.bss')!;
+        const bogusSymbols = bss.symbols.filter(s => s.address === 0 && s.size > 0);
+        assert.strictEqual(bogusSymbols.length, 0,
+            `discarded entries leaked into .bss as symbols: ${bogusSymbols.map(s => s.name).join(', ')}`);
+    });
+
+    it('should assign .text to FLASH region', () => {
+        const flash = result.regions.find(r => r.name === 'FLASH')!;
+        const text = flash.sections.find(s => s.name === '.text');
+        assert.ok(text, '.text should be in FLASH');
+    });
+
+    it('should assign .data and .bss to RAM region', () => {
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        const sectionNames = ram.sections.map(s => s.name);
+        assert.ok(sectionNames.includes('.data'), '.data should be in RAM');
+        assert.ok(sectionNames.includes('.bss'), '.bss should be in RAM');
+    });
+});
+
+describe('parseMap - Renesas section names', () => {
+    let result: ReturnType<typeof parseMap>;
+
+    before(() => {
+        result = parseMap([
+            'Memory Configuration',
+            '',
+            'Name             Origin             Length             Attributes',
+            'RAM              0x22000000         0x00001000         xrw',
+            'FLASH            0x02000000         0x00001000         xr',
+            '',
+            'Linker script and memory map',
+            '',
+            '__ram_from_flash$$',
+            '                0x22000000        0x10 load address 0x02000064',
+            '                0x22000000                        __ram_from_flash$$Base = .',
+            ' *(.data*)',
+            ' .data.foo       0x22000000        0x10 foo.o',
+            '                0x22000010                        __ram_from_flash$$Limit = .',
+            '',
+            '__ram_from_ospi0_cs1$$',
+            '                0x22000010        0x0 load address 0x90000000',
+            '                0x22000010                        __ram_from_ospi0_cs1$$Base = .',
+            ' *(.ram_from_ospi0_cs1)',
+            '                0x22000010                        __ram_from_ospi0_cs1$$Limit = .',
+            '',
+        ].join('\n'));
+    });
+
+    it('should parse non-dot output sections', () => {
+        const names = result.sections.map(s => s.name);
+        assert.ok(names.includes('__ram_from_flash$$'), 'missing __ram_from_flash$$');
+        assert.ok(names.includes('__ram_from_ospi0_cs1$$'), 'missing __ram_from_ospi0_cs1$$');
+    });
+
+    it('should parse symbols inside Renesas output sections', () => {
+        const ramFromFlash = result.sections.find(s => s.name === '__ram_from_flash$$')!;
+        assert.strictEqual(ramFromFlash.symbols.length, 1);
+        assert.strictEqual(ramFromFlash.symbols[0].name, '.data.foo');
+        assert.strictEqual(ramFromFlash.symbols[0].address, 0x22000000);
+    });
+
+    it('should assign zero-sized Renesas sections to their address region', () => {
+        const ramFromOspi = result.sections.find(s => s.name === '__ram_from_ospi0_cs1$$')!;
+        const ram = result.regions.find(r => r.name === 'RAM')!;
+        assert.strictEqual(ramFromOspi.region, 'RAM');
+        assert.ok(ram.sections.some(s => s.name === '__ram_from_ospi0_cs1$$'));
+    });
+});
+
+describe('parseMap - non-dotted output section names (issue #7)', () => {
+    // Section names that are not dot-prefixed used to fail the output-section
+    // match, so their contents were attributed to the previous section.
+    function buildMap(sectionName: string): string {
+        return [
+            'Memory Configuration',
+            '',
+            'Name             Origin             Length             Attributes',
+            'RAM              0x1ffe0000         0x00040000         xrw',
+            '',
+            'Linker script and memory map',
+            '',
+            '.boot_state_sect',
+            '                0x1ffe16c0        0x4 load address 0x00041641',
+            ' .boot_state_sect',
+            '                0x1ffe16c0        0x4 ./src/common/common.o',
+            '                0x1ffe16c0                boot_state',
+            '',
+            sectionName + '  0x1ffe16c8     0x5218 load address 0x00041645',
+            '                0x1ffe16c8                        noinit_buffer',
+            '',
+        ].join('\n');
+    }
+
+    it('should not leak contents into the previous section', () => {
+        const result = parseMap(buildMap('__ram_noinit$$'));
+        const prev = result.sections.find(s => s.name === '.boot_state_sect')!;
+        assert.ok(
+            !prev.symbols.some(s => s.name === 'noinit_buffer'),
+            'noinit_buffer leaked into .boot_state_sect'
+        );
+    });
+
+    it('should parse the section with its own address and size', () => {
+        const result = parseMap(buildMap('__ram_noinit$$'));
+        const sect = result.sections.find(s => s.name === '__ram_noinit$$')!;
+        assert.ok(sect, '__ram_noinit$$ not parsed');
+        assert.strictEqual(sect.address, 0x1ffe16c8);
+        assert.strictEqual(sect.size, 0x5218);
+        assert.strictEqual(sect.symbols[0].name, 'noinit_buffer');
+    });
+
+    const names = [
+        'ram_code',
+        'RAMCODE',
+        '_fast_code',
+        '__ram_noinit$',
+        '__ram$$noinit',
+        '.ram_noinit$$',
+    ];
+    for (const name of names) {
+        it(`should parse section named ${name}`, () => {
+            const result = parseMap(buildMap(name));
+            const sect = result.sections.find(s => s.name === name);
+            assert.ok(sect, `${name} was not parsed as its own section`);
+            assert.strictEqual(sect!.address, 0x1ffe16c8);
+        });
+    }
+
+    it('should not treat linker script prose as a section', () => {
+        const result = parseMap([
+            'Memory Configuration',
+            '',
+            'Name             Origin             Length             Attributes',
+            'RAM              0x1ffe0000         0x00040000         xrw',
+            '',
+            'Linker script and memory map',
+            '',
+            'LOAD ./src/common/common.o',
+            'START GROUP',
+            'OUTPUT(firmware.elf elf32-littlearm)',
+            'END GROUP',
+            '',
+            '.text           0x1ffe0000        0x40',
+            '                0x1ffe0000                _start',
+            '',
+        ].join('\n'));
+        assert.deepStrictEqual(result.sections.map(s => s.name), ['.text']);
+    });
+});

@@ -20,6 +20,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { DUMP_REGEX, sourceKeyOf } from './dumpNames';
 
 type TreeElementType = 'root'|'group'|'subgroup'|'file';
 type PassCategory = 'GIMPLE Passes'|'IPA Passes'|'RTL Passes'|'DOT Files'|
@@ -71,6 +72,14 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
       this._onDidChangeTreeData.event;
 
   private currentDir: string|null = null;
+
+  // Source key (e.g. `testcase.c`) -> every dump base behind it
+  // (`testcase.c`, `a-testcase.c`, ...), filled in by getTestcaseRoots().
+  private rootBases = new Map<string, string[]>();
+
+  private basesOf(rootName: string): Set<string> {
+    return new Set(this.rootBases.get(rootName) ?? [rootName]);
+  }
 
   // Default: All categories are visible
   private visibleCategories = new Set<string>([ 'GIMPLE', 'IPA', 'RTL' ]);
@@ -138,7 +147,7 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
 
     // 2. MAIN GROUPS
     if (element.type === 'root') {
-      return this.getSmartCategories(element.label);
+      return this.getSmartCategories(element.rootName ?? element.label);
     }
 
     // 3. DOT SUBGROUPS (Smart & Filtered)
@@ -173,6 +182,7 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     if (!this.currentDir)
       return [];
     const files = await fs.promises.readdir(this.currentDir);
+    const bases = this.basesOf(baseName);
 
     let hasGimple = false, hasIpa = false, hasRtl = false;
     // Flags to track if we have ANY valid dot files visible under current
@@ -180,15 +190,10 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     let showDotFolder = false;
     let hasGimpleDot = false, hasIpaDot = false, hasRtlDot = false;
 
-    const typeRegex = /^.+\.\d{3}([tri])\..+$/;
-
     for (const f of files) {
-      if (!f.startsWith(baseName))
-        continue;
-
-      const match = typeRegex.exec(f);
-      if (match) {
-        const type = match[1];
+      const match = DUMP_REGEX.exec(f);
+      if (match && bases.has(match[1])) {
+        const type = match[3];
         const isDot = f.endsWith('.dot');
 
         if (isDot) {
@@ -239,21 +244,16 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     if (!this.currentDir)
       return [];
     const files = await fs.promises.readdir(this.currentDir);
+    const bases = this.basesOf(baseName);
 
     let hasGimpleDot = false;
     let hasIpaDot = false;
     let hasRtlDot = false;
 
-    // Regex for DOT files: name.123[tri].pass.dot
-    const dotRegex = /^.+\.\d{3}([tri])\..+\.dot$/;
-
     for (const f of files) {
-      if (!f.startsWith(baseName))
-        continue;
-
-      const match = dotRegex.exec(f);
-      if (match) {
-        const type = match[1];
+      const match = DUMP_REGEX.exec(f);
+      if (match && bases.has(match[1]) && f.endsWith('.dot')) {
+        const type = match[3];
         if (type === 't')
           hasGimpleDot = true;
         if (type === 'i')
@@ -288,14 +288,25 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     try {
       const files = await fs.promises.readdir(this.currentDir);
       const baseNames = new Set<string>();
-      const dumpRegex = /^(.+)\.(\d{3})([tri])\.(.+)$/;
       for (const f of files) {
-        const match = dumpRegex.exec(f);
+        const match = DUMP_REGEX.exec(f);
         if (match)
           baseNames.add(match[1]);
       }
-      return Array.from(baseNames).sort().map(name =>
-                                                  new PassItem(name, 'root'));
+
+      // Merge `a-x.c` / `prog-x.c` / `x.c` dump sets that belong to one source.
+      const dirFiles = new Set(files);
+      const groups = new Map<string, string[]>();
+      for (const base of baseNames) {
+        const key = sourceKeyOf(base, baseNames, dirFiles);
+        const list = groups.get(key) ?? [];
+        list.push(base);
+        groups.set(key, list);
+      }
+
+      this.rootBases = groups;
+      return Array.from(groups.keys()).sort().map(
+          key => new PassItem(key, 'root', undefined, key));
     } catch (e) {
       return [];
     }
@@ -306,7 +317,9 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     if (!this.currentDir)
       return [];
     const files = await fs.promises.readdir(this.currentDir);
+    const bases = this.basesOf(baseName);
     const passFiles: PassItem[] = [];
+    const buildOf = new Map<PassItem, string>();
 
     let targetChar = '';
     if (category.includes('GIMPLE'))
@@ -319,9 +332,6 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
     const regex = /^(.+)\.(\d{3})([tri])\.(.+)$/;
 
     for (const f of files) {
-      if (!f.startsWith(baseName))
-        continue;
-
       if (isDot) {
         if (!f.endsWith('.dot'))
           continue;
@@ -334,7 +344,7 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
       if (match) {
         const [_, fBase, numStr, type, passName] = match;
 
-        if (fBase === baseName && type === targetChar) {
+        if (bases.has(fBase) && type === targetChar) {
           // Remove .dot suffix from label for cleaner display
           let label = passName;
           if (isDot && label.endsWith('.dot')) {
@@ -344,10 +354,21 @@ export class GccPassTreeProvider implements vscode.TreeDataProvider<PassItem> {
           passFiles.push(
               new PassItem(isDot ? label : passName, 'file',
                            vscode.Uri.file(path.join(this.currentDir, f)),
-                           baseName, parseInt(numStr, 10), `Pass ${numStr}`));
+                           baseName, parseInt(numStr, 10),
+                           `Pass ${numStr}`));
+          buildOf.set(passFiles[passFiles.length - 1], fBase);
         }
       }
     }
+    // The same pass can exist in two builds (e.g. `x.c` and `a-x.c`); only
+    // then is the build named, so the common case stays uncluttered.
+    const seen = new Map<string, number>();
+    passFiles.forEach(p => seen.set(p.label, (seen.get(p.label) ?? 0) + 1));
+    passFiles.forEach(p => {
+      if ((seen.get(p.label) ?? 0) > 1)
+        p.description = `${p.description} (${buildOf.get(p)})`;
+    });
+
     return passFiles.sort((a, b) => (a.passNumber || 0) - (b.passNumber || 0));
   }
 }

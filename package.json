@@ -43,7 +43,9 @@
   "main": "./out/extension.js",
   "scripts": {
     "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "watch": "tsc -watch -p ./",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "mocha \"out-test/test/**/*.test.js\""
   },
   "capabilities": {
     "untrustedWorkspaces": {
@@ -173,6 +175,10 @@
         "command": "gcc-stack-usage.toggleEnabled",
         "title": "GCC: Toggle Stack Usage Analysis",
         "icon": "$(pulse)"
+      },
+      {
+        "command": "gcc-workbench.findInMemoryMap",
+        "title": "GCC: Find in Memory Map"
       }
     ],
     "keybindings": [
@@ -252,6 +258,13 @@
           "command": "gcc-stack-usage.updateSuStore",
           "when": "view == gcc-stack-usage.globalStackUsage && gcc-stack-usage.enabled",
           "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "gcc-workbench.findInMemoryMap",
+          "group": "navigation@100",
+          "when": "gcc-workbench.hasMemoryLayout && resourceExtname =~ /\\.(c|cpp|cc|cxx|h|hpp|hxx|hh|s|S|asm|rs|zig|d)$/"
         }
       ]
     },
@@ -480,12 +493,188 @@
         "config.*": "shellscript",
         "*.dot": "dot",
         "*.svg": "svg"
+      },
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": "markup.heading.mapfile",
+            "settings": {
+              "foreground": "#F0A04B",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "markup.underline.table-header.mapfile",
+            "settings": {
+              "foreground": "#9DA5B4",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "entity.name.type.region.mapfile",
+            "settings": {
+              "foreground": "#E6C229",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "storage.modifier.attribute.mapfile",
+            "settings": {
+              "foreground": "#F28FAD"
+            }
+          },
+          {
+            "scope": "constant.language.default.mapfile",
+            "settings": {
+              "foreground": "#9DA5B4",
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": "entity.name.section.output.mapfile",
+            "settings": {
+              "foreground": "#4A9EE8",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "entity.name.section.input.mapfile",
+            "settings": {
+              "foreground": "#3FB8A0"
+            }
+          },
+          {
+            "scope": "constant.numeric.address.mapfile",
+            "settings": {
+              "foreground": "#7CB36A"
+            }
+          },
+          {
+            "scope": "constant.numeric.size.mapfile",
+            "settings": {
+              "foreground": "#E5786D"
+            }
+          },
+          {
+            "scope": "entity.name.function.symbol.mapfile",
+            "settings": {
+              "foreground": "#E0AF68"
+            }
+          },
+          {
+            "scope": "support.variable.builtin.mapfile",
+            "settings": {
+              "foreground": "#FF7AC6",
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": "entity.name.function.imported.mapfile",
+            "settings": {
+              "foreground": "#6FD0E8"
+            }
+          },
+          {
+            "scope": "variable.other.version.mapfile",
+            "settings": {
+              "foreground": "#8B9BB4",
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": "entity.name.filename.object.mapfile",
+            "settings": {
+              "foreground": "#8EA8C8"
+            }
+          },
+          {
+            "scope": "entity.name.filename.library.mapfile",
+            "settings": {
+              "foreground": "#B39DDB",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "entity.name.filename.shared.mapfile",
+            "settings": {
+              "foreground": "#6FD0E8"
+            }
+          },
+          {
+            "scope": "string.unquoted.directory.mapfile",
+            "settings": {
+              "foreground": "#7D8590"
+            }
+          },
+          {
+            "scope": "keyword.control.linker.mapfile",
+            "settings": {
+              "foreground": "#D96FD0",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "support.function.linker.mapfile",
+            "settings": {
+              "foreground": "#56B6C2"
+            }
+          },
+          {
+            "scope": "support.constant.linker.mapfile",
+            "settings": {
+              "foreground": "#D19A66"
+            }
+          },
+          {
+            "scope": "comment.line.annotation.mapfile",
+            "settings": {
+              "foreground": "#7F8FA9",
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": "comment.line.number-sign.mapfile",
+            "settings": {
+              "foreground": "#7F8FA9",
+              "fontStyle": "italic"
+            }
+          },
+          {
+            "scope": "variable.language.location-counter.mapfile",
+            "settings": {
+              "foreground": "#FFB86C",
+              "fontStyle": "bold"
+            }
+          },
+          {
+            "scope": "keyword.operator.mapfile",
+            "settings": {
+              "foreground": "#9DA5B4"
+            }
+          },
+          {
+            "scope": "string.quoted.double.mapfile",
+            "settings": {
+              "foreground": "#98C379"
+            }
+          },
+          {
+            "scope": "string.unquoted.mapfile",
+            "settings": {
+              "foreground": "#8EA8C8"
+            }
+          }
+        ]
       }
     }
   },
   "devDependencies": {
-    "@types/node": "^25.0.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.19.43",
     "@types/vscode": "^1.50.0",
-    "typescript": "^5.9.3"
+    "mocha": "^11.8.0",
+    "typescript": "^5.9.3",
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.3.2"
   }
 }

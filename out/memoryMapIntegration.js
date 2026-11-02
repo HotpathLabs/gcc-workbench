@@ -82,6 +82,31 @@ function activateMemoryMapFeatures(context) {
         }
     }));
     // Command: Find in Memory Map (right-click context menu)
+    context.subscriptions.push(vscode.commands.registerCommand('gcc-workbench.findInMemoryMap', () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+        // Use the selection, or the word under the cursor
+        const selection = editor.selection;
+        let word;
+        if (selection.isEmpty) {
+            const wordRange = editor.document.getWordRangeAtPosition(selection.active);
+            if (!wordRange) {
+                vscode.window.showWarningMessage('No symbol under cursor.');
+                return;
+            }
+            word = editor.document.getText(wordRange);
+        }
+        else {
+            word = editor.document.getText(selection).trim();
+        }
+        if (!word) {
+            vscode.window.showWarningMessage('No symbol selected.');
+            return;
+        }
+        findSymbolInMemoryMap(context, word);
+    }));
     // Command: Refresh
     context.subscriptions.push(vscode.commands.registerCommand('gcc-workbench.refreshMemoryMap', () => {
         // Clear cache to force re-parse
@@ -106,6 +131,70 @@ function activateMemoryMapFeatures(context) {
     if (vscode.window.activeTextEditor) {
         parseDocument(context, vscode.window.activeTextEditor.document);
     }
+}
+async function findSymbolInMemoryMap(context, symbolName) {
+    if (!currentLayout) {
+        vscode.window.showWarningMessage('No memory map loaded. Open a .map file first.');
+        return;
+    }
+    // Is the symbol present anywhere in the parsed layout?
+    let found = false;
+    for (const region of currentLayout.regions) {
+        for (const section of region.sections) {
+            if (section.symbols.some(sym => sym.name === symbolName ||
+                (0, symbols_1.extractSymbolName)(sym.name) === symbolName ||
+                sym.name.indexOf(symbolName) >= 0)) {
+                found = true;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    // Otherwise check whether the linker discarded it (--gc-sections)
+    let inDiscarded = false;
+    if (!found && currentLayout.sourceFile) {
+        const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(currentLayout.sourceFile));
+        let inDiscardedSection = false;
+        for (let i = 0; i < doc.lineCount; i++) {
+            const lineText = doc.lineAt(i).text;
+            const trimmed = lineText.trim();
+            if (/^Discarded input sections\s*$/i.test(trimmed)) {
+                inDiscardedSection = true;
+                continue;
+            }
+            if (inDiscardedSection && (/^Memory Configuration\s*$/.test(trimmed) ||
+                /^Linker script and memory map\s*$/i.test(trimmed))) {
+                break;
+            }
+            if (inDiscardedSection && lineText.indexOf(symbolName) !== -1) {
+                inDiscarded = true;
+                break;
+            }
+        }
+    }
+    if (!found && inDiscarded) {
+        vscode.window.showWarningMessage(`'${symbolName}' was found in the discarded input sections. ` +
+            'It was removed by the linker (likely unused or garbage-collected with --gc-sections).');
+        return;
+    }
+    if (!found) {
+        vscode.window.showWarningMessage(`'${symbolName}' was not found in the memory map. ` +
+            'It may be inlined, optimized out, or defined in a library not included in the map file.');
+        return;
+    }
+    // Open the panel if needed, then search. Messages posted before the
+    // webview has loaded are queued by VS Code, so no extra handshake is needed.
+    const fileName = currentLayout.sourceFile ? path.basename(currentLayout.sourceFile) : undefined;
+    const panel = memoryMapPanel_1.MemoryMapPanel.getCurrent();
+    if (panel) {
+        panel.reveal();
+    }
+    else {
+        showMemoryMap(context, currentLayout, fileName);
+    }
+    memoryMapPanel_1.MemoryMapPanel.getCurrent()?.searchSymbol(symbolName);
 }
 function showMemoryMap(context, layout, fileName) {
     const panel = memoryMapPanel_1.MemoryMapPanel.createOrShow(context.extensionPath);

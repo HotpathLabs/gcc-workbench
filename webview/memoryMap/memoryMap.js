@@ -1025,84 +1025,35 @@
         }, 0);
     }
 
-    // ── View Mode Toggle ──
-    var currentViewMode = 'bar'; // 'bar', 'treemap', 'timeline'
+    // ── View Mode Toggle (bar / treemap) ──
+    var currentViewMode = 'bar';
 
     function switchViewMode(mode) {
-        if (currentViewMode === mode) return;
-        
+        if (mode !== 'bar' && mode !== 'treemap') { return; }
         currentViewMode = mode;
-        
-        // Update button states
-        var buttons = document.querySelectorAll('.view-btn');
-        buttons.forEach(function(btn) {
-            btn.classList.remove('active');
+
+        document.body.classList.toggle('mode-treemap', mode === 'treemap');
+        ['bar', 'treemap'].forEach(function (m) {
+            var btn = document.getElementById('view-' + m);
+            if (btn) {
+                btn.classList.toggle('active', m === mode);
+                btn.setAttribute('aria-pressed', String(m === mode));
+            }
         });
-        
-        var activeBtn = document.getElementById('view-' + mode);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
-        
-        // Show/hide appropriate containers
-        var app = document.getElementById('app');
-        var connectorSvg = document.getElementById('connector-svg');
-        var detailPanel = document.getElementById('detail-panel');
-        var treemapContainer = document.getElementById('treemap-container');
-        
-        if (mode === 'bar') {
-            // Show bar view
-            if (app) app.style.display = '';
-            if (treemapContainer) treemapContainer.style.display = 'none';
-            // Restore detail panel if it was visible
-            if (currentSelectedSection) {
-                if (detailPanel) detailPanel.style.display = 'flex';
-                if (connectorSvg) connectorSvg.style.display = 'block';
-            }
-        } else if (mode === 'treemap') {
-            // Show treemap view
-            if (app) app.style.display = 'none';
-            if (connectorSvg) connectorSvg.style.display = 'none';
-            if (detailPanel) detailPanel.style.display = 'none';
-            if (treemapContainer) treemapContainer.style.display = 'flex';
-            
-            // Initialize treemap if we have data
-            if (layoutData && window.TreemapView) {
-                window.TreemapView.init(layoutData);
-            }
-        } else if (mode === 'timeline') {
-            // Timeline view - to be implemented
-            if (app) app.style.display = 'none';
-            if (treemapContainer) treemapContainer.style.display = 'none';
-            if (connectorSvg) connectorSvg.style.display = 'none';
-            if (detailPanel) detailPanel.style.display = 'none';
-            // TODO: Show timeline view
+
+        if (mode === 'treemap' && layoutData && window.TreemapView) {
+            window.TreemapView.init(layoutData);
+        } else if (mode === 'bar' && currentSelectedSection) {
+            requestAnimationFrame(function () {
+                positionDetailPanel();
+                drawConnector();
+            });
         }
     }
 
-    // Set up view mode toggle buttons
-    document.addEventListener('DOMContentLoaded', function() {
-        var viewBar = document.getElementById('view-bar');
-        var viewTreemap = document.getElementById('view-treemap');
-        var viewTimeline = document.getElementById('view-timeline');
-        
-        if (viewBar) {
-            viewBar.addEventListener('click', function() {
-                switchViewMode('bar');
-            });
-        }
-        
-        if (viewTreemap) {
-            viewTreemap.addEventListener('click', function() {
-                switchViewMode('treemap');
-            });
-        }
-        
-        if (viewTimeline) {
-            viewTimeline.addEventListener('click', function() {
-                switchViewMode('timeline');
-            });
-        }
+    ['bar', 'treemap'].forEach(function (m) {
+        var btn = document.getElementById('view-' + m);
+        if (btn) { btn.addEventListener('click', function () { switchViewMode(m); }); }
     });
 
     window.mapViewIPC.onMessage(function (msg) {
@@ -1131,6 +1082,7 @@
                 focusSymbol(msg.symbol, msg.section, msg.address);
                 break;
             case 'searchSymbol':
+                switchViewMode('bar');
                 searchFor(msg.query);
                 break;
         }

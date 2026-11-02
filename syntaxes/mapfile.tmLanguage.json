@@ -1,412 +1,814 @@
 {
-	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-	"name": "Linker Map File",
-	"scopeName": "source.mapfile",
-	"patterns": [
-		{"include": "#comments"},
-		{"include": "#section-headers"},
-		{"include": "#memory-configuration"},
-		{"include": "#common-symbols-table"},
-		{"include": "#load-commands"},
-		{"include": "#output-section"},
-		{"include": "#discard-definition"},
-		{"include": "#input-section-wildcard"},
-		{"include": "#standalone-section-name"},
-		{"include": "#input-section"},
-		{"include": "#symbol-definition"},
-		{"include": "#expression-lines"},
-		{"include": "#fill-pattern"},
-		{"include": "#gnu-map-oddities"},
-		{"include": "#cross-reference"},
-		{"include": "#linker-script-commands"},
-		{"include": "#linker-keywords"},
-		{"include": "#operators"},
-		{"include": "#addresses"},
-		{"include": "#sizes"},
-		{"include": "#paths"},
-		{"include": "#strings"}
-	],
-	"repository": {
-		"comments": {
-			"patterns": [
-				{
-					"match": "^\\s*#.*$",
-					"name": "comment.line.number-sign"
-				},
-				{
-					"match": "^\\s*;.*$",
-					"name": "comment.line.semicolon"
-				},
-				{
-					"begin": "/\\*",
-					"end": "\\*/",
-					"name": "comment.block"
-				}
-			]
-		},
-		"section-headers": {
-			"patterns": [
-				{
-					"match": "^(Memory Configuration|Linker script and memory map|Discarded input sections|Archive member included to satisfy reference by file \\(symbol\\)|Allocating common symbols|Cross Reference Table)$",
-					"name": "markup.heading"
-				},
-				{
-					"match": "^(VMA|Address)\\s+(LMA|Size)\\s+(Size|Align)\\s+(Align|Out).*$",
-					"name": "markup.underline"
-				},
-				{
-					"match": "^Symbol\\s+File\\s*$",
-					"name": "markup.underline"
-				}
-			]
-		},
-		"memory-configuration": {
-			"begin": "^Name\\s+Origin\\s+Length\\s+Attributes\\s*$",
-			"end": "^\\s*$",
-			"beginCaptures": {
-				"0": {"name": "markup.underline"}
-			},
-			"patterns": [
-				{
-					"match": "^(\\*default\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([rwxali!RWXALI]+))?",
-					"captures": {
-						"1": {"name": "constant.language"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"},
-						"4": {"name": "storage.modifier"}
-					}
-				},
-				{
-					"match": "^([A-Za-z_]\\w*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([rwxali!RWXALI]+))?",
-					"captures": {
-						"1": {"name": "entity.name.type"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"},
-						"4": {"name": "storage.modifier"}
-					}
-				}
-			]
-		},
-		"common-symbols-table": {
-			"match": "^Common\\s+symbol\\s+size\\s+file\\s*$",
-			"name": "markup.underline"
-		},
-		"load-commands": {
-			"patterns": [
-				{
-					"match": "^(LOAD|OUTPUT)\\s+(.+)$",
-					"captures": {
-						"1": {"name": "keyword.control"},
-						"2": {"name": "string.unquoted"}
-					}
-				},
-				{
-					"match": "^(START GROUP|END GROUP)$",
-					"name": "keyword.control"
-				}
-			]
-		},
-		"output-section": {
-			"match": "^(\\.[a-zA-Z_][\\w.]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+load address\\s+(0x[0-9a-fA-F]+))?",
-			"captures": {
-				"1": {"name": "entity.name.type"},
-				"2": {"name": "constant.numeric"},
-				"3": {"name": "constant.numeric"},
-				"4": {"name": "constant.numeric"}
-			}
-		},
-		"discard-definition": {
-			"match": "^(\\/DISCARD\\/)\\s*(:)\\s*(\\{).*(\\})\\s*$",
-			"captures": {
-				"1": {"name": "entity.name.type"},
-				"2": {"name": "punctuation.separator.key-value"},
-				"3": {"name": "punctuation.section.block.begin"},
-				"4": {"name": "punctuation.section.block.end"}
-			}
-		},
-		"input-section-wildcard": {
-			"match": "^(\\s*)(\\*)(\\s*)(\\()([^\\)]+)(\\))\\s*$",
-			"captures": {
-				"2": {"name": "keyword.operator"},
-				"4": {"name": "punctuation.section.parens.begin"},
-				"5": {"name": "entity.name.type"},
-				"6": {"name": "punctuation.section.parens.end"}
-			}
-		},
-		"standalone-section-name": {
-			"match": "^\\s+(\\.[A-Za-z_][\\w.]*)\\s*$",
-			"captures": {
-				"1": {"name": "entity.name.type"}
-			}
-		},
-		"input-section": {
-			"match": "^\\s+(\\.[a-zA-Z_][\\w.]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(.+?)(?:\\s*\\(([^)]+)\\))?\\s*$",
-			"captures": {
-				"1": {"name": "entity.name.type"},
-				"2": {"name": "constant.numeric"},
-				"3": {"name": "constant.numeric"},
-				"4": {"name": "entity.name.filename"},
-				"5": {"name": "entity.name.filename"}
-			}
-		},
-		"fill-pattern": {
-			"match": "^\\s*(\\*fill\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
-			"captures": {
-				"1": {"name": "keyword.other"},
-				"2": {"name": "constant.numeric"},
-				"3": {"name": "constant.numeric"}
-			}
-		},
-		"gnu-map-oddities": {
-			"patterns": [
-				{
-					"match": "\\(size before relaxing\\)|\\[!provide\\]|linker stubs|LOAD linker stubs",
-					"name": "constant.language"
-				},
-				{
-					"match": "\\(--[^)]*\\)",
-					"name": "constant.language"
-				},
-				{
-					"match": "\\([-\\w.]+\\.(obj|o|a)\\)",
-					"name": "entity.name.filename"
-				}
-			]
-		},
-		"symbol-definition": {
-			"patterns": [
-				{
-					"comment": "Weak symbols with [weak] marker",
-					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+.*?(\\[weak\\])",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"},
-						"4": {"name": "storage.modifier"}
-					}
-				},
-				{
-					"comment": "Hidden symbols with [hidden] marker",
-					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+.*?(\\[hidden\\])",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"},
-						"4": {"name": "storage.modifier"}
-					}
-				},
-				{
-					"comment": "Generated symbols (linker-created)",
-					"match": "^\\s+(__|_etext|_edata|_end|__bss_start|__bss_end|__data_start|__data_end|_stack|_heap|__init_array_start|__init_array_end|__fini_array_start|__fini_array_end|__preinit_array_start|__preinit_array_end|_GLOBAL_OFFSET_TABLE_|_DYNAMIC|__executable_start|__ehdr_start|__rela_iplt_start|__rela_iplt_end)\\b",
-					"captures": {
-						"1": {"name": "support.variable"}
-					}
-				},
-				{
-					"comment": "C++ mangled symbols",
-					"match": "^\\s+(_Z[\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"}
-					}
-				},
-				{
-					"comment": "Rust mangled symbols",
-					"match": "^\\s+(_R[\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"}
-					}
-				},
-				{
-					"comment": "Regular symbol with size and source file",
-					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(.+)$",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"},
-						"4": {"name": "string.unquoted"}
-					}
-				},
-				{
-					"comment": "Regular symbol with size (no source)",
-					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s*$",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "constant.numeric"},
-						"3": {"name": "constant.numeric"}
-					}
-				},
-				{
-					"comment": "Symbol without size (address only)",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+([\\w.$]+)",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "entity.name.function"}
-					}
-				},
-				{
-					"comment": "Address followed by assignment or provide expression",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(.+?)(\\s*=\\s*)(.+)$",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "variable.other"},
-						"3": {"name": "keyword.operator.assignment"},
-						"4": {"name": "meta.expression"}
-					}
-				}
-			]
-		},
-		"expression-lines": {
-			"patterns": [
-				{
-					"comment": "Indented location-counter assignment using a linker function",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\.)\\s*(=|\\+=)\\s*(ALIGN|ADDR|ABSOLUTE|DEFINED|LENGTH|LOADADDR|MAX|MIN|NEXT|ORIGIN|SIZEOF)\\b",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "variable.language"},
-						"3": {"name": "keyword.operator.assignment"},
-						"4": {"name": "support.function"}
-					}
-				},
-				{
-					"comment": "Indented location-counter arithmetic assignment",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\.)\\s*(=|\\+=)\\s*(\\()",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "variable.language"},
-						"3": {"name": "keyword.operator.assignment"},
-						"4": {"name": "punctuation.section.parens.begin"}
-					}
-				},
-				{
-					"comment": "Indented PROVIDE expression",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(PROVIDE|PROVIDE_HIDDEN)\\s*(\\()\\s*([_a-zA-Z][_a-zA-Z0-9]*)",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "keyword.control"},
-						"3": {"name": "punctuation.section.parens.begin"},
-						"4": {"name": "variable.other"}
-					}
-				},
-				{
-					"comment": "Indented linker symbol assignment",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+([_a-zA-Z][_a-zA-Z0-9]*)\\s*(=)",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "variable.other"},
-						"3": {"name": "keyword.operator.assignment"}
-					}
-				},
-				{
-					"comment": "Indented expression or provide line prefixed by address",
-					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(.+)$",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "meta.expression"}
-					}
-				}
-			]
-		},
-		"cross-reference": {
-			"patterns": [
-				{
-					"match": "^([\\w.]+)\\s+(.+?)\\s*$",
-					"captures": {
-						"1": {"name": "entity.name.function"},
-						"2": {"name": "string.unquoted"}
-					}
-				}
-			]
-		},
-		"linker-script-commands": {
-			"patterns": [
-				{
-					"comment": "Linker script assignment",
-					"match": "^\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*=\\s*(.+);?$",
-					"captures": {
-						"1": {"name": "variable.other"},
-						"2": {"name": "meta.expression"}
-					}
-				},
-				{
-					"comment": "PROVIDE statements",
-					"match": "\\b(PROVIDE|PROVIDE_HIDDEN)\\s*\\(\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*=",
-					"captures": {
-						"1": {"name": "keyword.control"},
-						"2": {"name": "variable.other"}
-					}
-				}
-			]
-		},
-		"linker-keywords": {
-			"match": "\\b(LOAD|OUTPUT|START\\s+GROUP|END\\s+GROUP|COMMON|CONSTRUCTORS|PROVIDE|PROVIDE_HIDDEN|EXCLUDE_FILE|SORT_BY_NAME|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_NONE|SORT|SIZEOF|LOADADDR|ALIGN|KEEP|CREATE_OBJECT_SYMBOLS|FILL|HIDDEN|ABSOLUTE|ORIGIN|LENGTH|BLOCK|DEFINED|NEXT|ADDR|ALIGNOF|ASSERT|ENTRY|EXTERN|FORCE_COMMON_ALLOCATION|INHIBIT_COMMON_ALLOCATION|INSERT|NOCROSSREFS|NOCROSSREFS_TO|OUTPUT_ARCH|OUTPUT_FORMAT|OVERLAY|PHDRS|REGION_ALIAS|SEARCH_DIR|STARTUP|TARGET|MEMORY|SECTIONS|INCLUDE|INPUT|GROUP|AS_NEEDED|SUBALIGN|ONLY_IF_RO|ONLY_IF_RW|AT|OVERLAY|DISCARD|NOLOAD|DSECT|COPY|INFO|QUAD|SQUAD|LONG|SHORT|BYTE|ASCIZ|MAX|MIN|DATA_SEGMENT_ALIGN|DATA_SEGMENT_END|DATA_SEGMENT_RELRO_END|SEGMENT_START|LOG2CEIL)\\b",
-			"name": "keyword.control"
-		},
-		"operators": {
-			"match": "[+\\-*/%&|^~!<>=?:]|&&|\\|\\||<<|>>|==|!=|<=|>=|\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=",
-			"name": "keyword.operator"
-		},
-		"addresses": {
-			"match": "\\b(0x[0-9a-fA-F]+)\\b",
-			"name": "constant.numeric"
-		},
-		"sizes": {
-			"patterns": [
-				{
-					"match": "\\b(\\d+)\\s*([KkMmGg])\\b",
-					"captures": {
-						"1": {"name": "constant.numeric"},
-						"2": {"name": "keyword.other"}
-					}
-				},
-				{
-					"match": "\\b(\\d+)\\b",
-					"name": "constant.numeric"
-				}
-			]
-		},
-		"strings": {
-			"patterns": [
-				{
-					"match": "\"[^\"]*\"",
-					"name": "string.quoted.double"
-				}
-			]
-		},
-		"paths": {
-			"patterns": [
-				{
-					"comment": "Archive member: lib.a(file.o)",
-					"match": "([\\w./\\\\-]+\\.a)\\(([^)]+)\\)",
-					"captures": {
-						"1": {"name": "string.unquoted"},
-						"2": {"name": "entity.name.filename"}
-					}
-				},
-				{
-					"comment": "Static library",
-					"match": "\\b(lib[\\w-]+\\.a)\\b",
-					"name": "string.unquoted"
-				},
-				{
-					"comment": "Object file path",
-					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(o|obj)\\b",
-					"name": "entity.name.filename"
-				},
-				{
-					"comment": "Shared library",
-					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(so|dll|dylib)(?:\\.\\d+)*\\b",
-					"name": "string.unquoted"
-				},
-				{
-					"comment": "Source file path",
-					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(c|cpp|cc|cxx|C|h|hpp|hxx|hh|s|S|asm|rs|zig|d|go|swift)\\b",
-					"name": "string.unquoted"
-				}
-			]
-		}
-	}
+ "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+ "name": "Linker Map File",
+ "scopeName": "source.mapfile",
+ "patterns": [
+  {
+   "include": "#lines"
+  }
+ ],
+ "repository": {
+  "headers": {
+   "patterns": [
+    {
+     "match": "^(Memory Configuration|Linker script and memory map|Discarded input sections|Archive member included to satisfy reference by file \\(symbol\\)|Allocating common symbols|Cross Reference Table)\\s*$",
+     "captures": {
+      "1": {
+       "name": "markup.heading.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(Common\\s+symbol\\s+size\\s+file|Symbol\\s+File)\\s*$",
+     "captures": {
+      "1": {
+       "name": "markup.underline.table-header.mapfile"
+      }
+     }
+    }
+   ]
+  },
+  "memory-config": {
+   "begin": "^Name\\s+Origin\\s+Length\\s+Attributes\\s*$",
+   "end": "^\\s*$",
+   "beginCaptures": {
+    "0": {
+     "name": "markup.underline.table-header.mapfile"
+    }
+   },
+   "patterns": [
+    {
+     "match": "^(\\*default\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
+     "captures": {
+      "1": {
+       "name": "constant.language.default.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(\\S+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([rwxaliRWXALI!]+))?",
+     "captures": {
+      "1": {
+       "name": "entity.name.type.region.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "4": {
+       "name": "storage.modifier.attribute.mapfile"
+      }
+     }
+    }
+   ]
+  },
+  "objref": {
+   "patterns": [
+    {
+     "match": "((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])*)([\\w.+~@-]+\\.a)(\\()([^)]+)(\\))",
+     "captures": {
+      "1": {
+       "name": "string.unquoted.directory.mapfile"
+      },
+      "2": {
+       "name": "entity.name.filename.library.mapfile"
+      },
+      "3": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "4": {
+       "name": "entity.name.filename.object.mapfile"
+      },
+      "5": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])*)([\\w.+~@-]+\\.so(?:\\.\\d+)*)",
+     "captures": {
+      "1": {
+       "name": "string.unquoted.directory.mapfile"
+      },
+      "2": {
+       "name": "entity.name.filename.shared.mapfile"
+      }
+     }
+    },
+    {
+     "match": "((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])*)([\\w.+~@-]+\\.a)\\b",
+     "captures": {
+      "1": {
+       "name": "string.unquoted.directory.mapfile"
+      },
+      "2": {
+       "name": "entity.name.filename.library.mapfile"
+      }
+     }
+    },
+    {
+     "match": "((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])*)([\\w.+~@-]+\\.(?:o|obj|lo|lib))\\b",
+     "captures": {
+      "1": {
+       "name": "string.unquoted.directory.mapfile"
+      },
+      "2": {
+       "name": "entity.name.filename.object.mapfile"
+      }
+     }
+    },
+    {
+     "match": "((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])+)([\\w.+~@-]+)",
+     "captures": {
+      "1": {
+       "name": "string.unquoted.directory.mapfile"
+      },
+      "2": {
+       "name": "entity.name.filename.object.mapfile"
+      }
+     }
+    },
+    {
+     "match": "\\[!?(?:provide|hidden|weak)\\]|\\(size before relaxing\\)|\\(--[^)]*\\)|\\blinker stubs\\b",
+     "name": "comment.line.annotation.mapfile"
+    }
+   ]
+  },
+  "expr": {
+   "patterns": [
+    {
+     "match": "\\[!?(?:provide|hidden|weak)\\]|\\(size before relaxing\\)|\\blinker stubs\\b",
+     "name": "comment.line.annotation.mapfile"
+    },
+    {
+     "match": "\"[^\"]*\"",
+     "name": "string.quoted.double.mapfile"
+    },
+    {
+     "match": "\\b(ALIGN|ALIGNOF|ABSOLUTE|ADDR|ASSERT|BLOCK|CONSTANT|DATA_SEGMENT_ALIGN|DATA_SEGMENT_END|DATA_SEGMENT_RELRO_END|DEFINED|LENGTH|LOADADDR|LOG2CEIL|MAX|MIN|NEXT|ORIGIN|SEGMENT_START|SIZEOF|SORT|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_BY_NAME|SORT_NONE|EXCLUDE_FILE|KEEP|NOLOAD|FILL|AT|ONLY_IF_RO|ONLY_IF_RW|SUBALIGN)\\b(?=\\s*\\()",
+     "name": "support.function.linker.mapfile"
+    },
+    {
+     "match": "\\b(NEXT_SECTION|MAXPAGESIZE|COMMONPAGESIZE|SIZEOF_HEADERS|LARGE_COMMON|COMMON|CONSTRUCTORS)\\b",
+     "name": "support.constant.linker.mapfile"
+    },
+    {
+     "match": "\\b(PROVIDE_HIDDEN|PROVIDE|HIDDEN|LOAD|OUTPUT|INPUT|GROUP|AS_NEEDED|ENTRY|EXTERN|INSERT|STARTUP|TARGET|SEARCH_DIR|START GROUP|END GROUP)\\b",
+     "name": "keyword.control.linker.mapfile"
+    },
+    {
+     "match": "\\b0x[0-9a-fA-F]+\\b",
+     "name": "constant.numeric.address.mapfile"
+    },
+    {
+     "match": "\\b\\d+[KkMm]?\\b",
+     "name": "constant.numeric.size.mapfile"
+    },
+    {
+     "match": "(?<![\\w.$])\\.(?![\\w.$])",
+     "name": "variable.language.location-counter.mapfile"
+    },
+    {
+     "match": "\\b(__\\w+|_GLOBAL_OFFSET_TABLE_|_DYNAMIC|_edata|edata|_end|end|_etext|etext|_start|_init|_fini|data_start|_IO_stdin_used|_sdata|_sidata|_sbss|_ebss|_stext|_estack|_stack|_heap|_Min_Heap_Size|_Min_Stack_Size|_etext)\\b",
+     "name": "support.variable.builtin.mapfile"
+    },
+    {
+     "match": "(?<![\\w.$])\\.[A-Za-z_][\\w.$-]*",
+     "name": "entity.name.section.input.mapfile"
+    },
+    {
+     "match": "[+\\-*/%&|^~!<>=?:]+",
+     "name": "keyword.operator.mapfile"
+    },
+    {
+     "match": "[(),;]",
+     "name": "punctuation.separator.mapfile"
+    }
+   ]
+  },
+  "sym-ref": {
+   "patterns": [
+    {
+     "match": "(?<![\\w.$])(?:__\\w+|_GLOBAL_OFFSET_TABLE_|_DYNAMIC|_edata|edata|_end|end|_etext|etext|_start|_init|_fini|data_start|_IO_stdin_used|_sdata|_sidata|_sbss|_ebss|_stext|_estack|_stack|_heap|_Min_Heap_Size|_Min_Stack_Size|_etext)(?![\\w.$@])",
+     "name": "support.variable.builtin.mapfile"
+    },
+    {
+     "match": "([\\w.$]+)(@@?[\\w.]+)",
+     "captures": {
+      "1": {
+       "name": "entity.name.function.imported.mapfile"
+      },
+      "2": {
+       "name": "variable.other.version.mapfile"
+      }
+     }
+    },
+    {
+     "match": "[\\w.$]+",
+     "name": "entity.name.function.symbol.mapfile"
+    }
+   ]
+  },
+  "apple-name": {
+   "patterns": [
+    {
+     "match": "\\b(?:literal string|FDE for|CFI|\\d+-byte-literal)\\b:?",
+     "name": "comment.line.annotation.mapfile"
+    },
+    {
+     "match": "%[-+ #0]*\\d*(?:\\.\\d+)?[a-zA-Z]|\\\\[nrt]",
+     "name": "constant.character.escape.mapfile"
+    },
+    {
+     "include": "#sym-ref"
+    }
+   ]
+  },
+  "glob": {
+   "patterns": [
+    {
+     "match": "\\b(?:ALIGN|ALIGNOF|ABSOLUTE|ADDR|ASSERT|BLOCK|CONSTANT|DATA_SEGMENT_ALIGN|DATA_SEGMENT_END|DATA_SEGMENT_RELRO_END|DEFINED|LENGTH|LOADADDR|LOG2CEIL|MAX|MIN|NEXT|ORIGIN|SEGMENT_START|SIZEOF|SORT|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_BY_NAME|SORT_NONE|EXCLUDE_FILE|KEEP|NOLOAD|FILL|AT|ONLY_IF_RO|ONLY_IF_RW|SUBALIGN)\\b(?=\\s*\\()",
+     "name": "support.function.linker.mapfile"
+    },
+    {
+     "match": "\\b(?:NEXT_SECTION|MAXPAGESIZE|COMMONPAGESIZE|SIZEOF_HEADERS|LARGE_COMMON|COMMON|CONSTRUCTORS)\\b",
+     "name": "support.constant.linker.mapfile"
+    },
+    {
+     "match": "\\*?[\\w.+~-]*(?:\\*|\\?)[\\w.*?+~-]*\\.(?:o|obj|a)\\b|\\*[\\w?.+~-]*\\.(?:o|obj|a)\\b",
+     "name": "entity.name.filename.object.mapfile"
+    },
+    {
+     "match": "\\.[\\w.$*?\\[\\]-]+",
+     "name": "entity.name.section.input.mapfile"
+    },
+    {
+     "match": "\\*",
+     "name": "keyword.operator.mapfile"
+    },
+    {
+     "match": "[()]",
+     "name": "punctuation.parens.mapfile"
+    }
+   ]
+  },
+  "lines": {
+   "patterns": [
+    {
+     "include": "#headers"
+    },
+    {
+     "include": "#memory-config"
+    },
+    {
+     "match": "^(OUTPUT)(\\()(.*)(\\))\\s*$",
+     "captures": {
+      "1": {
+       "name": "keyword.control.linker.mapfile"
+      },
+      "2": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "3": {
+       "name": "string.unquoted.mapfile"
+      },
+      "4": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(LOAD)\\s+(.+)$",
+     "captures": {
+      "1": {
+       "name": "keyword.control.linker.mapfile"
+      },
+      "2": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^(START GROUP|END GROUP)\\s*$",
+     "captures": {
+      "1": {
+       "name": "keyword.control.linker.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^((?:Updated|Removed) property\\b.*)$",
+     "captures": {
+      "1": {
+       "name": "comment.line.annotation.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s*(\\*fill\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([0-9a-fA-F]+))?",
+     "captures": {
+      "1": {
+       "name": "comment.line.annotation.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "4": {
+       "name": "constant.numeric.size.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\(size before relaxing\\))\\s*$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "2": {
+       "name": "comment.line.annotation.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(\\[!provide\\])\\s+(PROVIDE_HIDDEN|PROVIDE)\\s*(\\()\\s*([A-Za-z_$][\\w.$]*)\\s*(=)\\s*(.*?)\\s*(\\))\\s*$",
+     "captures": {
+      "1": {
+       "name": "comment.line.annotation.mapfile"
+      },
+      "2": {
+       "name": "keyword.control.linker.mapfile"
+      },
+      "3": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "5": {
+       "name": "keyword.operator.mapfile"
+      },
+      "6": {
+       "patterns": [
+        {
+         "include": "#expr"
+        }
+       ]
+      },
+      "7": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+(PROVIDE_HIDDEN|PROVIDE)\\s*(\\()\\s*([A-Za-z_$][\\w.$]*)\\s*(=)\\s*(.*?)\\s*(\\))\\s*$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "name": "keyword.control.linker.mapfile"
+      },
+      "3": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "5": {
+       "name": "keyword.operator.mapfile"
+      },
+      "6": {
+       "patterns": [
+        {
+         "include": "#expr"
+        }
+       ]
+      },
+      "7": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(/DISCARD/)\\s*(:)\\s*(\\{)(.*)(\\})\\s*$",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.output.mapfile"
+      },
+      "2": {
+       "name": "keyword.operator.mapfile"
+      },
+      "3": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#glob"
+        }
+       ]
+      },
+      "5": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(/DISCARD/)\\s*$",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.output.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^((?:Merging|Updated|Removed)\\b.*)$",
+     "captures": {
+      "1": {
+       "name": "comment.line.annotation.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^#\\s*(Object files|Sections|Symbols|Dead Stripped Symbols):\\s*$",
+     "captures": {
+      "1": {
+       "name": "markup.heading.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^#\\s*(Address\\b.*)$",
+     "captures": {
+      "1": {
+       "name": "markup.underline.table-header.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^#\\s*(Path|Arch|Link map version|Platform)(:)\\s*(.*)$",
+     "captures": {
+      "1": {
+       "name": "keyword.control.linker.mapfile"
+      },
+      "2": {
+       "name": "keyword.operator.mapfile"
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^#.*$",
+     "name": "comment.line.number-sign.mapfile"
+    },
+    {
+     "match": "^(\\[\\s*\\d+\\])\\s+(linker synthesized)\\s*$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "2": {
+       "name": "comment.line.annotation.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^(\\[\\s*\\d+\\])\\s+(.+)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "2": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(\\[\\s*\\d+\\])\\s+(.*)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#apple-name"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(\\S+)\\s+(\\S+)\\s*$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "3": {
+       "name": "entity.name.section.output.mapfile"
+      },
+      "4": {
+       "name": "entity.name.section.input.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^([A-Za-z_.$][\\w.$-]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+(load address)\\s+(0x[0-9a-fA-F]+))?",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.output.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "4": {
+       "name": "comment.line.annotation.mapfile"
+      },
+      "5": {
+       "name": "constant.numeric.address.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^([A-Za-z_$][\\w.$]*)\\s+(0x[0-9a-fA-F]+)\\s+(\\S.*)$",
+     "captures": {
+      "1": {
+       "name": "entity.name.function.symbol.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^([A-Za-z_.$][\\w.$-]*)\\s*$",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.output.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(\\*[^\\s(]*)(\\()(.*)(\\))\\s*$",
+     "captures": {
+      "1": {
+       "patterns": [
+        {
+         "include": "#glob"
+        }
+       ]
+      },
+      "2": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#glob"
+        }
+       ]
+      },
+      "4": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\.)\\s*(\\+?=)\\s*(.*)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "name": "variable.language.location-counter.mapfile"
+      },
+      "3": {
+       "name": "keyword.operator.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#expr"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+([A-Za-z_$][\\w.$]*)\\s*(=)\\s*(.*)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "3": {
+       "name": "keyword.operator.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#expr"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^\\s+(\\.?[A-Za-z_.$][\\w.$-]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s*(.*)$",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.input.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "3": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "4": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^\\s+(\\.[A-Za-z_.$][\\w.$-]*)\\s*$",
+     "captures": {
+      "1": {
+       "name": "entity.name.section.input.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(\\S.*)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "name": "constant.numeric.size.mapfile"
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^\\s+(0x[0-9a-fA-F]+)\\s+([\\w.$]+(?:@@?[\\w.]+)?)\\s*(.*)$",
+     "captures": {
+      "1": {
+       "name": "constant.numeric.address.mapfile"
+      },
+      "2": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "match": "^((?:[A-Za-z]:)?(?:[\\w.+~@-]*[/\\\\])*[\\w.+~@-]+\\.a)(\\()([^)]+)(\\))\\s*$",
+     "captures": {
+      "1": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      },
+      "2": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "3": {
+       "name": "entity.name.filename.object.mapfile"
+      },
+      "4": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^\\s+(\\S+)\\s+(\\()(.+)(\\))\\s*$",
+     "captures": {
+      "1": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      },
+      "2": {
+       "name": "punctuation.parens.mapfile"
+      },
+      "3": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "4": {
+       "name": "punctuation.parens.mapfile"
+      }
+     }
+    },
+    {
+     "match": "^([A-Za-z_$][\\w.$]*)\\s+(\\S.*)$",
+     "captures": {
+      "1": {
+       "patterns": [
+        {
+         "include": "#sym-ref"
+        }
+       ]
+      },
+      "2": {
+       "patterns": [
+        {
+         "include": "#objref"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "include": "#expr"
+    }
+   ]
+  }
+ }
 }

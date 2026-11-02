@@ -20,6 +20,12 @@ const enum State {
     LINKER_MAP_SECTIONS,
 }
 
+export function isJsSourceMap(text: string): boolean {
+    // JS source maps are JSON and share the .map extension; no linker map
+    // of any toolchain starts with '{'.
+    return text.slice(0, 64).trimStart().startsWith('{');
+}
+
 export function isGccMapFile(text: string): boolean {
     // Check for the header anywhere in the file — ESP-IDF maps can have
     // tens of thousands of preamble lines before "Memory Configuration".
@@ -106,8 +112,14 @@ export function parseMap(text: string): MemoryLayout {
                 const discardMatch = trimmed.match(
                     /^\S+\s+0x[0-9a-fA-F]+\s+(0x[0-9a-fA-F]+)/
                 );
+                // Long names wrap: the name is on its own line and the
+                // "0xADDR 0xSIZE object" part is on the next line.
+                const wrappedMatch = trimmed.match(/^0x[0-9a-fA-F]+\s+(0x[0-9a-fA-F]+)/);
                 if (discardMatch) {
                     discardedSize += parseInt(discardMatch[1], 16);
+                    discardedCount++;
+                } else if (wrappedMatch) {
+                    discardedSize += parseInt(wrappedMatch[1], 16);
                     discardedCount++;
                 }
                 break;
@@ -132,11 +144,14 @@ export function parseMap(text: string): MemoryLayout {
                     break;
                 }
 
-                // Output section header: starts at column 0 with .name
+                // Output section header: starts at column 0.
                 // Format: ".text           0x00000000    0x1234"
-                // Sometimes section name is on its own line, address+size on next
+                // Sometimes section name is on its own line, address+size on next.
+                // Names are not always dotted (Renesas emits "__ram_noinit$$" and
+                // plain identifiers are legal), so match the name broadly and let
+                // the required address+size rule out prose lines.
                 const outputSectionMatch = line.match(
-                    /^(\.[a-zA-Z_][\w.]*)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)/
+                    /^([A-Za-z_.$][\w.$-]*)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)/
                 );
                 if (outputSectionMatch) {
                     // Close previous section's line range
@@ -155,8 +170,9 @@ export function parseMap(text: string): MemoryLayout {
                     break;
                 }
 
-                // Section name alone on a line (long name wraps)
-                const sectionNameOnly = line.match(/^(\.[a-zA-Z_][\w.]*)\s*$/);
+                // Section name alone on a line (long name wraps). Only committed
+                // if the next line supplies address+size.
+                const sectionNameOnly = line.match(/^([A-Za-z_.$][\w.$-]*)\s*$/);
                 if (sectionNameOnly) {
                     // Peek at next line for address+size
                     if (i + 1 < lines.length) {
@@ -266,7 +282,7 @@ export function parseMap(text: string): MemoryLayout {
 
     // Assign sections to regions by address range
     for (const section of sections) {
-        if (section.size === 0) { continue; }
+        if (section.size === 0 && !/^__[A-Za-z0-9_]+\$\$$/.test(section.name)) { continue; }
         for (const region of regions) {
             const regionEnd = region.origin + region.length;
             if (section.address >= region.origin && section.address < regionEnd) {
@@ -278,7 +294,54 @@ export function parseMap(text: string): MemoryLayout {
         }
     }
 
+    // Hosted (Linux/BSD) links have no MEMORY command, only "*default*"
+    // spanning the whole address space. Group the allocated sections into
+    // address clusters so there is still something meaningful to draw.
+    if (regions.length === 0) {
+        regions.push(...synthesizeSegments(sections));
+    }
+
     return { regions, sections, discardedSize, discardedCount };
+}
+
+/** Sections further apart than this start a new synthetic segment. */
+const SEGMENT_GAP = 0x10000;
+
+function synthesizeSegments(sections: Section[]): MemoryRegion[] {
+    // Address 0 means non-alloc (.comment, .debug_*, ...): no memory footprint.
+    const allocated = sections
+        .filter(s => s.size > 0 && s.address !== 0)
+        .sort((a, b) => a.address - b.address);
+
+    const segments: MemoryRegion[] = [];
+    let end = 0;
+    for (const section of allocated) {
+        const last = segments[segments.length - 1];
+        if (!last || section.address - end > SEGMENT_GAP) {
+            segments.push({
+                name: '',
+                origin: section.address,
+                length: 0,
+                attributes: 'synthesized',
+                sections: [],
+                used: 0,
+            });
+        }
+        const seg = segments[segments.length - 1];
+        seg.sections.push(section);
+        seg.used += section.size;
+        end = Math.max(end, section.address + section.size);
+        seg.length = end - seg.origin;
+        section.region = '';
+    }
+
+    segments.forEach((seg, i) => {
+        const names = seg.sections.map(s => s.name);
+        const kind = names.includes('.text') ? 'Code' : names.some(n => n === '.data' || n === '.bss') ? 'Data' : 'Segment';
+        seg.name = `${kind} (${i + 1})`;
+        seg.sections.forEach(s => { s.region = seg.name; });
+    });
+    return segments;
 }
 
 // Made with Bob

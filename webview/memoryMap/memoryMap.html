@@ -9,6 +9,26 @@
     <title>Memory Map</title>
 </head>
 <body>
+    <header id="toolbar">
+        <div class="brand">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M2 2h12v3H2zM2 6.5h7v3H2zM10.5 6.5H14v3h-3.5zM2 11h4v3H2zM7.5 11H14v3H7.5z"/></svg>
+            <span>Memory Map</span>
+        </div>
+        <div class="view-mode-toggle" role="group" aria-label="View mode">
+            <button id="view-bar" class="view-btn active" aria-pressed="true" title="Address-ordered region bars">
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M2 2h5v12H2zM9 2h5v7H9z"/></svg>Bars
+            </button>
+            <button id="view-treemap" class="view-btn" aria-pressed="false" title="Size-proportional treemap">
+                <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M2 2h7v7H2zM10 2h4v4h-4zM10 7h4v7h-4zM2 10h7v4H2z"/></svg>Treemap
+            </button>
+        </div>
+    </header>
+    <div id="top-bar"></div>
+    <div id="treemap-container">
+        <div id="treemap-breadcrumb"></div>
+        <div id="treemap-view"></div>
+        <div class="treemap-hint">Click a region or section to drill in · click a symbol to jump to the map · double-click a symbol to open its source</div>
+    </div>
     <div class="app-layout">
         <div id="app">
             <div class="no-data">Loading memory layout...</div>
@@ -17,6 +37,7 @@
         <div id="detail-panel"></div>
     </div>
     <script nonce="{{nonce}}" src="{{ipcAdapterUri}}"></script>
+    <script nonce="{{nonce}}" src="{{treemapUri}}"></script>
     <script nonce="{{nonce}}" src="{{scriptUri}}"></script>
 </body>
 </html>

@@ -310,10 +310,10 @@ h1 {
 /* ── Sticky top bar (stats + search) ── */
 #top-bar {
     position: sticky;
-    top: 0;
+    top: 49px;
     z-index: 10;
     background: var(--vscode-editor-background, #1e1e1e);
-    padding: 16px 16px 4px;
+    padding: 12px 16px 4px;
     width: 100%;
 }
 
@@ -471,119 +471,270 @@ h1 {
     font-style: italic;
 }
 
-/* ── View Mode Toggle ── */
-.view-mode-toggle {
+/* ═══════════════════════════════════════════════════════════
+   Polish layer
+   ═══════════════════════════════════════════════════════════ */
+:root {
+    --mm-radius: 8px;
+    --mm-card: color-mix(in srgb, var(--vscode-editor-foreground, #ccc) 5%, var(--vscode-editor-background, #1e1e1e));
+    --mm-card-border: color-mix(in srgb, var(--vscode-editor-foreground, #ccc) 14%, transparent);
+    --mm-muted: var(--vscode-descriptionForeground, #8b8b8b);
+    --mm-accent: var(--vscode-focusBorder, #3794ff);
+    --mm-shadow: 0 2px 10px rgba(0, 0, 0, 0.28);
+}
+
+/* Toolbar */
+#toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    height: 49px;
     display: flex;
-    gap: 8px;
-    padding: 12px 16px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
     background: var(--vscode-editor-background, #1e1e1e);
-    border-bottom: 1px solid var(--vscode-panel-border, #333);
+    border-bottom: 1px solid var(--mm-card-border);
+}
+
+#toolbar .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--vscode-foreground, #ccc);
+}
+
+#toolbar .brand svg { color: var(--mm-accent); }
+
+.view-mode-toggle {
+    display: inline-flex;
+    padding: 3px;
+    gap: 2px;
+    border-radius: 999px;
+    background: var(--mm-card);
+    border: 1px solid var(--mm-card-border);
 }
 
 .view-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
-    background: var(--vscode-button-secondaryBackground, #3a3d41);
-    color: var(--vscode-button-secondaryForeground, #ccc);
-    border: 1px solid var(--vscode-panel-border, #333);
-    border-radius: 4px;
-    cursor: pointer;
+    padding: 4px 14px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--mm-muted);
+    font: inherit;
     font-size: 0.9em;
-    font-family: var(--vscode-font-family);
-    transition: all 0.2s;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
 }
 
-.view-btn:hover {
-    background: var(--vscode-button-secondaryHoverBackground, #45494e);
-    border-color: var(--vscode-focusBorder, #007acc);
-}
+.view-btn:hover { color: var(--vscode-foreground, #ccc); }
 
 .view-btn.active {
     background: var(--vscode-button-background, #0e639c);
     color: var(--vscode-button-foreground, #fff);
-    border-color: var(--vscode-focusBorder, #007acc);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
 }
 
-.view-btn .icon {
-    font-size: 1.1em;
-    font-weight: bold;
-}
+.view-btn:focus-visible { outline: 2px solid var(--mm-accent); outline-offset: 1px; }
 
-/* ── Treemap Container ── */
-#treemap-container {
-    flex: 1;
+/* Layout */
+.app-layout { padding: 12px 16px 32px; }
+#app { width: 280px; }
+
+/* Region cards */
+.memory-container { gap: 28px; }
+
+.region-header {
+    font-size: 1.15em;
+    letter-spacing: 0.01em;
     display: flex;
-    flex-direction: column;
-    background: var(--vscode-editor-background, #1e1e1e);
-    padding: 16px;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.region-info {
+    font-family: var(--vscode-editor-font-family, monospace);
+    font-size: 0.85em;
+    margin-bottom: 8px;
+}
+
+.usage-bar-container {
+    height: 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--vscode-editor-foreground, #ccc) 12%, transparent);
+    margin-bottom: 10px;
+}
+
+.usage-bar-fill { border-radius: 999px; }
+.usage-low    { background: linear-gradient(90deg, #1e8e4e, #3fcf7e); }
+.usage-medium { background: linear-gradient(90deg, #d18a0b, #f5b942); }
+.usage-high   { background: linear-gradient(90deg, #c0392b, #ff6b5b); }
+
+.region-bar {
+    border-radius: var(--mm-radius);
+    border: 1px solid var(--mm-card-border);
+    background: color-mix(in srgb, var(--vscode-editor-foreground, #ccc) 6%, #000);
+    box-shadow: var(--mm-shadow);
+}
+
+.section-block, .detail-row {
+    transition: filter 0.15s, transform 0.15s;
+}
+
+.section-block::after, .detail-row::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(0,0,0,0.14));
+}
+
+.section-block:hover { filter: brightness(1.12); }
+.section-block.selected {
+    outline: 2px solid #fff;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--mm-accent) 45%, transparent);
+}
+
+.free-space::after { display: none; }
+.free-space {
+    background: repeating-linear-gradient(135deg, transparent 0 8px, rgba(255,255,255,0.04) 8px 16px) !important;
+}
+
+/* Detail panel */
+#detail-panel {
+    margin-left: 0;
+    border: 1px solid var(--mm-card-border);
+    border-radius: var(--mm-radius);
+    background: var(--mm-card);
+    box-shadow: var(--mm-shadow);
     overflow: hidden;
 }
 
+.detail-header { border-bottom: 1px solid var(--mm-card-border); }
+
+.detail-sort-btn {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 2px 10px;
+}
+.detail-sort-btn.active { border-color: var(--mm-card-border); }
+
+.detail-bar { border-radius: 0; }
+
+/* Stats + search */
+.stats-panel {
+    max-width: 440px;
+    background: var(--mm-card);
+    border: 1px solid var(--mm-card-border);
+    border-radius: var(--mm-radius);
+    padding: 0 12px;
+}
+
+.stats-header { padding: 9px 0; }
+.stats-body { background: transparent; border-top: 1px solid var(--mm-card-border); }
+
+.search-wrapper { max-width: 440px; margin-bottom: 12px; }
+
+.search-input {
+    padding: 8px 14px 8px 34px;
+    font-size: 1em;
+    border-radius: 999px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23888'><path d='M11.7 10.3a6 6 0 1 0-1.4 1.4l3.5 3.5 1.4-1.4zM6.5 11a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 14px;
+}
+
+.search-input:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--mm-accent) 30%, transparent); }
+
+.search-results { border-radius: 10px; margin-top: 4px; top: calc(100% - 2px); }
+.search-result-item:first-child { border-radius: 10px 10px 0 0; }
+
+/* ── Treemap ── */
+#treemap-container {
+    display: none;
+    flex-direction: column;
+    height: calc(100vh - 49px);
+    padding: 12px 16px 12px;
+    gap: 10px;
+    overflow: hidden;
+}
+
+body.mode-treemap #treemap-container { display: flex; }
+body.mode-treemap .app-layout,
+body.mode-treemap #top-bar { display: none; }
+
 #treemap-breadcrumb {
-    padding: 8px 12px;
-    margin-bottom: 12px;
-    background: var(--vscode-input-background, #3c3c3c);
-    border: 1px solid var(--vscode-panel-border, #333);
-    border-radius: 4px;
-    font-size: 0.9em;
-    color: var(--vscode-foreground, #ccc);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2px;
+    padding: 6px 8px;
+    background: var(--mm-card);
+    border: 1px solid var(--mm-card-border);
+    border-radius: 999px;
+    width: fit-content;
+    max-width: 100%;
 }
 
 .breadcrumb-item {
-    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
     cursor: pointer;
-    padding: 2px 6px;
-    border-radius: 3px;
-    transition: background 0.2s;
+    color: var(--mm-muted);
+    transition: background 0.15s, color 0.15s;
 }
-
-.breadcrumb-item:hover {
-    background: var(--vscode-list-hoverBackground, #2a2d2e);
-}
-
-.breadcrumb-separator {
-    margin: 0 4px;
-    color: var(--vscode-descriptionForeground, #888);
-}
+.breadcrumb-item:hover { background: var(--vscode-list-hoverBackground, #2a2d2e); color: var(--vscode-foreground, #ccc); }
+.breadcrumb-item.current { color: var(--vscode-foreground, #ccc); font-weight: 600; cursor: default; }
+.breadcrumb-separator { color: var(--mm-muted); }
 
 #treemap-view {
     flex: 1;
+    min-height: 0;
     position: relative;
-    min-height: 400px;
-    background: var(--vscode-editor-background, #1e1e1e);
-    border: 1px solid var(--vscode-panel-border, #333);
-    border-radius: 4px;
+    border: 1px solid var(--mm-card-border);
+    border-radius: var(--mm-radius);
+    background: color-mix(in srgb, var(--vscode-editor-foreground, #ccc) 4%, var(--vscode-editor-background, #1e1e1e));
     overflow: hidden;
 }
 
-/* ── Treemap Cells ── */
 .treemap-cell {
     position: absolute;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: opacity 0.2s, transform 0.2s;
+    border-radius: 6px;
     overflow: hidden;
+    cursor: default;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: filter 0.12s, box-shadow 0.12s;
+    animation: tm-in 0.22s ease-out both;
 }
 
+.treemap-cell.drillable, .treemap-symbol { cursor: pointer; }
 .treemap-cell:hover {
-    opacity: 0.9;
-    transform: scale(1.02);
-    z-index: 10;
-    border-color: var(--vscode-focusBorder, #007acc);
-    border-width: 2px;
+    filter: brightness(1.18);
+    z-index: 5;
+    box-shadow: inset 0 0 0 2px #fff, 0 4px 14px rgba(0, 0, 0, 0.5);
 }
+
+.treemap-free, .treemap-padding {
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0 8px, rgba(255,255,255,0.07) 8px 16px);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.treemap-free:hover, .treemap-padding:hover { filter: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+.treemap-free .treemap-cell-label, .treemap-padding .treemap-cell-label { color: var(--mm-muted); text-shadow: none; }
+.treemap-free .treemap-cell-size, .treemap-padding .treemap-cell-size { color: var(--mm-muted); text-shadow: none; }
 
 .treemap-cell-label {
     position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    font-size: 0.75em;
+    top: 6px; left: 8px; right: 8px;
+    font-size: 0.85em;
     font-weight: 600;
     color: #fff;
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(0,0,0,0.6);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -592,65 +743,46 @@ h1 {
 
 .treemap-cell-size {
     position: absolute;
-    bottom: 4px;
-    left: 4px;
-    right: 4px;
-    font-size: 0.7em;
+    bottom: 6px; left: 8px; right: 8px;
+    font-size: 0.75em;
     font-family: var(--vscode-editor-font-family, monospace);
-    color: rgba(255,255,255,0.9);
-    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    color: rgba(255, 255, 255, 0.92);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     pointer-events: none;
 }
 
-/* ── Treemap Tooltip ── */
+.treemap-hint {
+    font-size: 0.8em;
+    color: var(--mm-muted);
+    text-align: center;
+}
+
+@keyframes tm-in { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+
 .treemap-tooltip {
     position: absolute;
     display: none;
     padding: 8px 12px;
     background: var(--vscode-editorHoverWidget-background, #252526);
     border: 1px solid var(--vscode-editorHoverWidget-border, #454545);
-    border-radius: 4px;
+    border-radius: 8px;
     color: var(--vscode-editorHoverWidget-foreground, #ccc);
     font-size: 0.85em;
     pointer-events: none;
-    z-index: 1000;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
-    max-width: 300px;
+    z-index: 100;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+    max-width: 320px;
 }
+.treemap-tooltip.visible { display: block; }
+.tooltip-title { font-weight: 600; margin-bottom: 4px; word-break: break-all; }
+.tooltip-row { display: flex; justify-content: space-between; gap: 14px; margin: 2px 0; }
+.tooltip-label { color: var(--mm-muted); }
+.tooltip-value { font-family: var(--vscode-editor-font-family, monospace); word-break: break-all; text-align: right; }
 
-.treemap-tooltip.visible {
-    display: block;
+@media (prefers-reduced-motion: reduce) {
+    .treemap-cell { animation: none; }
+    * { transition: none !important; }
 }
-
-.tooltip-title {
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--vscode-foreground, #ccc);
-}
-
-.tooltip-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    margin: 2px 0;
-    font-size: 0.9em;
-}
-
-.tooltip-label {
-    color: var(--vscode-descriptionForeground, #888);
-}
-
-.tooltip-value {
-    font-family: var(--vscode-editor-font-family, monospace);
-    color: var(--vscode-foreground, #ccc);
-}
-
-/* ── Treemap Color Scheme ── */
-.treemap-code { background: #4477AA; }
-.treemap-data { background: #228833; }
-.treemap-bss { background: #CCBB44; }
-.treemap-rodata { background: #66CCEE; }
-.treemap-other { background: #888888; }

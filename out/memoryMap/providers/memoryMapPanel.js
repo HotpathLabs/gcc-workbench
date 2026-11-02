@@ -76,10 +76,10 @@ class MemoryMapPanel {
     static createOrShow(extensionPath) {
         const column = vscode.ViewColumn.Beside;
         if (MemoryMapPanel.currentPanel) {
-            MemoryMapPanel.currentPanel.panel.reveal(column);
+            MemoryMapPanel.currentPanel.panel.reveal(column, true);
             return MemoryMapPanel.currentPanel;
         }
-        const panel = vscode.window.createWebviewPanel('gccMemoryMap', 'GCC Memory Map', column, {
+        const panel = vscode.window.createWebviewPanel('gccMemoryMap', 'GCC Memory Map', { viewColumn: column, preserveFocus: true }, {
             enableScripts: true,
             retainContextWhenHidden: true,
             localResourceRoots: [
@@ -156,12 +156,14 @@ class MemoryMapPanel {
         const htmlPath = path.join(this.extensionPath, 'webview', 'memoryMap', 'memoryMap.html');
         const cssUri = webview.asWebviewUri(vscode.Uri.file(cssPath));
         const scriptUri = webview.asWebviewUri(vscode.Uri.file(jsPath));
+        const treemapUri = webview.asWebviewUri(vscode.Uri.file(path.join(this.extensionPath, 'webview', 'memoryMap', 'treemap.js')));
         const ipcAdapterUri = webview.asWebviewUri(vscode.Uri.file(ipcAdapterPath));
         let html = fs.readFileSync(htmlPath, 'utf8');
         html = html.replace(/\{\{cspSource\}\}/g, webview.cspSource);
         html = html.replace(/\{\{nonce\}\}/g, nonce);
         html = html.replace(/\{\{cssUri\}\}/g, `${cssUri.toString()}?v=${cacheBuster}`);
         html = html.replace(/\{\{ipcAdapterUri\}\}/g, `${ipcAdapterUri.toString()}?v=${cacheBuster}`);
+        html = html.replace(/\{\{treemapUri\}\}/g, `${treemapUri.toString()}?v=${cacheBuster}`);
         html = html.replace(/\{\{scriptUri\}\}/g, `${scriptUri.toString()}?v=${cacheBuster}`);
         return html;
     }

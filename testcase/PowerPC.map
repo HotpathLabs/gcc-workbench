@@ -1,0 +1,518 @@
+
+Discarded input sections
+
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /tmp/ccNhZ8Hc.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ .note.GNU-stack
+                0x0000000000000000        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x0000000000000000 0xffffffffffffffff
+
+Linker script and memory map
+
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+LOAD /tmp/ccNhZ8Hc.o
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc.a
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc_s.so
+START GROUP
+LOAD /lib64/libgcc_s.so.1
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/libc.so
+START GROUP
+LOAD /lib64/libc.so.6
+LOAD /usr/lib64/libc_nonshared.a
+LOAD /lib64/ld64.so.2
+END GROUP
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc.a
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc_s.so
+START GROUP
+LOAD /lib64/libgcc_s.so.1
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/libgcc.a
+END GROUP
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+LOAD /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+                [!provide]                        PROVIDE (__executable_start = SEGMENT_START ("text-segment", 0x10000000))
+                0x0000000010000238                . = (SEGMENT_START ("text-segment", 0x10000000) + SIZEOF_HEADERS)
+
+.interp         0x0000000010000238       0x11
+ *(.interp)
+ .interp        0x0000000010000238       0x11 linker stubs
+
+.note.gnu.build-id
+                0x000000001000024c       0x24
+ *(.note.gnu.build-id)
+ .note.gnu.build-id
+                0x000000001000024c       0x24 linker stubs
+
+.note.ABI-tag   0x0000000010000270       0x20
+ .note.ABI-tag  0x0000000010000270       0x20 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+
+.hash
+ *(.hash)
+
+.gnu.hash       0x0000000010000290       0x1c
+ *(.gnu.hash)
+ .gnu.hash      0x0000000010000290       0x1c linker stubs
+
+.dynsym         0x00000000100002b0       0x90
+ *(.dynsym)
+ .dynsym        0x00000000100002b0       0x90 linker stubs
+
+.dynstr         0x0000000010000340       0x5d
+ *(.dynstr)
+ .dynstr        0x0000000010000340       0x5d linker stubs
+
+.gnu.version    0x000000001000039e        0xc
+ *(.gnu.version)
+ .gnu.version   0x000000001000039e        0xc linker stubs
+
+.gnu.version_d  0x00000000100003b0        0x0
+ *(.gnu.version_d)
+ .gnu.version_d
+                0x00000000100003b0        0x0 linker stubs
+
+.gnu.version_r  0x00000000100003b0       0x30
+ *(.gnu.version_r)
+ .gnu.version_r
+                0x00000000100003b0       0x30 linker stubs
+
+.rela.dyn       0x00000000100003e0       0x18
+ *(.rela.opd)
+ *(.rela.init)
+ *(.rela.text .rela.text.* .rela.gnu.linkonce.t.*)
+ *(.rela.fini)
+ *(.rela.rodata .rela.rodata.* .rela.gnu.linkonce.r.*)
+ *(.rela.data .rela.data.* .rela.gnu.linkonce.d.*)
+ .rela.data.rel.ro
+                0x00000000100003e0        0x0 linker stubs
+ *(.rela.tdata .rela.tdata.* .rela.gnu.linkonce.td.*)
+ *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*)
+ *(.rela.ctors)
+ *(.rela.dtors)
+ *(.rela.got)
+ .rela.got      0x00000000100003e0        0x0 linker stubs
+ *(.rela.toc)
+ .rela.toc      0x00000000100003e0       0x18 linker stubs
+ *(.rela.toc1)
+ *(.rela.tocbss)
+ *(.rela.branch_lt)
+ *(.rela.sdata .rela.sdata.* .rela.gnu.linkonce.s.*)
+ *(.rela.sbss .rela.sbss.* .rela.gnu.linkonce.sb.*)
+ *(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.*)
+ *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*)
+ *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
+ .rela.bss      0x00000000100003f8        0x0 linker stubs
+                [!provide]                        PROVIDE (__rela_iplt_start = .)
+ *(.rela.iplt)
+ .rela.iplt     0x00000000100003f8        0x0 linker stubs
+                [!provide]                        PROVIDE (__rela_iplt_end = .)
+
+.rela.plt       0x00000000100003f8       0x78
+ *(.rela.plt)
+ .rela.plt      0x00000000100003f8       0x78 linker stubs
+
+.init           0x0000000010000480       0x5c
+ *(SORT_NONE(.init))
+ .init.stub     0x0000000010000480       0x20 linker stubs
+                0x0000000010000480                00000028.plt_call.__gmon_start__
+ .init          0x00000000100004a0       0x2c /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+                0x00000000100004a0                _init
+ .init          0x00000000100004cc       0x10 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+
+.text           0x00000000100004e0      0xd90
+ *(.text.unlikely .text.*_unlikely .text.unlikely.*)
+ *(.text.exit .text.exit.*)
+ *(.text.startup .text.startup.*)
+ *(.text.hot .text.hot.*)
+ *(SORT_BY_NAME(.text.sorted.*))
+ *(.text .stub .text.* .gnu.linkonce.t.*)
+ .text.stub     0x00000000100004e0       0x80 linker stubs
+                0x00000000100004e0                00000019.plt_call.__libc_start_main@@GLIBC_2.34
+                0x0000000010000500                00000019.plt_call.memcpy@@GLIBC_2.17
+                0x0000000010000520                00000019.plt_call.__strcat_chk@@GLIBC_2.17
+                0x0000000010000540                00000019.plt_call.strlen@@GLIBC_2.17
+ .text          0x0000000010000560       0x44 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+                0x0000000010000560                _start
+ .text          0x00000000100005a4        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ *fill*         0x00000000100005a4        0xc
+ .text          0x00000000100005b0      0x12c /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .text          0x00000000100006dc      0xb40 /tmp/ccNhZ8Hc.o
+                0x00000000100006dc                sum_array
+                0x0000000010000768                scale_array
+                0x00000000100007fc                find_max
+                0x00000000100008b8                reverse_chars
+                0x00000000100009ac                update_records
+                0x0000000010000af4                count_matches
+                0x0000000010000b98                compute_checksum
+                0x0000000010000c40                matrix_add
+                0x0000000010000d34                bubble_sort
+                0x0000000010000e5c                fibonacci
+                0x0000000010000f00                main
+ .text          0x000000001000121c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ .text          0x000000001000121c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+ *(.gnu.warning)
+ *(.sfpr .glink)
+ .sfpr          0x000000001000121c        0x0 linker stubs
+ *fill*         0x000000001000121c        0x4
+ .glink         0x0000000010001220       0x50 linker stubs
+                0x0000000010001228                __glink_PLTresolve
+ .glink         0x0000000010001270        0x0 linker stubs
+
+.fini           0x0000000010001270       0x24
+ *(SORT_NONE(.fini))
+ .fini          0x0000000010001270       0x14 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+                0x0000000010001270                _fini
+ .fini          0x0000000010001284       0x10 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+                [!provide]                        PROVIDE (__etext = .)
+                [!provide]                        PROVIDE (_etext = .)
+                [!provide]                        PROVIDE (etext = .)
+
+.rodata         0x0000000010001298       0xe8
+ *(.rodata .rodata.* .gnu.linkonce.r.*)
+ .rodata.cst4   0x0000000010001298        0x4 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+                0x0000000010001298                _IO_stdin_used
+ *fill*         0x000000001000129c        0x4
+ .rodata        0x00000000100012a0        0x8 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+                0x00000000100012a0                __dso_handle
+ .rodata        0x00000000100012a8       0xd8 /tmp/ccNhZ8Hc.o
+
+.rodata1
+ *(.rodata1)
+
+.sdata2
+ *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
+
+.sbss2
+ *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*)
+
+.eh_frame_hdr   0x0000000010001380       0x6c
+ *(.eh_frame_hdr)
+ .eh_frame_hdr  0x0000000010001380       0x6c /tmp/ccNhZ8Hc.o
+                0x0000000010001380                __GNU_EH_FRAME_HDR
+ *(.eh_frame_entry .eh_frame_entry.*)
+
+.eh_frame       0x00000000100013ec      0x198
+ *(.eh_frame)
+ .eh_frame      0x00000000100013ec       0x2c linker stubs
+ .eh_frame      0x0000000010001418      0x168 /tmp/ccNhZ8Hc.o
+                                        0x17c (size before relaxing)
+ .eh_frame      0x0000000010001580        0x4 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ *(.eh_frame.*)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.gnu_extab
+ *(.gnu_extab*)
+
+.exception_ranges
+ *(.exception_ranges*)
+                0x000000001001fce0                . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE))
+
+.eh_frame
+ *(.eh_frame)
+ *(.eh_frame.*)
+
+.gnu_extab
+ *(.gnu_extab)
+
+.gcc_except_table
+ *(.gcc_except_table .gcc_except_table.*)
+
+.exception_ranges
+ *(.exception_ranges*)
+
+.tdata          0x000000001001fce0        0x0
+                [!provide]                        PROVIDE (__tdata_start = .)
+ *(.tdata .tdata.* .gnu.linkonce.td.*)
+
+.tbss
+ *(.tbss .tbss.* .gnu.linkonce.tb.*)
+ *(.tcommon)
+
+.preinit_array  0x000000001001fce0        0x0
+                [!provide]                        PROVIDE (__preinit_array_start = .)
+ *(.preinit_array)
+                [!provide]                        PROVIDE (__preinit_array_end = .)
+
+.init_array     0x000000001001fce0        0x8
+                [!provide]                        PROVIDE (__init_array_start = .)
+ *(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*))
+ *(.init_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .ctors)
+ .init_array    0x000000001001fce0        0x8 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+                [!provide]                        PROVIDE (__init_array_end = .)
+
+.fini_array     0x000000001001fce8        0x8
+                [!provide]                        PROVIDE (__fini_array_start = .)
+ *(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*))
+ *(.fini_array EXCLUDE_FILE(*crtend?.o *crtend.o *crtbegin?.o *crtbegin.o) .dtors)
+ .fini_array    0x000000001001fce8        0x8 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+                [!provide]                        PROVIDE (__fini_array_end = .)
+
+.ctors
+ *crtbegin.o(.ctors)
+ *crtbegin?.o(.ctors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .ctors)
+ *(SORT_BY_NAME(.ctors.*))
+ *(.ctors)
+
+.dtors
+ *crtbegin.o(.dtors)
+ *crtbegin?.o(.dtors)
+ *(EXCLUDE_FILE(*crtend?.o *crtend.o) .dtors)
+ *(SORT_BY_NAME(.dtors.*))
+ *(.dtors)
+
+.jcr
+ *(.jcr)
+
+.data.rel.ro    0x000000001001fcf0       0x20
+ *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*)
+ .data.rel.ro.local
+                0x000000001001fcf0       0x20 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+ *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*)
+ .data.rel.ro   0x000000001001fd10        0x0 linker stubs
+
+.dynamic        0x000000001001fd10      0x1f0
+ *(.dynamic)
+ .dynamic       0x000000001001fd10      0x1f0 linker stubs
+                0x000000001001fd10                _DYNAMIC
+
+.opd
+ *(.opd)
+
+.toc1
+ *(.toc1)
+
+.branch_lt      0x000000001001ff00        0x0
+ *(.branch_lt)
+ .branch_lt     0x000000001001ff00        0x0 linker stubs
+ .branch_lt     0x000000001001ff00        0x0 linker stubs
+
+.got            0x000000001001ff00       0x28
+ *(.got .toc)
+ .got           0x000000001001ff00        0x8 linker stubs
+ .toc           0x000000001001ff08        0x8 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ .toc           0x000000001001ff10        0x8 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+ .toc           0x000000001001ff18       0x10 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+                0x0000000010020000                . = DATA_SEGMENT_RELRO_END (., 0x0)
+
+.toc
+ *(.toc)
+
+.sdata
+ *(.sdata .sdata.* .gnu.linkonce.s.*)
+
+.tocbss
+ *(.tocbss)
+
+.sbss
+ *(.dynsbss)
+ *(.sbss .sbss.* .gnu.linkonce.sb.*)
+ *(.scommon)
+
+.plt            0x0000000010020000       0x38
+ *(.plt)
+ .plt           0x0000000010020000       0x38 linker stubs
+
+.iplt           0x0000000010020038        0x0
+ *(.iplt)
+ .iplt          0x0000000010020038        0x0 linker stubs
+
+.data           0x0000000010020038        0x4
+ *(.data .data.* .gnu.linkonce.d.*)
+ .data          0x0000000010020038        0x4 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+                0x0000000010020038                data_start
+                0x0000000010020038                __data_start
+ .data          0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ .data          0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .data          0x000000001002003c        0x0 /tmp/ccNhZ8Hc.o
+ .data          0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ .data          0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+
+.tm_clone_table
+                0x0000000010020040        0x0
+ .tm_clone_table
+                0x0000000010020040        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .tm_clone_table
+                0x0000000010020040        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+
+.data1
+ *(.data1)
+                0x000000001002003c                _edata = .
+                [!provide]                        PROVIDE (edata = .)
+                0x0000000010020040                . = .
+                0x000000001002003c                __bss_start = .
+
+.bss            0x000000001002003c        0x4
+ *(.dynbss)
+ .dynbss        0x000000001002003c        0x0 linker stubs
+ *(.bss .bss.* .gnu.linkonce.b.*)
+ .bss           0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+ .bss           0x000000001002003c        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ .bss           0x000000001002003c        0x1 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .bss           0x000000001002003d        0x0 /tmp/ccNhZ8Hc.o
+ .bss           0x000000001002003d        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ .bss           0x000000001002003d        0x0 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+ *(COMMON)
+                0x0000000010020040                . = ALIGN ((. != 0x0)?0x8:0x1)
+ *fill*         0x000000001002003d        0x3
+                0x0000000010020040                . = ALIGN (0x8)
+                0x0000000010020040                . = SEGMENT_START ("ldata-segment", .)
+                0x0000000010020040                . = ALIGN (0x8)
+                0x0000000010020040                _end = .
+                [!provide]                        PROVIDE (end = .)
+                0x0000000010020040                . = DATA_SEGMENT_END (.)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+
+.stab.excl
+ *(.stab.excl)
+
+.stab.exclstr
+ *(.stab.exclstr)
+
+.stab.index
+ *(.stab.index)
+
+.stab.indexstr
+ *(.stab.indexstr)
+
+.comment        0x0000000000000000       0x2f
+ *(.comment)
+ .comment       0x0000000000000000       0x2f /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+                                         0x90 (size before relaxing)
+ .comment       0x000000000000002f       0x30 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .comment       0x000000000000002f       0x30 /tmp/ccNhZ8Hc.o
+ .comment       0x000000000000002f       0x30 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+
+.annobin.notes  0x0000000000000000      0x10c
+ .annobin.notes
+                0x0000000000000000      0x10c /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+                                        0x1ce (size before relaxing)
+
+.gnu.build.attributes
+                0x0000000010020040      0x144
+ *(.gnu.build.attributes .gnu.build.attributes.*)
+ .gnu.build.attributes
+                0x0000000010020040       0x24 /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crt1.o
+ .gnu.build.attributes
+                0x0000000010020064       0x6c /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crti.o
+ .gnu.build.attributes
+                0x00000000100200d0       0x24 /usr/lib/gcc/ppc64le-redhat-linux/11/crtbegin.o
+ .gnu.build.attributes
+                0x00000000100200f4       0x24 /usr/lib/gcc/ppc64le-redhat-linux/11/crtend.o
+ .gnu.build.attributes
+                0x0000000010020118       0x6c /usr/lib/gcc/ppc64le-redhat-linux/11/../../../../lib64/crtn.o
+
+.debug
+ *(.debug)
+
+.line
+ *(.line)
+
+.debug_srcinfo
+ *(.debug_srcinfo)
+
+.debug_sfnames
+ *(.debug_sfnames)
+
+.debug_aranges
+ *(.debug_aranges)
+
+.debug_pubnames
+ *(.debug_pubnames)
+
+.debug_info
+ *(.debug_info .gnu.linkonce.wi.*)
+
+.debug_abbrev
+ *(.debug_abbrev)
+
+.debug_line
+ *(.debug_line .debug_line.* .debug_line_end)
+
+.debug_frame
+ *(.debug_frame)
+
+.debug_str
+ *(.debug_str)
+
+.debug_loc
+ *(.debug_loc)
+
+.debug_macinfo
+ *(.debug_macinfo)
+
+.debug_weaknames
+ *(.debug_weaknames)
+
+.debug_funcnames
+ *(.debug_funcnames)
+
+.debug_typenames
+ *(.debug_typenames)
+
+.debug_varnames
+ *(.debug_varnames)
+
+.debug_pubtypes
+ *(.debug_pubtypes)
+
+.debug_ranges
+ *(.debug_ranges)
+
+.debug_addr
+ *(.debug_addr)
+
+.debug_line_str
+ *(.debug_line_str)
+
+.debug_loclists
+ *(.debug_loclists)
+
+.debug_macro
+ *(.debug_macro)
+
+.debug_names
+ *(.debug_names)
+
+.debug_rnglists
+ *(.debug_rnglists)
+
+.debug_str_offsets
+ *(.debug_str_offsets)
+
+.debug_sup
+ *(.debug_sup)
+
+.gnu.attributes
+                0x0000000000000000       0x10
+ *(.gnu.attributes)
+ .gnu.attributes
+                0x0000000000000000       0x10 /tmp/ccNhZ8Hc.o
+
+/DISCARD/
+ *(.note.GNU-stack)
+ *(.gnu_debuglink)
+ *(.gnu.lto_*)
+OUTPUT(a.out elf64-powerpcle)
+LOAD linker stubs
