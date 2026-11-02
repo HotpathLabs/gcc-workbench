@@ -25,6 +25,7 @@ import { GccGraphProvider } from './graphProvider';
 import { GCCMdLinkProvider } from './linkProvider';
 import { GccMdCache } from './mdCache';
 import { GccMdSemanticTokensProvider } from './mdSemanticTokensProvider';
+import { registerDumpLanguage } from './dumpLanguage';
 import { GccMdHoverProvider } from './mdHoverProvider';
 import { GccMdReferenceProvider } from './mdReferenceProvider';
 import { GccMdSymbolProvider } from './mdSymbolProvider';
@@ -219,6 +220,9 @@ export async function activate(context: vscode.ExtensionContext) {
   // 6. Providers
   const treeProvider = new GccPassTreeProvider();
   vscode.window.registerTreeDataProvider('gcc-dump-explorer', treeProvider);
+
+  // RTL / GIMPLE language features (outline, registers, SSA names)
+  registerDumpLanguage(context);
 
   // MD Specific
   context.subscriptions.push(vscode.languages.registerDefinitionProvider(

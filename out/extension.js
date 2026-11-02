@@ -60,6 +60,7 @@ const graphProvider_1 = require("./graphProvider");
 const linkProvider_1 = require("./linkProvider");
 const mdCache_1 = require("./mdCache");
 const mdSemanticTokensProvider_1 = require("./mdSemanticTokensProvider");
+const dumpLanguage_1 = require("./dumpLanguage");
 const mdHoverProvider_1 = require("./mdHoverProvider");
 const mdReferenceProvider_1 = require("./mdReferenceProvider");
 const mdSymbolProvider_1 = require("./mdSymbolProvider");
@@ -219,6 +220,8 @@ async function activate(context) {
     // 6. Providers
     const treeProvider = new passTreeProvider_1.GccPassTreeProvider();
     vscode.window.registerTreeDataProvider('gcc-dump-explorer', treeProvider);
+    // RTL / GIMPLE language features (outline, registers, SSA names)
+    (0, dumpLanguage_1.registerDumpLanguage)(context);
     // MD Specific
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(mdSelector, new mdSymbolProvider_1.GccMdSymbolProvider(mdCache)));
     context.subscriptions.push(vscode.languages.registerReferenceProvider(mdSelector, new mdReferenceProvider_1.GccMdReferenceProvider(mdCache)));

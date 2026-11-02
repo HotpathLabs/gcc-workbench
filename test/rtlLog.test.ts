@@ -177,3 +177,49 @@ describe('RTL grammar - rtl.def coverage', () => {
         });
     }
 });
+
+describe('RTL grammar - reg, subreg and mem flags', () => {
+    const tok = (line: string) => {
+        const r = grammar.tokenizeLine(line, vsctm.INITIAL);
+        return r.tokens.filter(t => line.slice(t.startIndex, t.endIndex).trim())
+            .map(t => [line.slice(t.startIndex, t.endIndex).trim(), t.scopes[t.scopes.length - 1].replace('.gcc.rtl', '')]);
+    };
+    const has = (line: string, text: string, scope: string) =>
+        assert.ok(tok(line).some(([t, s]) => t === text && s === scope), `${text} => ${scope} in ${JSON.stringify(tok(line))}`);
+
+    it('scopes multi-flag regs: (reg/v/f:DI 108 [ a ])', () => {
+        const l = '        (reg/v/f:DI 108 [ a ])';
+        has(l, 'reg', 'keyword.rtl-construct');
+        has(l, '/v/f', 'storage.modifier.flag');
+        has(l, ':DI', 'support.type.machine-mode');
+        has(l, '108', 'variable.parameter.register');
+        has(l, '[ a ]', 'entity.name.tag');
+    });
+    it('scopes a hard reg with its name and a flag', () => {
+        const l = '        (reg/f:DI 31 sp)';
+        has(l, '/f', 'storage.modifier.flag');
+        has(l, '31', 'variable.parameter.register');
+        has(l, 'sp', 'variable.other.register-name');
+    });
+    it('scopes a flagless reg', () => {
+        const l = '    (reg:SI 115)';
+        has(l, 'reg', 'keyword.rtl-construct');
+        has(l, '115', 'variable.parameter.register');
+    });
+    it('scopes subreg flags and mode', () => {
+        const l = '    (subreg/s/v:SI (reg/v:DI 109 [ x ]) 0)';
+        has(l, 'subreg', 'keyword.rtl-construct');
+        has(l, '/s/v', 'storage.modifier.flag');
+        has(l, ':SI', 'support.type.machine-mode');
+        has(l, '/v', 'storage.modifier.flag');
+    });
+    it('scopes mem flags and keeps mem coloured', () => {
+        const l = '    (mem/c:SI (plus:DI (reg/f:DI 29 x29) (const_int 28)) [1 i+0 S4 A32])';
+        has(l, 'mem', 'keyword.rtl-memory');
+        has(l, '/c', 'storage.modifier.flag');
+    });
+    it('scopes flags on symbol_ref and label_ref', () => {
+        has('    (symbol_ref/u:DI ("*.LC0") [flags 0x2])', '/u', 'storage.modifier.flag');
+        has('    (label_ref/v:DI 36)', '/v', 'storage.modifier.flag');
+    });
+});

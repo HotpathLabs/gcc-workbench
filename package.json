@@ -691,6 +691,13 @@
             "settings": {
               "foreground": "#7AA2F7"
             }
+          },
+          {
+            "scope": "storage.modifier.flag.gcc.rtl",
+            "settings": {
+              "foreground": "#D98CC4",
+              "fontStyle": "italic"
+            }
           }
         ]
       }

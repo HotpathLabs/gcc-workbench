@@ -29,6 +29,9 @@
           "include": "#block-info"
         },
         {
+          "include": "#rtl-forms"
+        },
+        {
           "include": "#paren-keywords"
         },
         {
@@ -101,6 +104,45 @@
               "begin": "^(?=\\((?!(?:insn|jump_insn|call_insn|debug_insn|note|code_label|barrier|jump_table_data|call_placeholder)\\b)[a-z_]+)",
               "end": "^(?=\\S)",
               "name": "comment.block.log.gcc.rtl"
+            }
+          ]
+    },
+    "rtl-forms": {
+      "comment": "reg / subreg / mem and friends, with the /flags GCC prints after the code name: (reg/v/f:DI 108 [ a ]), (subreg/s/v:SI ...), (mem/c:SI ...). Listed before paren-keywords so they win at the same '('.",
+      "patterns":
+          [
+            {
+              "match": "\\((reg)((?:/[a-z]+)*)(:[A-Z][A-Z0-9]*)?\\s+(\\d+)(?:\\s+([A-Za-z_][\\w.]*))?(\\s+\\[[^\\]]*\\])?(?=\\s*\\))",
+              "captures": {
+                "1": { "name": "keyword.rtl-construct.gcc.rtl" },
+                "2": { "name": "storage.modifier.flag.gcc.rtl" },
+                "3": { "name": "support.type.machine-mode.gcc.rtl" },
+                "4": { "name": "variable.parameter.register.gcc.rtl" },
+                "5": { "name": "variable.other.register-name.gcc.rtl" },
+                "6": { "name": "entity.name.tag.gcc.rtl" }
+              }
+            },
+            {
+              "match": "\\((subreg)((?:/[a-z]+)*)(:[A-Z][A-Z0-9]*)?(?=\\s)",
+              "captures": {
+                "1": { "name": "keyword.rtl-construct.gcc.rtl" },
+                "2": { "name": "storage.modifier.flag.gcc.rtl" },
+                "3": { "name": "support.type.machine-mode.gcc.rtl" }
+              }
+            },
+            {
+              "match": "\\((mem)((?:/[a-z]+)+)(?=[:\\s])",
+              "captures": {
+                "1": { "name": "keyword.rtl-memory.gcc.rtl" },
+                "2": { "name": "storage.modifier.flag.gcc.rtl" }
+              }
+            },
+            {
+              "match": "\\((symbol_ref|label_ref|scratch|const|const_int|const_double|const_vector|expr_list|insn_list|use|clobber|set|parallel|call|unspec|unspec_volatile)((?:/[a-z]+)+)(?=[:\\s)])",
+              "captures": {
+                "1": { "name": "keyword.rtl-construct.gcc.rtl" },
+                "2": { "name": "storage.modifier.flag.gcc.rtl" }
+              }
             }
           ]
     },
