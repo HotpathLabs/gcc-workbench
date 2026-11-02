@@ -59,6 +59,7 @@ const focusProvider_1 = require("./focusProvider");
 const graphProvider_1 = require("./graphProvider");
 const linkProvider_1 = require("./linkProvider");
 const mdCache_1 = require("./mdCache");
+const mdSemanticTokensProvider_1 = require("./mdSemanticTokensProvider");
 const mdHoverProvider_1 = require("./mdHoverProvider");
 const mdReferenceProvider_1 = require("./mdReferenceProvider");
 const mdSymbolProvider_1 = require("./mdSymbolProvider");
@@ -77,6 +78,7 @@ const codeLensProvider_1 = require("./stackUsage/codeLensProvider");
 const globalStackUsageDataProvider_1 = require("./stackUsage/globalStackUsageDataProvider");
 const currentFileStackUsageDataProvider_1 = require("./stackUsage/currentFileStackUsageDataProvider");
 const mdCache = new mdCache_1.GccMdCache();
+const mdSemantic = new mdSemanticTokensProvider_1.GccMdSemanticTokensProvider(mdCache);
 const rtlCache = new rtlCache_1.RtlDefCache();
 const gimpleCache = new gimpleCache_1.GimpleCache();
 const diffProvider = new passDiffProvider_1.GccPassDiffProvider();
@@ -179,7 +181,7 @@ async function activate(context) {
             if (!initializedBackends.has(dir)) {
                 initializedBackends.add(dir);
                 // console.log("Indexing GCC Backend on Startup: " + dir);
-                mdCache.forceReindex(doc.uri);
+                mdCache.forceReindex(doc.uri).then(() => mdSemantic.refresh());
             }
         }
         // C. Restore Focus UI
@@ -195,7 +197,7 @@ async function activate(context) {
                 if (!initializedBackends.has(dir)) {
                     initializedBackends.add(dir);
                     vscode.window.setStatusBarMessage(`Indexing GCC Backend: ${path.basename(dir)}...`, 2000);
-                    mdCache.forceReindex(editor.document.uri);
+                    mdCache.forceReindex(editor.document.uri).then(() => mdSemantic.refresh());
                 }
             }
             // Restore Focus Mode UI State
@@ -221,6 +223,7 @@ async function activate(context) {
     context.subscriptions.push(vscode.languages.registerDefinitionProvider(mdSelector, new mdSymbolProvider_1.GccMdSymbolProvider(mdCache)));
     context.subscriptions.push(vscode.languages.registerReferenceProvider(mdSelector, new mdReferenceProvider_1.GccMdReferenceProvider(mdCache)));
     context.subscriptions.push(vscode.languages.registerDocumentLinkProvider(mdSelector, new linkProvider_1.GCCMdLinkProvider()));
+    context.subscriptions.push(vscode.languages.registerDocumentSemanticTokensProvider(mdSelector, mdSemantic, mdSemantic.legend));
     // Generic (RTL + GIMPLE + MD)
     context.subscriptions.push(vscode.languages.registerHoverProvider(dumpSelector, new mdHoverProvider_1.GccMdHoverProvider(mdCache, rtlCache)));
     context.subscriptions.push(vscode.languages.registerHoverProvider(gimpleSelector, new gimpleHoverProvider_1.GimpleHoverProvider(gimpleCache)));
@@ -273,8 +276,8 @@ async function activate(context) {
     }));
     // File Watcher for MD files
     const watcher = vscode.workspace.createFileSystemWatcher('**/*.md');
-    context.subscriptions.push(watcher.onDidChange((uri) => mdCache.indexFile(uri)));
-    context.subscriptions.push(watcher.onDidCreate((uri) => mdCache.indexFile(uri)));
+    context.subscriptions.push(watcher.onDidChange((uri) => mdCache.indexFile(uri).then(() => mdSemantic.refresh())));
+    context.subscriptions.push(watcher.onDidCreate((uri) => mdCache.indexFile(uri).then(() => mdSemantic.refresh())));
     context.subscriptions.push(watcher);
 }
 function deactivate() {

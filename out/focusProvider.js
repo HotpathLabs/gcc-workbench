@@ -53,6 +53,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GccFocusProvider = void 0;
 const vscode = __importStar(require("vscode"));
+const rtlNoise_1 = require("./rtlNoise");
 class GccFocusProvider {
     noiseDecorationType = vscode.window.createTextEditorDecorationType({ opacity: '0.2' });
     activeEditors = new Set(); // Store URI strings for safety
@@ -93,15 +94,23 @@ class GccFocusProvider {
         vscode.commands.executeCommand('setContext', 'gcc-dump.focusModeActive', isActive);
     }
     applyDecoration(editor) {
-        const text = editor.document.getText();
+        const doc = editor.document;
         const noiseRanges = [];
-        // Regex: Matches notes, clobbers, barriers, uses, and ;; comments
-        const noiseRegex = /^\s*(\(note|\(clobber|\(barrier|\(use|;;).*$/gm;
-        let match;
-        while ((match = noiseRegex.exec(text))) {
-            const startPos = editor.document.positionAt(match.index);
-            const endPos = editor.document.positionAt(match.index + match[0].length);
-            noiseRanges.push(new vscode.Range(startPos, endPos));
+        if (doc.languageId === 'gcc-rtl') {
+            // Clobbers, ';;' comments and the pass logging in verbose dumps.
+            // Notes stay visible: NOTE_INSN_BASIC_BLOCK carries block structure.
+            const lines = Array.from({ length: doc.lineCount }, (_, i) => doc.lineAt(i).text);
+            for (const i of (0, rtlNoise_1.findNoiseLines)(lines))
+                noiseRanges.push(doc.lineAt(i).range);
+        }
+        else {
+            // Regex: Matches clobbers, barriers, uses, and ;; comments
+            const text = doc.getText();
+            const noiseRegex = /^\s*(\(clobber|\(barrier|\(use|;;).*$/gm;
+            let match;
+            while ((match = noiseRegex.exec(text))) {
+                noiseRanges.push(new vscode.Range(doc.positionAt(match.index), doc.positionAt(match.index + match[0].length)));
+            }
         }
         editor.setDecorations(this.noiseDecorationType, noiseRanges);
     }

@@ -244,7 +244,7 @@
               "comment":
                   "define_insn_and_split - instruction with split pattern",
               "name": "keyword.control.define.insn-split.gcc-md",
-              "match": "\\b(define_insn_and_split)\\b"
+              "match": "\\b(define_insn_and_split|define_insn_and_rewrite)\\b"
             },
             {
               "comment": "define_split - pattern splitting",
@@ -264,7 +264,7 @@
             {
               "comment": "define_constraints and define_predicate",
               "name": "keyword.control.define.constraint.gcc-md",
-              "match": "\\b(define_predicate|define_constraint|define_register_constraint|define_memory_constraint|define_address_constraint)\\b"
+              "match": "\\b(define_predicate|define_special_predicate|define_constraint|define_register_constraint|define_memory_constraint|define_special_memory_constraint|define_relaxed_memory_constraint|define_address_constraint)\\b"
             }
           ]
     },
@@ -281,13 +281,13 @@
                   "comment": "RTL operations and constructs",
                   "name": "keyword.operator.rtl.gcc-md",
                   "match":
-                      "\\b(parallel|const_int|const_string|const_double|const_vector|symbol_ref|label_ref|reg|mem|vec_select|vec_concat|concat|subreg|strict_low_part|high|lo_sum)\\b"
+                      "\\b(parallel|sequence|const_int|const_string|const_double|const_vector|const_wide_int|const_poly_int|const_fixed|symbol_ref|label_ref|reg|mem|pc|scratch|address|unspec|unspec_volatile|asm_input|asm_operands|addr_vec|addr_diff_vec|prefetch|vec_select|vec_concat|vec_merge|vec_duplicate|vec_series|concat|concatn|subreg|strict_low_part|high|lo_sum|pre_dec|pre_inc|post_dec|post_inc|pre_modify|post_modify|sign_extract|expr_list|insn_list|int_list)\\b"
                 },
                 {
                   "comment": "RTL arithmetic operations",
                   "name": "keyword.operator.arithmetic.gcc-md",
                   "match":
-                      "\\b(plus|minus|neg|mult|div|mod|udiv|umod|ss_mult|us_mult|abs|sqrt|fma|compare)\\b"
+                      "\\b(plus|minus|neg|mult|div|mod|udiv|umod|ss_mult|us_mult|ss_div|us_div|ss_plus|us_plus|ss_minus|us_minus|ss_neg|us_neg|ss_abs|ss_ashift|us_ashift|ss_truncate|us_truncate|smin|smax|umin|umax|smul_highpart|umul_highpart|copysign|bswap|bitreverse|ffs|clrsb|clz|ctz|popcount|parity|abs|sqrt|fma|compare)\\b"
                 },
                 {
                   "comment": "RTL bitwise operations",
@@ -314,10 +314,26 @@
                       "\\b(match_code|match_operand|match_scratch|match_dup|match_operator|match_op_dup|match_parallel|match_par_dup|match_test)\\b"
                 },
                 {
+                  "comment": "define_*_iterator NAME - the iterator being declared",
+                  "match": "\\b(define_(?:mode|code|int)_iterator)\\s+([A-Za-z_]\\w*)",
+                  "captures": {
+                    "1": { "name": "keyword.control.define.attribute.gcc-md" },
+                    "2": { "name": "entity.name.type.iterator.gcc-md" }
+                  }
+                },
+                {
+                  "comment": "define_*_attr NAME - the iterator attribute being declared",
+                  "match": "\\b(define_(?:mode|code|int|subst)_attr)\\s+([A-Za-z_]\\w*)",
+                  "captures": {
+                    "1": { "name": "keyword.control.define.attribute.gcc-md" },
+                    "2": { "name": "variable.other.attribute.gcc-md" }
+                  }
+                },
+                {
                   "comment": "attribute definitions",
                   "name": "keyword.control.define.attribute.gcc-md",
                   "match":
-                      "\\b(define_attr|define_asm_attributes|define_mode_iterator|define_mode_attr|define_int_iterator|define_int_attr|define_code_iterator|define_code_attr)\\b"
+                      "\\b(define_attr|define_enum_attr|define_asm_attributes|define_subst|define_subst_attr|define_mode_iterator|define_mode_attr|define_int_iterator|define_int_attr|define_code_iterator|define_code_attr)\\b"
                 },
                 {
                   "comment": "constants and enumerations",
@@ -329,7 +345,7 @@
                   "comment": "scheduling and reservation",
                   "name": "keyword.control.define.schedule.gcc-md",
                   "match":
-                      "\\b(define_insn_reservation|define_automaton|define_cpu_unit|define_query_cpu_unit|define_bypass|define_function_unit)\\b"
+                      "\\b(define_insn_reservation|define_reservation|define_automaton|automata_option|define_cpu_unit|define_query_cpu_unit|define_bypass|define_function_unit|exclusion_set|presence_set|final_presence_set|absence_set|final_absence_set)\\b"
                 }
               ]
         },
@@ -341,13 +357,18 @@
                   "comment": "control flow and conditionals",
                   "name": "keyword.control.gcc-md",
                   "match":
-                      "\\b(if_then_else|cond|return|call|eq_attr|attr_flag|include)\\b"
+                      "\\b(if_then_else|cond|cond_exec|return|simple_return|eh_return|call|eq_attr|eq_attr_alt|set_attr_alternative|attr_flag|include|trap_if)\\b"
+                },
+                {
+                  "comment": "(attr \"name\") - read an insn attribute",
+                  "name": "keyword.control.gcc-md",
+                  "match": "(?<=\\()attr\\b(?=\\s*\")"
                 },
                 {
                   "comment": "type and mode modifiers",
                   "name": "storage.type.mode.gcc-md",
                   "match":
-                      "\\b(float_extend|float_truncate|sign_extend|zero_extend|truncate|float|fix|unsigned_float|unsigned_fix|zero_extract)\\b"
+                      "\\b(float_extend|float_truncate|sign_extend|zero_extend|truncate|float|fix|unsigned_float|unsigned_fix|zero_extract|fract_convert|unsigned_fract_convert|sat_fract|unsigned_sat_fract)\\b"
                 },
                 {
                   "comment": "predicate functions",

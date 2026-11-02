@@ -55,11 +55,21 @@ function formatComment(rawLines) {
 // ----------------------------------------------------------------------------
 function extractDoc(lines, currentIndex, isDefFn, normalizeKeyFn) {
     // 1. Look Backwards
+    // A single blank line may separate a doc comment from its definition
+    // (e.g. define_c_enum). Once a blank has been crossed only a comment may
+    // follow: another definition or code there means the doc is not ours.
+    let crossedBlank = false;
     for (let j = currentIndex - 1; j >= 0; j--) {
         const prevLine = lines[j].trim();
 
-        if (prevLine === '') break; // Empty line breaks the chain
+        if (prevLine === '') {
+            if (crossedBlank) break; // Two blanks: nothing is attached
+            crossedBlank = true;
+            continue;
+        }
         if (prevLine.startsWith('#')) continue; // Ignore preprocessor
+
+        if (crossedBlank && !prevLine.endsWith('*/')) break;
 
         // CASE A: Inheritance (Shared Documentation)
         if (isDefFn(prevLine)) {

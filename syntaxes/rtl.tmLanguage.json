@@ -8,6 +8,9 @@
   "patterns":
       [
         {
+          "include": "#log"
+        },
+        {
           "include": "#comments"
         },
         {
@@ -27,6 +30,9 @@
         },
         {
           "include": "#paren-keywords"
+        },
+        {
+          "include": "#memory"
         },
         {
           "include": "#registers"
@@ -66,6 +72,52 @@
         }
       ],
   "repository": {
+    "log": {
+      "comment": "Pass diagnostics in verbose dumps (combine, ira, ...). Scoped as comments so they share the comment colour and Focus mode can fade them.",
+      "patterns":
+          [
+            {
+              "comment": "Free text at column 0: 'Trying 3 -> 11:', 'Failed to match this instruction:', 'scanning new insn ...'",
+              "match": "^(?![;(\\s]).+$",
+              "name": "comment.line.log.gcc.rtl"
+            },
+            {
+              "comment": "Basic-block edge summary: ( )->[0]->( 2 )",
+              "match": "^\\(\\s*(?:\\d+\\s*)*\\)->.*$",
+              "name": "comment.line.log.gcc.rtl"
+            },
+            {
+              "comment": "Compact insn listing inside a log block:    12: r1:SI=r2:SI",
+              "match": "^\\s+\\d+:\\s.*$",
+              "name": "comment.line.log.gcc.rtl"
+            },
+            {
+              "comment": "Indented log text and compact notes: '  Adding insn 12 to worklist', '      REG_DEAD r1:SI'. Real RTL continuation lines start with ( ] - or a quote, never a letter.",
+              "match": "^\\s+[A-Za-z_].*$",
+              "name": "comment.line.log.gcc.rtl"
+            },
+            {
+              "comment": "Candidate RTL printed by a pass: a column-0 form that is not a real insn. Runs until the next column-0 line.",
+              "begin": "^(?=\\((?!(?:insn|jump_insn|call_insn|debug_insn|note|code_label|barrier|jump_table_data|call_placeholder)\\b)[a-z_]+)",
+              "end": "^(?=\\S)",
+              "name": "comment.block.log.gcc.rtl"
+            }
+          ]
+    },
+    "memory": {
+      "comment": "Memory references: the MEM[...] expression and the size/alignment in a mem's attribute bracket, e.g. [1 MEM[(const int *)_5]+0 S4 A32]",
+      "patterns":
+          [
+            {
+              "match": "\\bMEM\\b(?=\\s*[\\[<])",
+              "name": "keyword.rtl-memory.gcc.rtl"
+            },
+            {
+              "match": "(?<=[\\s+\\]\\d])\\b[SA]\\d+\\b(?=[\\s\\]])",
+              "name": "constant.other.memory-attr.gcc.rtl"
+            }
+          ]
+    },
     "comments": {
       "patterns":
           [
@@ -90,43 +142,50 @@
           ]
     },
     "instructions": {
+      "comment": "Top-level insns. GCC appends flags after the name: insn/f (frame related), call_insn/i (inline), jump_insn/j, insn/s, insn/v, insn/c, insn/u.",
       "patterns":
           [
             {
               "match":
-                  "\\((insn|jump_insn|call_insn|debug_insn)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
+                  "\\((insn|jump_insn|call_insn|debug_insn)(/[a-z]+)?\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
               "captures": {
                 "1": {
                   "name": "keyword.control.instruction.gcc.rtl"
                 },
                 "2": {
-                  "name": "constant.numeric.uid.gcc.rtl"
+                  "name": "storage.modifier.flag.gcc.rtl"
                 },
                 "3": {
-                  "name": "constant.numeric.prev.gcc.rtl"
+                  "name": "constant.numeric.uid.gcc.rtl"
                 },
                 "4": {
+                  "name": "constant.numeric.prev.gcc.rtl"
+                },
+                "5": {
                   "name": "constant.numeric.next.gcc.rtl"
                 }
               }
             },
             {
               "match":
-                  "\\((note|barrier|code_label)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
+                  "\\((note|barrier|code_label|jump_table_data)(/[a-z]+)?\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
               "captures": {
                 "1": {
                   "name": "keyword.control.instruction.gcc.rtl"
                 },
                 "2": {
-                  "name": "constant.numeric.uid.gcc.rtl"
+                  "name": "storage.modifier.flag.gcc.rtl"
                 },
                 "3": {
-                  "name": "constant.numeric.prev.gcc.rtl"
+                  "name": "constant.numeric.uid.gcc.rtl"
                 },
                 "4": {
-                  "name": "constant.numeric.next.gcc.rtl"
+                  "name": "constant.numeric.prev.gcc.rtl"
                 },
                 "5": {
+                  "name": "constant.numeric.next.gcc.rtl"
+                },
+                "6": {
                   "name": "constant.numeric.block.gcc.rtl"
                 }
               }
@@ -230,7 +289,7 @@
               "captures":
                   {
                     "1": {
-                      "name": "keyword.rtl-construct.gcc.rtl"
+                      "name": "keyword.rtl-memory.gcc.rtl"
                     }
                   }
             },
@@ -378,7 +437,7 @@
     },
     "rtl-operators": {
       "match":
-          "(^|[\\s\\(])(plus|minus|neg|mult|div|mod|udiv|umod|and|ior|xor|not|ashift|lshiftrt|ashiftrt|rotate|rotatert|smin|smax|umin|umax|sign_extend|zero_extend|truncate|float|fix|float_extend|float_truncate|saturate|saturating_truncate|fract_convert|sat_fract|unsigned_sat_fract|abs|sqrt|bswap|popcount|parity|clz|ctz|clrsb|ffs|fma|compare|strict_low_part|if_then_else)\\b",
+          "(^|[\\s\\(])(plus|minus|neg|mult|div|mod|udiv|umod|and|ior|xor|not|ashift|lshiftrt|ashiftrt|rotate|rotatert|smin|smax|umin|umax|sign_extend|zero_extend|truncate|float|fix|float_extend|float_truncate|saturate|saturating_truncate|fract_convert|sat_fract|unsigned_sat_fract|abs|sqrt|bswap|bitreverse|popcount|parity|clz|ctz|clrsb|ffs|fma|copysign|compare|strict_low_part|if_then_else|ss_plus|us_plus|ss_minus|us_minus|ss_neg|us_neg|ss_abs|ss_ashift|us_ashift|ss_truncate|us_truncate|ss_mult|us_mult|ss_div|us_div|smul_highpart|umul_highpart|unsigned_float|unsigned_fix|unsigned_fract_convert)\\b",
       "captures": {
         "2": {
           "name": "keyword.operator.arithmetic.gcc.rtl"
@@ -387,7 +446,7 @@
     },
     "rtl-keywords": {
       "match":
-          "(^|[\\s\\(])(set|use|clobber|parallel|insn_list|sequence|const|const_int|const_double|const_vector|symbol_ref|label_ref|mem|reg|subreg|scratch|cc0|call|return|simple_return|eh_return|trap_if|asm_input|asm_operands|asm_output|unspec|unspec_volatile|addr_vec|addr_diff_vec|prefetch|attr|conditional|ordered|unordered|uneq|unge|ungt|unle|unlt|ltgt|eq|ne|gt|gtu|lt|ltu|ge|geu|le|leu|high|lo_sum|vec_merge|vec_select|vec_concat|vec_duplicate|vec_series|ss_plus|us_plus|ss_minus|ss_neg|us_neg|ss_abs|ss_ashift|us_ashift|us_minus|ss_truncate|us_truncate|cond|block|exact_div|widen_sum|widen_mult|dot_prod)\\b",
+          "(^|[\\s\\(])(set|use|clobber|parallel|insn_list|sequence|const|const_int|const_double|const_vector|symbol_ref|label_ref|mem|reg|subreg|scratch|cc0|call|return|simple_return|eh_return|trap_if|asm_input|asm_operands|asm_output|unspec|unspec_volatile|addr_vec|addr_diff_vec|prefetch|attr|conditional|ordered|unordered|uneq|unge|ungt|unle|unlt|ltgt|eq|ne|gt|gtu|lt|ltu|ge|geu|le|leu|high|lo_sum|vec_merge|vec_select|vec_concat|vec_duplicate|vec_series|ss_plus|us_plus|ss_minus|ss_neg|us_neg|ss_abs|ss_ashift|us_ashift|us_minus|ss_truncate|us_truncate|cond|block|exact_div|widen_sum|widen_mult|dot_prod|value|debug_expr|address|cond_exec|const_wide_int|const_poly_int|const_fixed|const_string|pc|concat|concatn|pre_dec|pre_inc|post_dec|post_inc|pre_modify|post_modify|sign_extract|zero_extract|var_location|debug_implicit_ptr|entry_value|debug_parameter_ref|debug_marker)\\b",
       "captures": {
         "2": {
           "name": "keyword.other.gcc.rtl"
