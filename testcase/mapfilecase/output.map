@@ -1,0 +1,41 @@
+# Path: my_program
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /var/folders/wf/nd6x938j3rqg3k88mhv987y40000gn/T//ccch6bKZ.o
+[  2] /var/folders/wf/nd6x938j3rqg3k88mhv987y40000gn/T//ccYupCUV.o
+[  3] /var/folders/wf/nd6x938j3rqg3k88mhv987y40000gn/T//cchRZ0L9.o
+[  4] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/libSystem.tbd
+[  5] /Library/Developer/CommandLineTools/SDKs/MacOSX26.sdk/usr/lib/system/libsystem_c.tbd
+# Sections:
+# Address	Size    	Segment	Section
+0x1000006A0	0x00000098	__TEXT	__text
+0x100000740	0x00000054	__TEXT	__text_startup
+0x100000794	0x0000000C	__TEXT	__stubs
+0x1000007A0	0x00000050	__TEXT	__cstring
+0x1000007F0	0x00000030	__TEXT	__const
+0x100000820	0x00000108	__TEXT	__eh_frame
+0x100004000	0x00000008	__DATA_CONST	__got
+0x100008000	0x00000004	__DATA	__data
+# Symbols:
+# Address	Size    	File  Name
+0x100000000	0x00000000	[  0] __mh_execute_header
+0x1000006A0	0x00000048	[  2] _foo
+0x100000700	0x00000038	[  3] _bar
+0x100000740	0x00000054	[  1] _main
+0x100000794	0x0000000C	[  5] _printf.stub
+0x1000007A0	0x00000012	[  1] literal string: main_static = %d\n
+0x1000007B4	0x00000001	[  1] literal string: 
+0x1000007B8	0x00000015	[  1] literal string: global_counter = %d\n
+0x1000007D0	0x0000000E	[  2] literal string: foo(): %d %s\n
+0x1000007E0	0x00000010	[  3] literal string: bar(): %d %.5f\n
+0x1000007F0	0x00000025	[  2] _foo_message
+0x100000818	0x00000008	[  3] 8-byte-literal
+0x100000820	0x00000018	[  1] CFI
+0x100000838	0x00000040	[  1] FDE for: _main
+0x100000878	0x00000018	[  2] CFI
+0x100000890	0x00000040	[  2] FDE for: _foo
+0x1000008D0	0x00000018	[  3] CFI
+0x1000008E8	0x00000040	[  3] FDE for: _bar
+0x100004000	0x00000008	[  5] _printf.got
+0x100008000	0x00000004	[  2] _global_counter

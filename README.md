@@ -8,7 +8,7 @@
 
 This repository contains **GCC Workbench**, a Visual Studio Code / VSCodium extension designed to make life easier for GCC compiler engineers.
 
-It goes beyond simple syntax highlighting for **GCC internals** by adding navigation, visualization, and noise-filtering tools specifically tailored for GCC's internal dump files (`.rtl`, `.gimple`, `.md`).
+It goes beyond simple syntax highlighting for **GCC internals** by adding navigation, visualization, and noise-filtering tools specifically tailored for GCC's internal dump files (`.rtl`, `.gimple`, `.md`), plus **linker memory map visualization** for embedded development.
 
 
 ## What is this useful for?
@@ -18,6 +18,47 @@ GCC produces hundreds of dump files during compilation. Navigating them manually
 ---
 
 ## Key Features
+
+### 📊 Stack Usage Analysis (NEW!)
+Analyze function stack usage directly in your editor with GCC's `-fstack-usage` output!
+
+**Features:**
+* **Toggle button** in editor toolbar (pulse icon) - click to enable/disable stack usage analysis
+* **Disabled by default** - only activates when you need it
+* **File-specific loading** - automatically loads the `.su` file for the currently active C/C++ file
+* **Auto-refresh on tab switch** - seamlessly updates when switching between files
+* **Two tree views** in GCC Explorer:
+  * **GCC Stack Usage** - Shows all functions sorted by stack usage (dynamic/static categories)
+  * **Current File Stack Usage** - Shows functions in the active file only
+* **Code lens annotations** - Inline stack usage information above each function
+* **Smart file detection** - For `testcase.c`, automatically looks for `a-testcase.su` or `testcase.su`
+
+**Usage:**
+1. Compile your code with `-fstack-usage` flag: `gcc -fstack-usage -o program program.c`
+2. Open a C/C++ file in VS Code
+3. Click the pulse icon (⚡) in the editor title bar to enable stack usage analysis
+4. View stack usage in the GCC Explorer sidebar and as code lenses
+5. Switch between files - data automatically updates for each file
+
+**File Naming Convention:**
+The extension looks for `.su` files matching your source file:
+- For `myfile.c` → looks for `a-myfile.su` or `myfile.su`
+- For `test.cpp` → looks for `a-test.su` or `test.su`
+
+### 🗺️ Memory Map Visualization
+Visualize GCC linker map files (`.map`) and linker scripts (`.ld`) with an interactive graphical memory map — perfect for embedded systems development across **ALL architectures**!
+
+**Features:**
+* **Toggle button** in editor toolbar - click to open/close memory map panel
+* **Color-coded memory regions** showing proportional section sizes at a glance
+* **Interactive drill-down** - click any section to view all symbols with their addresses and sizes
+* **Symbol search** with instant navigation to definitions in your source code
+* **Statistics panel** showing flash/RAM usage, top 10 largest symbols, and discarded sections
+* **Editor decorations** - color-coded section highlighting in `.map` files
+* **Find in Memory Map** - right-click any symbol in your source code to locate it in the memory map
+
+**Universal Architecture Support:**
+Works with ANY GCC-based toolchain - ARM (Cortex-M, Cortex-A), AVR, ESP32, STM32, RISC-V, PowerPC, MIPS, AArch64, x86, x86_64, and more! If GCC can compile for it, we can visualize its memory map.
 
 ### Source <-> RTL Mapping
 
@@ -46,24 +87,33 @@ Move through the compilation pipeline without leaving the editor.
 * **Next/Prev Pass:** Click the arrow icons in the editor title bar (or use `Ctrl+Alt+]` / `Ctrl+Alt+[`) to jump to the immediate next or previous pass file.
 * **Context Aware:** Automatically detects if you are in a GIMPLE or RTL file and finds the correct successor.
 
-### 3. Pass Diff
+### 3. Stack Usage Commands
+* **Toggle Stack Usage Analysis:** Enable/disable stack usage analysis (pulse icon in editor toolbar)
+* **Reload Stack Usage Files:** Manually refresh the current file's stack usage data
+
+### 4. Memory Map Commands
+* **Show Memory Map:** Open the graphical memory map visualization
+* **Refresh Memory Map:** Re-parse the current `.map` or `.ld` file
+* **Find in Memory Map:** Right-click any symbol in source code to locate it in the memory map
+
+### 5. Pass Diff
 * **Compare with Previous:** One-click button to open a diff view against the previous pass.
 * Instantly visualize exactly what optimizations were performed by a specific pass.
 
 ![Diff View](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/Diff-view.png)
 
-### 4. Focus Mode (Noise Filter)
+### 6. Focus Mode (Noise Filter)
 RTL and GIMPLE dumps are often 50% metadata.
 * **Toggle Noise:** Click the **Eye Icon** to hide `comment` lines, basic block headers.
 * Helps you focus purely on the instruction logic and data flow.
 
-### 5. Control Flow Visualization
+### 7. Control Flow Visualization
 * **Open Graph:** One-click button to render the current dump as a Control Flow Graph (CFG) using Graphviz.
 * *Note: Requires a generic Graphviz/DOT extension to be installed for the final rendering.*
 
 ![CFG Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/cfg.png)
 
-### 6. Intelligent MDL/RTL Editing
+### 8. Intelligent MDL/RTL Editing
 * **Go to Definition:** Jump from iterator usages or attribute names in `.md` files directly to their definitions.
 * **Hovers:** Hover over standard RTL codes (like `define_insn`, `parallel`, `set`) to view their official documentation (parsed directly from `rtl.def`).
 

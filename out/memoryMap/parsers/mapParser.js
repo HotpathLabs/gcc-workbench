@@ -1,0 +1,250 @@
+"use strict";
+/*
+ * Copyright (C) 2025 Kishan Parmar
+ * Adapted from gcc_map_view by Rob Derr
+ *
+ * This file is part of GCC Workbench.
+ *
+ * GCC Workbench is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.isGccMapFile = isGccMapFile;
+exports.parseMap = parseMap;
+function isGccMapFile(text) {
+    // Check for the header anywhere in the file — ESP-IDF maps can have
+    // tens of thousands of preamble lines before "Memory Configuration".
+    return /^Memory Configuration/im.test(text);
+}
+function parseMap(text) {
+    const regions = [];
+    const sections = [];
+    let discardedSize = 0;
+    let discardedCount = 0;
+    let state = 0 /* State.SCANNING */;
+    let currentSection;
+    let pendingSymbolName;
+    let pendingSymbolLine = 0;
+    const lines = text.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        switch (state) {
+            case 0 /* State.SCANNING */: {
+                if (/^Memory Configuration\s*$/.test(trimmed)) {
+                    state = 1 /* State.MEMORY_CONFIG_HEADER */;
+                }
+                else if (/^Discarded input sections\s*$/i.test(trimmed)) {
+                    state = 3 /* State.DISCARDED_SECTIONS */;
+                }
+                else if (/^Linker script and memory map\s*$/i.test(trimmed)) {
+                    state = 4 /* State.LINKER_MAP_SECTIONS */;
+                }
+                break;
+            }
+            case 1 /* State.MEMORY_CONFIG_HEADER */: {
+                // Skip the "Name  Origin  Length  Attributes" header line
+                if (/^Name\s+Origin\s+Length/.test(trimmed)) {
+                    state = 2 /* State.MEMORY_CONFIG */;
+                }
+                break;
+            }
+            case 2 /* State.MEMORY_CONFIG */: {
+                if (!trimmed) {
+                    // Empty line marks end of memory config
+                    state = 0 /* State.SCANNING */;
+                    break;
+                }
+                if (/^Linker script and memory map/i.test(trimmed)) {
+                    state = 4 /* State.LINKER_MAP_SECTIONS */;
+                    break;
+                }
+                // Parse: NAME  0xADDRESS  0xLENGTH  attrs
+                const memMatch = trimmed.match(/^(\S+)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)\s*(.*)?$/);
+                if (memMatch) {
+                    const name = memMatch[1];
+                    if (name === '*default*') {
+                        break;
+                    }
+                    regions.push({
+                        name,
+                        origin: parseInt(memMatch[2], 16),
+                        length: parseInt(memMatch[3], 16),
+                        attributes: memMatch[4]?.trim() ?? '',
+                        sections: [],
+                        used: 0,
+                    });
+                }
+                break;
+            }
+            case 3 /* State.DISCARDED_SECTIONS */: {
+                if (/^Memory Configuration\s*$/.test(trimmed)) {
+                    state = 1 /* State.MEMORY_CONFIG_HEADER */;
+                    break;
+                }
+                if (/^Linker script and memory map\s*$/i.test(trimmed)) {
+                    state = 4 /* State.LINKER_MAP_SECTIONS */;
+                    break;
+                }
+                // Parse discarded section lines: " .text  0x00000000  0x1a  file.o"
+                const discardMatch = trimmed.match(/^\S+\s+0x[0-9a-fA-F]+\s+(0x[0-9a-fA-F]+)/);
+                if (discardMatch) {
+                    discardedSize += parseInt(discardMatch[1], 16);
+                    discardedCount++;
+                }
+                break;
+            }
+            case 4 /* State.LINKER_MAP_SECTIONS */: {
+                if (/^Discarded input sections\s*$/i.test(trimmed)) {
+                    // Close last section's line range
+                    if (currentSection && currentSection.sourceLine !== undefined && currentSection.sourceLineEnd === undefined) {
+                        currentSection.sourceLineEnd = i - 1;
+                    }
+                    currentSection = undefined;
+                    state = 3 /* State.DISCARDED_SECTIONS */;
+                    break;
+                }
+                if (/^Cross Reference Table/i.test(trimmed)) {
+                    // Close last section's line range
+                    if (currentSection && currentSection.sourceLine !== undefined && currentSection.sourceLineEnd === undefined) {
+                        currentSection.sourceLineEnd = i - 1;
+                    }
+                    state = 0 /* State.SCANNING */;
+                    break;
+                }
+                // Output section header: starts at column 0 with .name
+                // Format: ".text           0x00000000    0x1234"
+                // Sometimes section name is on its own line, address+size on next
+                const outputSectionMatch = line.match(/^(\.[a-zA-Z_][\w.]*)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)/);
+                if (outputSectionMatch) {
+                    // Close previous section's line range
+                    if (currentSection && currentSection.sourceLine !== undefined) {
+                        currentSection.sourceLineEnd = i - 1;
+                    }
+                    currentSection = {
+                        name: outputSectionMatch[1],
+                        address: parseInt(outputSectionMatch[2], 16),
+                        size: parseInt(outputSectionMatch[3], 16),
+                        symbols: [],
+                        sourceLine: i,
+                    };
+                    sections.push(currentSection);
+                    pendingSymbolName = undefined;
+                    break;
+                }
+                // Section name alone on a line (long name wraps)
+                const sectionNameOnly = line.match(/^(\.[a-zA-Z_][\w.]*)\s*$/);
+                if (sectionNameOnly) {
+                    // Peek at next line for address+size
+                    if (i + 1 < lines.length) {
+                        const nextLine = lines[i + 1];
+                        const addrSize = nextLine.match(/^\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)/);
+                        if (addrSize) {
+                            // Close previous section's line range
+                            if (currentSection && currentSection.sourceLine !== undefined) {
+                                currentSection.sourceLineEnd = i - 1;
+                            }
+                            currentSection = {
+                                name: sectionNameOnly[1],
+                                address: parseInt(addrSize[1], 16),
+                                size: parseInt(addrSize[2], 16),
+                                symbols: [],
+                                sourceLine: i,
+                            };
+                            sections.push(currentSection);
+                            pendingSymbolName = undefined;
+                            i++; // skip the next line
+                        }
+                    }
+                    break;
+                }
+                // Input section or symbol line (indented)
+                // Format: " .text.func    0x00000100    0x20  file.o"
+                if (currentSection && /^\s/.test(line)) {
+                    // Symbol with address + size + source
+                    const symbolMatch = trimmed.match(/^(\S+)\s+(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)\s+(.+)?$/);
+                    if (symbolMatch) {
+                        const symName = symbolMatch[1];
+                        const addr = parseInt(symbolMatch[2], 16);
+                        const size = parseInt(symbolMatch[3], 16);
+                        const sourceFile = symbolMatch[4]?.trim();
+                        // Skip fill entries
+                        if (/^\*fill\*$/.test(symName)) {
+                            break;
+                        }
+                        currentSection.symbols.push({
+                            name: symName,
+                            address: addr,
+                            size,
+                            section: currentSection.name,
+                            sourceFile,
+                            sourceLine: i,
+                        });
+                        pendingSymbolName = undefined;
+                        break;
+                    }
+                    // Symbol name on its own line (long name wraps)
+                    const nameOnly = trimmed.match(/^(\S+)\s*$/);
+                    if (nameOnly && !nameOnly[1].startsWith('0x')) {
+                        pendingSymbolName = nameOnly[1];
+                        pendingSymbolLine = i;
+                        break;
+                    }
+                    // Address + size continuation of a wrapped symbol name
+                    if (pendingSymbolName) {
+                        const contMatch = trimmed.match(/^(0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+)\s*(.*)?$/);
+                        if (contMatch) {
+                            currentSection.symbols.push({
+                                name: pendingSymbolName,
+                                address: parseInt(contMatch[1], 16),
+                                size: parseInt(contMatch[2], 16),
+                                section: currentSection.name,
+                                sourceFile: contMatch[3]?.trim() || undefined,
+                                sourceLine: pendingSymbolLine,
+                            });
+                            pendingSymbolName = undefined;
+                            break;
+                        }
+                    }
+                    // Standalone symbol definition: " 0xADDRESS  symbolname"
+                    const standaloneSym = trimmed.match(/^(0x[0-9a-fA-F]+)\s+(\S+)\s*$/);
+                    if (standaloneSym) {
+                        currentSection.symbols.push({
+                            name: standaloneSym[2],
+                            address: parseInt(standaloneSym[1], 16),
+                            size: 0,
+                            section: currentSection.name,
+                            sourceLine: i,
+                        });
+                        pendingSymbolName = undefined;
+                    }
+                }
+                break;
+            }
+        }
+    }
+    // Close last section if still open
+    if (currentSection && currentSection.sourceLine !== undefined && currentSection.sourceLineEnd === undefined) {
+        currentSection.sourceLineEnd = lines.length - 1;
+    }
+    // Assign sections to regions by address range
+    for (const section of sections) {
+        if (section.size === 0) {
+            continue;
+        }
+        for (const region of regions) {
+            const regionEnd = region.origin + region.length;
+            if (section.address >= region.origin && section.address < regionEnd) {
+                section.region = region.name;
+                region.sections.push(section);
+                region.used += section.size;
+                break;
+            }
+        }
+    }
+    return { regions, sections, discardedSize, discardedCount };
+}
+// Made with Bob
+//# sourceMappingURL=mapParser.js.map

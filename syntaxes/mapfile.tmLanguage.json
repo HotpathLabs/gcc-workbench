@@ -1,0 +1,412 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Linker Map File",
+	"scopeName": "source.mapfile",
+	"patterns": [
+		{"include": "#comments"},
+		{"include": "#section-headers"},
+		{"include": "#memory-configuration"},
+		{"include": "#common-symbols-table"},
+		{"include": "#load-commands"},
+		{"include": "#output-section"},
+		{"include": "#discard-definition"},
+		{"include": "#input-section-wildcard"},
+		{"include": "#standalone-section-name"},
+		{"include": "#input-section"},
+		{"include": "#symbol-definition"},
+		{"include": "#expression-lines"},
+		{"include": "#fill-pattern"},
+		{"include": "#gnu-map-oddities"},
+		{"include": "#cross-reference"},
+		{"include": "#linker-script-commands"},
+		{"include": "#linker-keywords"},
+		{"include": "#operators"},
+		{"include": "#addresses"},
+		{"include": "#sizes"},
+		{"include": "#paths"},
+		{"include": "#strings"}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"match": "^\\s*#.*$",
+					"name": "comment.line.number-sign"
+				},
+				{
+					"match": "^\\s*;.*$",
+					"name": "comment.line.semicolon"
+				},
+				{
+					"begin": "/\\*",
+					"end": "\\*/",
+					"name": "comment.block"
+				}
+			]
+		},
+		"section-headers": {
+			"patterns": [
+				{
+					"match": "^(Memory Configuration|Linker script and memory map|Discarded input sections|Archive member included to satisfy reference by file \\(symbol\\)|Allocating common symbols|Cross Reference Table)$",
+					"name": "markup.heading"
+				},
+				{
+					"match": "^(VMA|Address)\\s+(LMA|Size)\\s+(Size|Align)\\s+(Align|Out).*$",
+					"name": "markup.underline"
+				},
+				{
+					"match": "^Symbol\\s+File\\s*$",
+					"name": "markup.underline"
+				}
+			]
+		},
+		"memory-configuration": {
+			"begin": "^Name\\s+Origin\\s+Length\\s+Attributes\\s*$",
+			"end": "^\\s*$",
+			"beginCaptures": {
+				"0": {"name": "markup.underline"}
+			},
+			"patterns": [
+				{
+					"match": "^(\\*default\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([rwxali!RWXALI]+))?",
+					"captures": {
+						"1": {"name": "constant.language"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"},
+						"4": {"name": "storage.modifier"}
+					}
+				},
+				{
+					"match": "^([A-Za-z_]\\w*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+([rwxali!RWXALI]+))?",
+					"captures": {
+						"1": {"name": "entity.name.type"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"},
+						"4": {"name": "storage.modifier"}
+					}
+				}
+			]
+		},
+		"common-symbols-table": {
+			"match": "^Common\\s+symbol\\s+size\\s+file\\s*$",
+			"name": "markup.underline"
+		},
+		"load-commands": {
+			"patterns": [
+				{
+					"match": "^(LOAD|OUTPUT)\\s+(.+)$",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"name": "string.unquoted"}
+					}
+				},
+				{
+					"match": "^(START GROUP|END GROUP)$",
+					"name": "keyword.control"
+				}
+			]
+		},
+		"output-section": {
+			"match": "^(\\.[a-zA-Z_][\\w.]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)(?:\\s+load address\\s+(0x[0-9a-fA-F]+))?",
+			"captures": {
+				"1": {"name": "entity.name.type"},
+				"2": {"name": "constant.numeric"},
+				"3": {"name": "constant.numeric"},
+				"4": {"name": "constant.numeric"}
+			}
+		},
+		"discard-definition": {
+			"match": "^(\\/DISCARD\\/)\\s*(:)\\s*(\\{).*(\\})\\s*$",
+			"captures": {
+				"1": {"name": "entity.name.type"},
+				"2": {"name": "punctuation.separator.key-value"},
+				"3": {"name": "punctuation.section.block.begin"},
+				"4": {"name": "punctuation.section.block.end"}
+			}
+		},
+		"input-section-wildcard": {
+			"match": "^(\\s*)(\\*)(\\s*)(\\()([^\\)]+)(\\))\\s*$",
+			"captures": {
+				"2": {"name": "keyword.operator"},
+				"4": {"name": "punctuation.section.parens.begin"},
+				"5": {"name": "entity.name.type"},
+				"6": {"name": "punctuation.section.parens.end"}
+			}
+		},
+		"standalone-section-name": {
+			"match": "^\\s+(\\.[A-Za-z_][\\w.]*)\\s*$",
+			"captures": {
+				"1": {"name": "entity.name.type"}
+			}
+		},
+		"input-section": {
+			"match": "^\\s+(\\.[a-zA-Z_][\\w.]*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(.+?)(?:\\s*\\(([^)]+)\\))?\\s*$",
+			"captures": {
+				"1": {"name": "entity.name.type"},
+				"2": {"name": "constant.numeric"},
+				"3": {"name": "constant.numeric"},
+				"4": {"name": "entity.name.filename"},
+				"5": {"name": "entity.name.filename"}
+			}
+		},
+		"fill-pattern": {
+			"match": "^\\s*(\\*fill\\*)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
+			"captures": {
+				"1": {"name": "keyword.other"},
+				"2": {"name": "constant.numeric"},
+				"3": {"name": "constant.numeric"}
+			}
+		},
+		"gnu-map-oddities": {
+			"patterns": [
+				{
+					"match": "\\(size before relaxing\\)|\\[!provide\\]|linker stubs|LOAD linker stubs",
+					"name": "constant.language"
+				},
+				{
+					"match": "\\(--[^)]*\\)",
+					"name": "constant.language"
+				},
+				{
+					"match": "\\([-\\w.]+\\.(obj|o|a)\\)",
+					"name": "entity.name.filename"
+				}
+			]
+		},
+		"symbol-definition": {
+			"patterns": [
+				{
+					"comment": "Weak symbols with [weak] marker",
+					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+.*?(\\[weak\\])",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"},
+						"4": {"name": "storage.modifier"}
+					}
+				},
+				{
+					"comment": "Hidden symbols with [hidden] marker",
+					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+.*?(\\[hidden\\])",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"},
+						"4": {"name": "storage.modifier"}
+					}
+				},
+				{
+					"comment": "Generated symbols (linker-created)",
+					"match": "^\\s+(__|_etext|_edata|_end|__bss_start|__bss_end|__data_start|__data_end|_stack|_heap|__init_array_start|__init_array_end|__fini_array_start|__fini_array_end|__preinit_array_start|__preinit_array_end|_GLOBAL_OFFSET_TABLE_|_DYNAMIC|__executable_start|__ehdr_start|__rela_iplt_start|__rela_iplt_end)\\b",
+					"captures": {
+						"1": {"name": "support.variable"}
+					}
+				},
+				{
+					"comment": "C++ mangled symbols",
+					"match": "^\\s+(_Z[\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"}
+					}
+				},
+				{
+					"comment": "Rust mangled symbols",
+					"match": "^\\s+(_R[\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"}
+					}
+				},
+				{
+					"comment": "Regular symbol with size and source file",
+					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s+(.+)$",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"},
+						"4": {"name": "string.unquoted"}
+					}
+				},
+				{
+					"comment": "Regular symbol with size (no source)",
+					"match": "^\\s+([\\w.$]+)\\s+(0x[0-9a-fA-F]+)\\s+(0x[0-9a-fA-F]+)\\s*$",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "constant.numeric"},
+						"3": {"name": "constant.numeric"}
+					}
+				},
+				{
+					"comment": "Symbol without size (address only)",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+([\\w.$]+)",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "entity.name.function"}
+					}
+				},
+				{
+					"comment": "Address followed by assignment or provide expression",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(.+?)(\\s*=\\s*)(.+)$",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "variable.other"},
+						"3": {"name": "keyword.operator.assignment"},
+						"4": {"name": "meta.expression"}
+					}
+				}
+			]
+		},
+		"expression-lines": {
+			"patterns": [
+				{
+					"comment": "Indented location-counter assignment using a linker function",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\.)\\s*(=|\\+=)\\s*(ALIGN|ADDR|ABSOLUTE|DEFINED|LENGTH|LOADADDR|MAX|MIN|NEXT|ORIGIN|SIZEOF)\\b",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "variable.language"},
+						"3": {"name": "keyword.operator.assignment"},
+						"4": {"name": "support.function"}
+					}
+				},
+				{
+					"comment": "Indented location-counter arithmetic assignment",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(\\.)\\s*(=|\\+=)\\s*(\\()",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "variable.language"},
+						"3": {"name": "keyword.operator.assignment"},
+						"4": {"name": "punctuation.section.parens.begin"}
+					}
+				},
+				{
+					"comment": "Indented PROVIDE expression",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(PROVIDE|PROVIDE_HIDDEN)\\s*(\\()\\s*([_a-zA-Z][_a-zA-Z0-9]*)",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "keyword.control"},
+						"3": {"name": "punctuation.section.parens.begin"},
+						"4": {"name": "variable.other"}
+					}
+				},
+				{
+					"comment": "Indented linker symbol assignment",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+([_a-zA-Z][_a-zA-Z0-9]*)\\s*(=)",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "variable.other"},
+						"3": {"name": "keyword.operator.assignment"}
+					}
+				},
+				{
+					"comment": "Indented expression or provide line prefixed by address",
+					"match": "^\\s+(0x[0-9a-fA-F]+)\\s+(.+)$",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "meta.expression"}
+					}
+				}
+			]
+		},
+		"cross-reference": {
+			"patterns": [
+				{
+					"match": "^([\\w.]+)\\s+(.+?)\\s*$",
+					"captures": {
+						"1": {"name": "entity.name.function"},
+						"2": {"name": "string.unquoted"}
+					}
+				}
+			]
+		},
+		"linker-script-commands": {
+			"patterns": [
+				{
+					"comment": "Linker script assignment",
+					"match": "^\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*=\\s*(.+);?$",
+					"captures": {
+						"1": {"name": "variable.other"},
+						"2": {"name": "meta.expression"}
+					}
+				},
+				{
+					"comment": "PROVIDE statements",
+					"match": "\\b(PROVIDE|PROVIDE_HIDDEN)\\s*\\(\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*=",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"name": "variable.other"}
+					}
+				}
+			]
+		},
+		"linker-keywords": {
+			"match": "\\b(LOAD|OUTPUT|START\\s+GROUP|END\\s+GROUP|COMMON|CONSTRUCTORS|PROVIDE|PROVIDE_HIDDEN|EXCLUDE_FILE|SORT_BY_NAME|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_NONE|SORT|SIZEOF|LOADADDR|ALIGN|KEEP|CREATE_OBJECT_SYMBOLS|FILL|HIDDEN|ABSOLUTE|ORIGIN|LENGTH|BLOCK|DEFINED|NEXT|ADDR|ALIGNOF|ASSERT|ENTRY|EXTERN|FORCE_COMMON_ALLOCATION|INHIBIT_COMMON_ALLOCATION|INSERT|NOCROSSREFS|NOCROSSREFS_TO|OUTPUT_ARCH|OUTPUT_FORMAT|OVERLAY|PHDRS|REGION_ALIAS|SEARCH_DIR|STARTUP|TARGET|MEMORY|SECTIONS|INCLUDE|INPUT|GROUP|AS_NEEDED|SUBALIGN|ONLY_IF_RO|ONLY_IF_RW|AT|OVERLAY|DISCARD|NOLOAD|DSECT|COPY|INFO|QUAD|SQUAD|LONG|SHORT|BYTE|ASCIZ|MAX|MIN|DATA_SEGMENT_ALIGN|DATA_SEGMENT_END|DATA_SEGMENT_RELRO_END|SEGMENT_START|LOG2CEIL)\\b",
+			"name": "keyword.control"
+		},
+		"operators": {
+			"match": "[+\\-*/%&|^~!<>=?:]|&&|\\|\\||<<|>>|==|!=|<=|>=|\\+=|-=|\\*=|/=|%=|&=|\\|=|\\^=|<<=|>>=",
+			"name": "keyword.operator"
+		},
+		"addresses": {
+			"match": "\\b(0x[0-9a-fA-F]+)\\b",
+			"name": "constant.numeric"
+		},
+		"sizes": {
+			"patterns": [
+				{
+					"match": "\\b(\\d+)\\s*([KkMmGg])\\b",
+					"captures": {
+						"1": {"name": "constant.numeric"},
+						"2": {"name": "keyword.other"}
+					}
+				},
+				{
+					"match": "\\b(\\d+)\\b",
+					"name": "constant.numeric"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"match": "\"[^\"]*\"",
+					"name": "string.quoted.double"
+				}
+			]
+		},
+		"paths": {
+			"patterns": [
+				{
+					"comment": "Archive member: lib.a(file.o)",
+					"match": "([\\w./\\\\-]+\\.a)\\(([^)]+)\\)",
+					"captures": {
+						"1": {"name": "string.unquoted"},
+						"2": {"name": "entity.name.filename"}
+					}
+				},
+				{
+					"comment": "Static library",
+					"match": "\\b(lib[\\w-]+\\.a)\\b",
+					"name": "string.unquoted"
+				},
+				{
+					"comment": "Object file path",
+					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(o|obj)\\b",
+					"name": "entity.name.filename"
+				},
+				{
+					"comment": "Shared library",
+					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(so|dll|dylib)(?:\\.\\d+)*\\b",
+					"name": "string.unquoted"
+				},
+				{
+					"comment": "Source file path",
+					"match": "([A-Za-z]:[\\\\/]|/)?([~%$&+.\\w-]+[\\\\/])*[~%$&+.\\w-]+\\.(c|cpp|cc|cxx|C|h|hpp|hxx|hh|s|S|asm|rs|zig|d|go|swift)\\b",
+					"name": "string.unquoted"
+				}
+			]
+		}
+	}
+}

@@ -1,7 +1,7 @@
 {
   "name": "gcc-syntax-highlighting",
   "displayName": "GCC Workbench (RTL, GIMPLE & MD)",
-  "description": "The professional workspace for GCC engineers. Filter noise, and navigate Machine description files, RTL/GIMPLE dumps.",
+  "description": "The professional workspace for GCC engineers. Filter noise, navigate Machine description files, RTL/GIMPLE dumps, and visualize linker memory maps.",
   "version": "2.1.0",
   "author": {
     "name": "Kishan Parmar",
@@ -31,7 +31,11 @@
     "compiler",
     "powerpc",
     "aarch64",
-    "toolchain"
+    "toolchain",
+    "linker",
+    "memory",
+    "map",
+    "embedded"
   ],
   "engines": {
     "vscode": "^1.50.0"
@@ -59,8 +63,14 @@
     "onLanguage:gcc-match",
     "onLanguage:rs6000-builtins",
     "onLanguage:rs6000-overload",
+    "onLanguage:linkerscript",
+    "onLanguage:mapfile",
+    "onLanguage:c",
+    "onLanguage:cpp",
     "onView:gcc-dump-explorer",
-    "onCommand:gcc-workbench.viewSource"
+    "onCommand:gcc-workbench.viewSource",
+    "workspaceContains:**/*.ld",
+    "workspaceContains:**/*.map"
   ],
   "contributes": {
     "snippets": [
@@ -83,6 +93,14 @@
         {
           "id": "gcc-dump-explorer",
           "name": "Compilation Passes"
+        },
+        {
+          "id": "gcc-stack-usage.globalStackUsage",
+          "name": "GCC Stack Usage"
+        },
+        {
+          "id": "gcc-stack-usage.currentFileStackUsage",
+          "name": "Current File Stack Usage"
         }
       ]
     },
@@ -135,6 +153,26 @@
         "command": "gcc-workbench.viewSource",
         "title": "View Source (Split)",
         "icon": "$(file-code)"
+      },
+      {
+        "command": "gcc-workbench.showMemoryMap",
+        "title": "GCC: Show Memory Map",
+        "icon": "$(graph)"
+      },
+      {
+        "command": "gcc-workbench.refreshMemoryMap",
+        "title": "GCC: Refresh Memory Map",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gcc-stack-usage.updateSuStore",
+        "title": "GCC: Reload Stack Usage Files",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "gcc-stack-usage.toggleEnabled",
+        "title": "GCC: Toggle Stack Usage Analysis",
+        "icon": "$(pulse)"
       }
     ],
     "keybindings": [
@@ -153,6 +191,11 @@
     ],
     "menus": {
       "editor/title": [
+        {
+          "command": "gcc-stack-usage.toggleEnabled",
+          "when": "resourceLangId == c || resourceLangId == cpp",
+          "group": "navigation@0"
+        },
         {
           "command": "gcc-dump.comparePreviousPass",
           "when": "resourceFilename =~ /\\.[0-9]{3}[tir]\\./",
@@ -187,6 +230,11 @@
           "command": "gcc-workbench.viewSource",
           "group": "navigation",
           "when": "resourceLangId =~ /gcc-rtl/"
+        },
+        {
+          "command": "gcc-workbench.showMemoryMap",
+          "group": "navigation@10",
+          "when": "resourceExtname =~ /\\.(map|ld)$/"
         }
       ],
       "view/title": [
@@ -199,10 +247,39 @@
           "command": "gcc-dump.filterPasses",
           "when": "view == gcc-dump-explorer",
           "group": "navigation"
+        },
+        {
+          "command": "gcc-stack-usage.updateSuStore",
+          "when": "view == gcc-stack-usage.globalStackUsage && gcc-stack-usage.enabled",
+          "group": "navigation"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "gcc-stack-usage.globalStackUsage",
+        "contents": "Stack Usage Analysis is disabled.\n[Enable Stack Usage](command:gcc-stack-usage.toggleEnabled)",
+        "when": "!gcc-stack-usage.enabled"
+      },
+      {
+        "view": "gcc-stack-usage.globalStackUsage",
+        "contents": "No .su files found.\nCompile with `-fstack-usage` flag and [reload](command:gcc-stack-usage.updateSuStore).",
+        "when": "gcc-stack-usage.enabled"
+      }
+    ],
     "languages": [
+      {
+        "id": "linkerscript",
+        "aliases": [
+          "Linker Script",
+          "ld"
+        ],
+        "extensions": [
+          ".ld",
+          ".lds"
+        ],
+        "configuration": "./language-configuration.json"
+      },
       {
         "id": "rs6000-builtins",
         "aliases": [
@@ -316,9 +393,29 @@
           "light": "./pictures/gnu-dark.png",
           "dark": "./pictures/gnu-light.png"
         }
+      },
+      {
+        "id": "mapfile",
+        "aliases": [
+          "Linker Map File",
+          "Map File"
+        ],
+        "extensions": [
+          ".map"
+        ],
+        "configuration": "./language-configurations/mapfile.json",
+        "icon": {
+          "light": "./pictures/gnu-dark.png",
+          "dark": "./pictures/gnu-light.png"
+        }
       }
     ],
     "grammars": [
+      {
+        "language": "linkerscript",
+        "scopeName": "source.linkerscript",
+        "path": "./syntaxes/linkerscript.tmLanguage.json"
+      },
       {
         "language": "rs6000-builtins",
         "scopeName": "source.gcc.rs6000",
@@ -358,6 +455,11 @@
         "language": "gcc-opt",
         "scopeName": "source.gcc.opt",
         "path": "./syntaxes/opt.tmLanguage.json"
+      },
+      {
+        "language": "mapfile",
+        "scopeName": "source.mapfile",
+        "path": "./syntaxes/mapfile.tmLanguage.json"
       }
     ],
     "configurationDefaults": {

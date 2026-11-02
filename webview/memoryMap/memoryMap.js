@@ -1,0 +1,1138 @@
+(function () {
+    const MIN_SECTION_HEIGHT = 44;
+    const REGION_BAR_HEIGHT = 700;
+    const SECTION_COLORS = [
+        '#4477AA', '#66CCEE', '#228833', '#CCBB44', '#EE6677', '#AA3377',
+        '#BBBBBB', '#EE8866', '#44BB99', '#99DDFF', '#EEDD88', '#FFAABB',
+    ];
+
+    let layoutData = null;
+    var sectionIndex = {};
+    var currentHighlight = null;
+    var currentSelectedSection = null;
+    var currentSelectedColorIdx = 0;
+    var detailSymbolIndex = {};
+    var sectionDataMap = {};
+
+    function formatHex(value, width) {
+        width = width || 8;
+        return '0x' + value.toString(16).toUpperCase().padStart(width, '0');
+    }
+
+    function formatSize(bytes) {
+        if (bytes >= 1024 * 1024) { return (bytes / (1024 * 1024)).toFixed(1) + ' MB'; }
+        if (bytes >= 1024) { return (bytes / 1024).toFixed(1) + ' KB'; }
+        return bytes + ' B';
+    }
+
+    function usagePct(used, total) {
+        if (total === 0) { return 0; }
+        return (used / total) * 100;
+    }
+
+    function shadeColor(hex, amount) {
+        var num = parseInt(hex.replace('#', ''), 16);
+        var r = Math.min(255, Math.max(0, (num >> 16) + amount));
+        var g = Math.min(255, Math.max(0, ((num >> 8) & 0xFF) + amount));
+        var b = Math.min(255, Math.max(0, (num & 0xFF) + amount));
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+
+    function colorWithAlpha(hex, alpha) {
+        var num = parseInt(hex.replace('#', ''), 16);
+        var r = (num >> 16) & 0xFF;
+        var g = (num >> 8) & 0xFF;
+        var b = num & 0xFF;
+        return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+    }
+
+    // ── Stats panel ──
+
+    function buildStatsPanel(layout) {
+        var panel = document.createElement('div');
+        panel.className = 'stats-panel';
+
+        var header = document.createElement('div');
+        header.className = 'stats-header';
+        header.textContent = '\u25B6 Statistics';
+        header.addEventListener('click', function () {
+            var body = panel.querySelector('.stats-body');
+            if (!body) { return; }
+            var collapsed = body.style.display === 'none';
+            body.style.display = collapsed ? '' : 'none';
+            header.textContent = (collapsed ? '\u25BC ' : '\u25B6 ') + 'Statistics';
+        });
+        panel.appendChild(header);
+
+        var body = document.createElement('div');
+        body.className = 'stats-body';
+        body.style.display = 'none';
+
+        // Gather stats
+        var totalFlash = 0, usedFlash = 0;
+        var totalRam = 0, usedRam = 0;
+        var totalSymbols = 0;
+        var allSymbols = [];
+        var codeSections = 0, dataSections = 0;
+        var codeSize = 0, dataSize = 0, bssSize = 0, rodataSize = 0;
+        var sourceFiles = {};
+
+        for (var r = 0; r < layout.regions.length; r++) {
+            var region = layout.regions[r];
+            var attr = (region.attributes || '').toLowerCase();
+            // Classify: regions with 'x' (execute) or 'r' only are flash-like; 'w' without 'x' is RAM-like
+            var isRam = attr.indexOf('w') >= 0 && attr.indexOf('x') < 0;
+            if (isRam) {
+                totalRam += region.length;
+                usedRam += region.used || 0;
+            } else {
+                totalFlash += region.length;
+                usedFlash += region.used || 0;
+            }
+
+            for (var s = 0; s < region.sections.length; s++) {
+                var sec = region.sections[s];
+                var secName = sec.name.toLowerCase();
+
+                if (secName.indexOf('.text') >= 0) { codeSize += sec.size; codeSections++; }
+                else if (secName.indexOf('.rodata') >= 0) { rodataSize += sec.size; }
+                else if (secName.indexOf('.bss') >= 0) { bssSize += sec.size; dataSections++; }
+                else if (secName.indexOf('.data') >= 0) { dataSize += sec.size; dataSections++; }
+
+                for (var si = 0; si < (sec.symbols || []).length; si++) {
+                    var sym = sec.symbols[si];
+                    if (sym.size > 0) {
+                        totalSymbols++;
+                        allSymbols.push(sym);
+                        if (sym.sourceFile) { sourceFiles[sym.sourceFile] = true; }
+                    }
+                }
+            }
+        }
+
+        // Sort for top 10
+        allSymbols.sort(function (a, b) { return b.size - a.size; });
+        var top10 = allSymbols.slice(0, 10);
+
+        var rows = [];
+
+        // Region usage
+        if (totalFlash > 0) {
+            rows.push(['Flash/ROM', formatSize(usedFlash) + ' / ' + formatSize(totalFlash) + ' (' + (usedFlash / totalFlash * 100).toFixed(1) + '%)']);
+        }
+        if (totalRam > 0) {
+            rows.push(['RAM', formatSize(usedRam) + ' / ' + formatSize(totalRam) + ' (' + (usedRam / totalRam * 100).toFixed(1) + '%)']);
+        }
+
+        // Breakdown
+        if (codeSize > 0) { rows.push(['Code (.text)', formatSize(codeSize)]); }
+        if (rodataSize > 0) { rows.push(['Read-only data (.rodata)', formatSize(rodataSize)]); }
+        if (dataSize > 0) { rows.push(['Initialized data (.data)', formatSize(dataSize)]); }
+        if (bssSize > 0) { rows.push(['Zero-init data (.bss)', formatSize(bssSize)]); }
+
+        rows.push(['Total symbols', String(totalSymbols)]);
+        rows.push(['Source files', String(Object.keys(sourceFiles).length)]);
+
+        // Discarded
+        if (layout.discardedSize > 0) {
+            rows.push(['Discarded sections', formatSize(layout.discardedSize) + ' (' + layout.discardedCount + ' sections)']);
+        }
+
+        // Build table
+        var table = document.createElement('table');
+        table.className = 'stats-table';
+        for (var ri = 0; ri < rows.length; ri++) {
+            var tr = document.createElement('tr');
+            var td1 = document.createElement('td');
+            td1.className = 'stats-label';
+            td1.textContent = rows[ri][0];
+            var td2 = document.createElement('td');
+            td2.className = 'stats-value';
+            td2.textContent = rows[ri][1];
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            table.appendChild(tr);
+        }
+        body.appendChild(table);
+
+        // Top 10 largest symbols
+        if (top10.length > 0) {
+            var topHeader = document.createElement('div');
+            topHeader.className = 'stats-subheader';
+            topHeader.textContent = 'Top 10 largest symbols';
+            body.appendChild(topHeader);
+
+            var topTable = document.createElement('table');
+            topTable.className = 'stats-table';
+            for (var ti = 0; ti < top10.length; ti++) {
+                var sym = top10[ti];
+                var tr = document.createElement('tr');
+                tr.className = 'stats-clickable';
+                tr.setAttribute('data-symbol', sym.name);
+                var tdName = document.createElement('td');
+                tdName.className = 'stats-label';
+                tdName.textContent = sym.name;
+                tdName.title = sym.sourceFile || '';
+                var tdSize = document.createElement('td');
+                tdSize.className = 'stats-value';
+                tdSize.textContent = formatSize(sym.size);
+                tr.appendChild(tdName);
+                tr.appendChild(tdSize);
+                topTable.appendChild(tr);
+            }
+            topTable.addEventListener('click', function (e) {
+                var row = e.target.closest('.stats-clickable');
+                if (row) {
+                    var symName = row.getAttribute('data-symbol');
+                    if (symName) {
+                        searchFor(symName);
+                    }
+                }
+            });
+            body.appendChild(topTable);
+        }
+
+        panel.appendChild(body);
+        return panel;
+    }
+
+    // ── Search ──
+
+    var searchIndex = []; // { type: 'section'|'symbol', name, section, address, sourceLine, colorIndex, sectionBlock }
+
+    function buildSearchBox(layout) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'search-wrapper';
+
+        var input = document.createElement('input');
+        input.className = 'search-input';
+        input.type = 'text';
+        input.placeholder = 'Search symbols and sections\u2026';
+        wrapper.appendChild(input);
+
+        var results = document.createElement('div');
+        results.className = 'search-results';
+        wrapper.appendChild(results);
+
+        var debounceTimer = null;
+        input.addEventListener('input', function () {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function () {
+                doSearch(input.value, results);
+            }, 150);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                input.value = '';
+                results.innerHTML = '';
+                results.classList.remove('visible');
+            }
+        });
+
+        // Close results when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!wrapper.contains(e.target)) {
+                results.innerHTML = '';
+                results.classList.remove('visible');
+            }
+        });
+
+        return wrapper;
+    }
+
+    function selectSearchResult(entry, resultsEl) {
+        resultsEl.innerHTML = '';
+        resultsEl.classList.remove('visible');
+
+        if (entry.type === 'section') {
+            if (entry.sectionBlock) {
+                entry.sectionBlock.click();
+                entry.sectionBlock.scrollIntoView({ behavior: 'instant', block: 'center' });
+            }
+            // Navigate to section in map file
+            window.mapViewIPC.postMessage({
+                type: 'selectSection',
+                section: entry.name,
+                sourceLine: entry.sourceLine,
+            });
+        } else {
+            // Open the section detail, then highlight the symbol
+            if (entry.sectionBlock) {
+                entry.sectionBlock.click();
+                entry.sectionBlock.scrollIntoView({ behavior: 'instant', block: 'center' });
+            }
+            // Navigate to symbol in map file
+            window.mapViewIPC.postMessage({
+                type: 'selectSymbol',
+                symbol: entry.name,
+                section: entry.section,
+                address: entry.address,
+                sourceLine: entry.sourceLine,
+            });
+            // After detail panel renders, highlight the symbol row
+            requestAnimationFrame(function () {
+                requestAnimationFrame(function () {
+                    var el;
+                    if (entry.address !== undefined) {
+                        el = detailSymbolIndex[entry.section + '\0' + String(entry.address)];
+                    }
+                    if (!el) {
+                        el = detailSymbolIndex[entry.section + '\0' + entry.name];
+                    }
+                    if (el) {
+                        el.classList.add('highlighted');
+                        el.scrollIntoView({ behavior: 'instant', block: 'center' });
+                    }
+                });
+            });
+        }
+    }
+
+    function doSearch(query, resultsEl) {
+        resultsEl.innerHTML = '';
+        if (!query || query.length < 2) {
+            resultsEl.classList.remove('visible');
+            return;
+        }
+
+        var q = query.toLowerCase();
+        var matches = [];
+        var limit = 50;
+
+        for (var i = 0; i < searchIndex.length && matches.length < limit; i++) {
+            var entry = searchIndex[i];
+            if (entry.name.toLowerCase().indexOf(q) >= 0) {
+                matches.push(entry);
+            }
+        }
+
+        if (matches.length === 0) {
+            var noResult = document.createElement('div');
+            noResult.className = 'search-result-item search-no-result';
+            noResult.textContent = 'No matches found';
+            resultsEl.appendChild(noResult);
+            resultsEl.classList.add('visible');
+            return;
+        }
+
+        for (var m = 0; m < matches.length; m++) {
+            var match = matches[m];
+            var item = document.createElement('div');
+            item.className = 'search-result-item';
+
+            var nameSpan = document.createElement('span');
+            nameSpan.className = 'search-result-name';
+            nameSpan.textContent = match.name;
+            item.appendChild(nameSpan);
+
+            var meta = document.createElement('span');
+            meta.className = 'search-result-meta';
+            if (match.type === 'section') {
+                meta.textContent = 'section';
+            } else {
+                meta.textContent = match.section + '  ' + formatSize(match.size);
+            }
+            item.appendChild(meta);
+
+            (function (entry) {
+                item.addEventListener('click', function () {
+                    selectSearchResult(entry, resultsEl);
+                });
+            })(match);
+
+            resultsEl.appendChild(item);
+        }
+        resultsEl.classList.add('visible');
+    }
+
+    // ── Render ──
+
+    function render(layout) {
+        var app = document.getElementById('app');
+        if (!app) { return; }
+
+        sectionIndex = {};
+        sectionDataMap = {};
+        currentHighlight = null;
+        currentSelectedSection = null;
+        detailSymbolIndex = {};
+        hideDetail();
+
+        if (!layout || !layout.regions || layout.regions.length === 0) {
+            app.innerHTML = '<div class="no-data">No memory layout data available.<br>Open a .ld or .map file to visualize memory.</div>';
+            return;
+        }
+
+        // ── Top bar: stats + search (outside app-layout for sticky) ──
+        var topBar = document.getElementById('top-bar');
+        if (topBar) {
+            topBar.innerHTML = '';
+            topBar.appendChild(buildStatsPanel(layout));
+            topBar.appendChild(buildSearchBox(layout));
+        }
+
+        var fragment = document.createDocumentFragment();
+
+        var container = document.createElement('div');
+        container.className = 'memory-container';
+
+        var globalSectionIdx = 0;
+        for (var r = 0; r < layout.regions.length; r++) {
+            var region = layout.regions[r];
+            if (region.length === 0) { continue; }
+
+            var col = document.createElement('div');
+            col.className = 'region-column';
+
+            var used = region.used || region.sections.reduce(function (s, sec) { return s + sec.size; }, 0);
+            var pct = usagePct(used, region.length);
+
+            var header = document.createElement('div');
+            header.className = 'region-header';
+            header.textContent = region.name;
+            col.appendChild(header);
+
+            var info = document.createElement('div');
+            info.className = 'region-info';
+            info.textContent = formatHex(region.origin) + ' \u2502 ' + formatSize(region.length) + ' (' + pct.toFixed(1) + '% used)' +
+                (region.attributes ? '  [' + region.attributes + ']' : '');
+            col.appendChild(info);
+
+            var bar = document.createElement('div');
+            bar.className = 'region-bar';
+            bar.style.minHeight = REGION_BAR_HEIGHT + 'px';
+
+            var sections = region.sections.slice();
+            sections.sort(function (a, b) { return a.address - b.address; });
+
+            var totalForScaling = region.length;
+            var totalSectionSize = sections.reduce(function (s, sec) { return s + sec.size; }, 0);
+            var freeSize = region.length - totalSectionSize;
+            var allZeroSize = totalSectionSize === 0 && sections.length > 0;
+
+            for (var i = 0; i < sections.length; i++) {
+                var sec = sections[i];
+                var heightPx = allZeroSize
+                    ? Math.max(MIN_SECTION_HEIGHT, REGION_BAR_HEIGHT / sections.length)
+                    : Math.max(MIN_SECTION_HEIGHT, (sec.size / totalForScaling) * REGION_BAR_HEIGHT);
+
+                var block = document.createElement('div');
+                block.className = 'section-block';
+                var colorIdx = globalSectionIdx % SECTION_COLORS.length;
+                var sectionColor = SECTION_COLORS[colorIdx];
+                globalSectionIdx++;
+                block.style.background = sectionColor;
+                block.style.height = heightPx + 'px';
+                block.setAttribute('data-section', sec.name);
+                block.setAttribute('data-color-index', String(colorIdx));
+                block.setAttribute('data-source-line', sec.sourceLine !== undefined ? String(sec.sourceLine) : '');
+
+                sectionDataMap[sec.name] = sec;
+                if (!sectionIndex[sec.name]) { sectionIndex[sec.name] = []; }
+                sectionIndex[sec.name].push(block);
+
+                var label = document.createElement('span');
+                label.className = 'section-label';
+                label.textContent = sec.name;
+                block.appendChild(label);
+
+                var infoLine = document.createElement('span');
+                infoLine.className = 'section-info';
+                infoLine.textContent = formatHex(sec.address) + '  ' + formatSize(sec.size) +
+                    (sec.symbols ? '  (' + sec.symbols.length + ' sym)' : '');
+                block.appendChild(infoLine);
+
+                bar.appendChild(block);
+            }
+
+            if (freeSize > 0 && !allZeroSize) {
+                var freeHeight = Math.max(MIN_SECTION_HEIGHT, (freeSize / totalForScaling) * REGION_BAR_HEIGHT);
+                var freeBlock = document.createElement('div');
+                freeBlock.className = 'section-block free-space';
+                freeBlock.style.height = freeHeight + 'px';
+                var freeLabel = document.createElement('span');
+                freeLabel.className = 'section-label';
+                freeLabel.textContent = 'Free \u2014 ' + formatSize(freeSize);
+                freeBlock.appendChild(freeLabel);
+                bar.appendChild(freeBlock);
+            }
+
+            var usageBarContainer = document.createElement('div');
+            usageBarContainer.className = 'usage-bar-container';
+            var usageBarFill = document.createElement('div');
+            var usageClass = pct < 50 ? 'usage-low' : pct < 80 ? 'usage-medium' : 'usage-high';
+            usageBarFill.className = 'usage-bar-fill ' + usageClass;
+            usageBarFill.style.width = pct + '%';
+            usageBarContainer.appendChild(usageBarFill);
+            col.appendChild(usageBarContainer);
+
+            col.appendChild(bar);
+
+            container.appendChild(col);
+        }
+
+        fragment.appendChild(container);
+        app.innerHTML = '';
+        app.appendChild(fragment);
+
+        // ── Build search index ──
+        searchIndex = [];
+        for (var si = 0; si < layout.regions.length; si++) {
+            var reg = layout.regions[si];
+            for (var sj = 0; sj < reg.sections.length; sj++) {
+                var sec = reg.sections[sj];
+                var secBlocks = sectionIndex[sec.name];
+                var secBlock = secBlocks ? secBlocks[0] : null;
+                var cIdx = secBlock ? Number(secBlock.getAttribute('data-color-index')) : 0;
+                searchIndex.push({
+                    type: 'section',
+                    name: sec.name,
+                    section: sec.name,
+                    address: sec.address,
+                    size: sec.size,
+                    sourceLine: sec.sourceLine,
+                    colorIndex: cIdx,
+                    sectionBlock: secBlock,
+                });
+                for (var sk = 0; sk < (sec.symbols || []).length; sk++) {
+                    var sym = sec.symbols[sk];
+                    if (sym.size > 0) {
+                        searchIndex.push({
+                            type: 'symbol',
+                            name: sym.name,
+                            section: sec.name,
+                            address: sym.address,
+                            size: sym.size,
+                            sourceLine: sym.sourceLine,
+                            colorIndex: cIdx,
+                            sectionBlock: secBlock,
+                        });
+                    }
+                }
+            }
+        }
+
+        // ── Event delegation ──
+        container.addEventListener('click', function (e) {
+            var secBlock = e.target.closest('.section-block');
+            if (secBlock && !secBlock.classList.contains('free-space')) {
+                var secName = secBlock.getAttribute('data-section');
+                var cIdx = Number(secBlock.getAttribute('data-color-index'));
+                var secData = sectionDataMap[secName];
+
+                window.mapViewIPC.postMessage({
+                    type: 'selectSection',
+                    section: secName,
+                    sourceLine: secBlock.getAttribute('data-source-line') ? Number(secBlock.getAttribute('data-source-line')) : undefined,
+                });
+
+                if (secData) {
+                    showDetail(secData, cIdx, secBlock);
+                }
+            }
+        });
+    }
+
+    // ── Detail panel ──
+
+    // Current sort state
+    var currentSort = 'address'; // 'address' | 'size' | 'name'
+    var currentSortAsc = true;   // true = ascending, false = descending
+    // Stashed data for re-sorting without re-clicking
+    var currentDetailSection = null;
+
+    function showDetail(section, colorIndex, sectionBlock) {
+        var panel = document.getElementById('detail-panel');
+        if (!panel) { return; }
+
+        if (currentSelectedSection) {
+            currentSelectedSection.classList.remove('selected');
+        }
+        currentSelectedSection = sectionBlock;
+        currentSelectedColorIdx = colorIndex;
+        if (sectionBlock) {
+            sectionBlock.classList.add('selected');
+        }
+
+        currentDetailSection = section;
+        renderDetailPanel(section, colorIndex);
+
+        panel.classList.add('visible');
+
+        var svg = document.getElementById('connector-svg');
+        if (svg) { svg.classList.add('visible'); }
+    }
+
+    function sortSymbols(symbols, mode, asc) {
+        var sorted = symbols.slice();
+        var dir = asc ? 1 : -1;
+        if (mode === 'size') {
+            sorted.sort(function (a, b) { return (a.size - b.size) * dir; });
+        } else if (mode === 'name') {
+            sorted.sort(function (a, b) { return a.name.localeCompare(b.name) * dir; });
+        } else {
+            sorted.sort(function (a, b) { return ((a.address || 0) - (b.address || 0)) * dir; });
+        }
+        return sorted;
+    }
+
+    function renderDetailPanel(section, colorIndex) {
+        var panel = document.getElementById('detail-panel');
+        if (!panel) { return; }
+
+        detailSymbolIndex = {};
+
+        var symbols = (section.symbols || []).filter(function (s) { return s.size > 0; });
+        symbols = sortSymbols(symbols, currentSort, currentSortAsc);
+
+        var baseColor = SECTION_COLORS[colorIndex % SECTION_COLORS.length];
+
+        // Header
+        var headerDiv = document.createElement('div');
+        headerDiv.className = 'detail-header';
+
+        var title = document.createElement('div');
+        title.className = 'detail-header-title';
+        title.style.color = baseColor;
+        title.textContent = section.name + '  \u2014  ' + formatSize(section.size);
+        headerDiv.appendChild(title);
+
+        var infoDiv = document.createElement('div');
+        infoDiv.className = 'detail-header-info';
+        infoDiv.textContent = formatHex(section.address) + ' \u2502 ' + symbols.length + ' symbols';
+        headerDiv.appendChild(infoDiv);
+
+        // Sort buttons
+        var sortBar = document.createElement('div');
+        sortBar.className = 'detail-sort-bar';
+
+        var sortLabel = document.createElement('span');
+        sortLabel.className = 'detail-sort-label';
+        sortLabel.textContent = 'Sort:';
+        sortBar.appendChild(sortLabel);
+
+        var sorts = [
+            { key: 'address', label: 'Address' },
+            { key: 'size', label: 'Size' },
+            { key: 'name', label: 'Name' },
+        ];
+        for (var si = 0; si < sorts.length; si++) {
+            var isActive = currentSort === sorts[si].key;
+            var arrow = isActive ? (currentSortAsc ? ' \u25B2' : ' \u25BC') : '';
+            var btn = document.createElement('span');
+            btn.className = 'detail-sort-btn' + (isActive ? ' active' : '');
+            btn.textContent = sorts[si].label + arrow;
+            btn.setAttribute('data-sort', sorts[si].key);
+            sortBar.appendChild(btn);
+        }
+
+        sortBar.addEventListener('click', function (e) {
+            var sortBtn = e.target.closest('.detail-sort-btn');
+            if (sortBtn) {
+                var newSort = sortBtn.getAttribute('data-sort');
+                if (newSort === currentSort) {
+                    currentSortAsc = !currentSortAsc;
+                } else {
+                    currentSort = newSort;
+                    currentSortAsc = true;
+                }
+                renderDetailPanel(currentDetailSection, currentSelectedColorIdx);
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(function () {
+                        positionDetailPanel();
+                        drawConnector();
+                    });
+                });
+            }
+        });
+
+        headerDiv.appendChild(sortBar);
+
+        // Symbol bar
+        var detailBar = document.createElement('div');
+        detailBar.className = 'detail-bar';
+
+        var totalSymSize = symbols.reduce(function (s, sym) { return s + sym.size; }, 0);
+        var MIN_ROW = 40;
+        var totalHeight = Math.max(symbols.length * MIN_ROW, 600);
+
+        for (var i = 0; i < symbols.length; i++) {
+            var sym = symbols[i];
+            var rowHeight = totalSymSize > 0
+                ? Math.max(MIN_ROW, (sym.size / totalSymSize) * totalHeight)
+                : MIN_ROW;
+
+            var row = document.createElement('div');
+            row.className = 'detail-row';
+            row.style.height = rowHeight + 'px';
+            row.style.background = shadeColor(baseColor, (i % 2 === 0) ? -30 : -50);
+            row.setAttribute('data-symbol', sym.name);
+            row.setAttribute('data-section', section.name);
+            row.setAttribute('data-address', sym.address !== undefined ? String(sym.address) : '');
+            row.setAttribute('data-source-line', sym.sourceLine !== undefined ? String(sym.sourceLine) : '');
+
+            var symKey = sym.address !== undefined
+                ? section.name + '\0' + String(sym.address)
+                : section.name + '\0' + sym.name;
+            detailSymbolIndex[symKey] = row;
+
+            var topLine = document.createElement('div');
+            topLine.className = 'detail-row-top';
+
+            var nameSpan = document.createElement('span');
+            nameSpan.className = 'detail-row-name';
+            nameSpan.textContent = sym.name;
+            topLine.appendChild(nameSpan);
+
+            var srcBtn = document.createElement('span');
+            srcBtn.className = 'detail-row-src-btn';
+            srcBtn.textContent = '\u21D7';
+            srcBtn.title = 'Go to source file';
+            srcBtn.setAttribute('data-symbol', sym.name);
+            srcBtn.setAttribute('data-section', section.name);
+            srcBtn.setAttribute('data-address', sym.address !== undefined ? String(sym.address) : '');
+            srcBtn.setAttribute('data-source-line', sym.sourceLine !== undefined ? String(sym.sourceLine) : '');
+            srcBtn.setAttribute('data-source-file', sym.sourceFile || '');
+            topLine.appendChild(srcBtn);
+
+            row.appendChild(topLine);
+
+            var infoSpan = document.createElement('span');
+            infoSpan.className = 'detail-row-info';
+            infoSpan.textContent = (sym.address !== undefined ? formatHex(sym.address) : '') + '  ' + formatSize(sym.size) + ' (' + sym.size + ' B / 0x' + sym.size.toString(16).toUpperCase() + ')';
+            row.appendChild(infoSpan);
+
+            detailBar.appendChild(row);
+        }
+
+        if (symbols.length === 0) {
+            var emptyMsg = document.createElement('div');
+            emptyMsg.style.padding = '24px 14px';
+            emptyMsg.style.color = 'var(--vscode-descriptionForeground, #666)';
+            emptyMsg.style.fontStyle = 'italic';
+            emptyMsg.textContent = 'No symbols in this section.';
+            detailBar.appendChild(emptyMsg);
+        }
+
+        detailBar.addEventListener('click', function (e) {
+            var srcBtn = e.target.closest('.detail-row-src-btn');
+            if (srcBtn) {
+                e.stopPropagation();
+                window.mapViewIPC.postMessage({
+                    type: 'goToSource',
+                    symbol: srcBtn.getAttribute('data-symbol'),
+                    section: srcBtn.getAttribute('data-section'),
+                    sourceFile: srcBtn.getAttribute('data-source-file') || undefined,
+                    address: srcBtn.getAttribute('data-address') ? Number(srcBtn.getAttribute('data-address')) : undefined,
+                    sourceLine: srcBtn.getAttribute('data-source-line') ? Number(srcBtn.getAttribute('data-source-line')) : undefined,
+                });
+                return;
+            }
+            var row = e.target.closest('.detail-row');
+            if (row) {
+                window.mapViewIPC.postMessage({
+                    type: 'selectSymbol',
+                    symbol: row.getAttribute('data-symbol'),
+                    section: row.getAttribute('data-section'),
+                    address: row.getAttribute('data-address') ? Number(row.getAttribute('data-address')) : undefined,
+                    sourceLine: row.getAttribute('data-source-line') ? Number(row.getAttribute('data-source-line')) : undefined,
+                });
+            }
+        });
+
+        panel.innerHTML = '';
+        panel.appendChild(headerDiv);
+        panel.appendChild(detailBar);
+
+        // Position the detail panel and draw connector after layout settles
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                positionDetailPanel();
+                drawConnector();
+            });
+        });
+    }
+
+    function hideDetail() {
+        var panel = document.getElementById('detail-panel');
+        if (panel) {
+            panel.classList.remove('visible');
+            panel.innerHTML = '';
+            panel.style.marginTop = '0';
+        }
+        var svg = document.getElementById('connector-svg');
+        if (svg) {
+            svg.classList.remove('visible');
+            svg.innerHTML = '';
+        }
+        if (currentSelectedSection) {
+            currentSelectedSection.classList.remove('selected');
+            currentSelectedSection = null;
+        }
+    }
+
+    function positionDetailPanel() {
+        var panel = document.getElementById('detail-panel');
+        if (!panel || !currentSelectedSection) { return; }
+
+        // Reset margin so measurements are clean
+        panel.style.marginTop = '0px';
+
+        // Force layout so getBoundingClientRect reflects the reset
+        panel.offsetHeight;
+
+        var layout = document.querySelector('.app-layout');
+        if (!layout) { return; }
+        var layoutRect = layout.getBoundingClientRect();
+
+        // Where the section block is
+        var srcRect = currentSelectedSection.getBoundingClientRect();
+        var sectionTop = srcRect.top - layoutRect.top;
+
+        // Where the detail-bar currently is (with margin=0)
+        var detailBar = panel.querySelector('.detail-bar');
+        var barRect = detailBar ? detailBar.getBoundingClientRect() : panel.getBoundingClientRect();
+        var barTop = barRect.top - layoutRect.top;
+
+        // Shift the panel so the bar top aligns with the section top
+        var desiredMargin = sectionTop - barTop;
+        desiredMargin = Math.max(0, desiredMargin);
+
+        panel.style.marginTop = desiredMargin + 'px';
+    }
+
+    function drawConnector() {
+        var svg = document.getElementById('connector-svg');
+        var panel = document.getElementById('detail-panel');
+        if (!svg || !panel || !currentSelectedSection) { return; }
+
+        var svgRect = svg.getBoundingClientRect();
+        var svgW = svgRect.width;
+        var svgH = svgRect.height;
+        if (svgW === 0 || svgH === 0) { return; }
+
+        svg.setAttribute('width', String(svgW));
+        svg.setAttribute('height', String(svgH));
+        svg.setAttribute('viewBox', '0 0 ' + svgW + ' ' + svgH);
+        svg.innerHTML = '';
+
+        // Draw a horizontal line from the section across the gap and the full width of the symbol list
+        var detailBar = panel.querySelector('.detail-bar');
+        var dstRect = detailBar ? detailBar.getBoundingClientRect() : panel.getBoundingClientRect();
+        var y = dstRect.top - svgRect.top + 1;
+
+        // Extend the line past the SVG into the detail bar (full width of it)
+        var lineEndX = svgW + dstRect.width;
+
+        var baseColor = SECTION_COLORS[currentSelectedColorIdx % SECTION_COLORS.length];
+
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '0');
+        line.setAttribute('y1', String(y));
+        line.setAttribute('x2', String(lineEndX));
+        line.setAttribute('y2', String(y));
+        line.setAttribute('stroke', colorWithAlpha(baseColor, 0.7));
+        line.setAttribute('stroke-width', '2');
+        svg.appendChild(line);
+    }
+
+    window.addEventListener('resize', function () {
+        if (currentSelectedSection) {
+            requestAnimationFrame(function () {
+                positionDetailPanel();
+                drawConnector();
+            });
+        }
+    });
+
+    // ── Highlights ──
+
+    function clearHighlights() {
+        if (currentHighlight) {
+            if (Array.isArray(currentHighlight)) {
+                for (var i = 0; i < currentHighlight.length; i++) {
+                    currentHighlight[i].classList.remove('highlighted');
+                }
+            } else {
+                currentHighlight.classList.remove('highlighted');
+            }
+            currentHighlight = null;
+        }
+    }
+
+    function highlightSection(sectionName) {
+        clearHighlights();
+        if (sectionName && sectionIndex[sectionName]) {
+            var els = sectionIndex[sectionName];
+            for (var i = 0; i < els.length; i++) {
+                els[i].classList.add('highlighted');
+                els[i].scrollIntoView({ behavior: 'instant', block: 'nearest' });
+            }
+            currentHighlight = els;
+        }
+    }
+
+    function highlightSymbol(symbolName, sectionName, address) {
+        clearHighlights();
+        if (!symbolName) { return; }
+
+        // Open the section's detail panel if not already showing
+        if (sectionName && sectionIndex[sectionName]) {
+            var secBlock = sectionIndex[sectionName][0];
+            if (secBlock) {
+                var secData = sectionDataMap[sectionName];
+                var cIdx = Number(secBlock.getAttribute('data-color-index'));
+                if (secData) {
+                    showDetail(secData, cIdx, secBlock);
+                }
+                secBlock.scrollIntoView({ behavior: 'instant', block: 'center' });
+            }
+            highlightSection(sectionName);
+        }
+
+        // Highlight the symbol row after the detail panel renders
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                var el;
+                if (address !== undefined && sectionName) {
+                    el = detailSymbolIndex[sectionName + '\0' + String(address)];
+                }
+                if (!el && sectionName) {
+                    el = detailSymbolIndex[sectionName + '\0' + symbolName];
+                }
+                // Also try matching by cleaned symbol name (e.g., search for "app_main" matches ".text.app_main")
+                if (!el && sectionName) {
+                    var keys = Object.keys(detailSymbolIndex);
+                    for (var k = 0; k < keys.length; k++) {
+                        var parts = keys[k].split('\0');
+                        if (parts[1] && parts[1].indexOf(symbolName) >= 0) {
+                            el = detailSymbolIndex[keys[k]];
+                            break;
+                        }
+                    }
+                }
+                if (el) {
+                    el.classList.add('highlighted');
+                    el.scrollIntoView({ behavior: 'instant', block: 'center' });
+                }
+            });
+        });
+    }
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    window._mapHighlightSection = highlightSection;
+    window._mapHighlightSymbol = highlightSymbol;
+
+    /**
+     * Open a section's detail panel and highlight a specific symbol by name.
+     * Used by the "Find in Memory Map" command.
+     */
+    function focusSymbol(symbolName, sectionName, address) {
+        // Try lookup first, then fall back to DOM query
+        var secBlocks = sectionIndex[sectionName];
+        if (!secBlocks || secBlocks.length === 0) {
+            // Fallback: search DOM for section block
+            var allBlocks = document.querySelectorAll('.section-block[data-section]');
+            for (var i = 0; i < allBlocks.length; i++) {
+                if (allBlocks[i].getAttribute('data-section') === sectionName) {
+                    secBlocks = [allBlocks[i]];
+                    break;
+                }
+            }
+        }
+        if (!secBlocks || secBlocks.length === 0) { return; }
+
+        var secBlock = secBlocks[0];
+        var secData = sectionDataMap[sectionName];
+        var cIdx = Number(secBlock.getAttribute('data-color-index'));
+
+        if (secData) {
+            showDetail(secData, cIdx, secBlock);
+        }
+        secBlock.scrollIntoView({ behavior: 'instant', block: 'center' });
+
+        // Wait for detail panel to fully render, then find and highlight the symbol
+        setTimeout(function () {
+            var el = findSymbolRow(symbolName, sectionName, address);
+            if (el) {
+                el.classList.add('highlighted');
+                el.scrollIntoView({ behavior: 'instant', block: 'center' });
+            }
+        }, 300);
+    }
+
+    /**
+     * Find a symbol row in the detail panel by address, name, or partial match.
+     */
+    function findSymbolRow(symbolName, sectionName, address) {
+        // 1. Try detailSymbolIndex by address
+        if (address !== undefined && sectionName) {
+            var el = detailSymbolIndex[sectionName + '\0' + String(address)];
+            if (el) { return el; }
+        }
+        // 2. Try by exact name
+        if (sectionName) {
+            var el = detailSymbolIndex[sectionName + '\0' + symbolName];
+            if (el) { return el; }
+        }
+        // 3. Try partial match in index (e.g., "close_udp_socket" matches ".text.close_udp_socket")
+        var keys = Object.keys(detailSymbolIndex);
+        for (var k = 0; k < keys.length; k++) {
+            var parts = keys[k].split('\0');
+            if (parts[1] && parts[1].indexOf(symbolName) >= 0) {
+                return detailSymbolIndex[keys[k]];
+            }
+        }
+        // 4. Last resort: search DOM directly by data-symbol attribute
+        var rows = document.querySelectorAll('.detail-row[data-symbol]');
+        for (var r = 0; r < rows.length; r++) {
+            var ds = rows[r].getAttribute('data-symbol');
+            if (ds === symbolName || (ds && ds.indexOf(symbolName) >= 0)) {
+                return rows[r];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Programmatically fill the search box and trigger a search.
+     * Used by the "Find in Memory Map" right-click command.
+     */
+    function searchFor(query) {
+        var input = document.querySelector('.search-input');
+        var resultsEl = document.querySelector('.search-results');
+        if (!input || !resultsEl) { return; }
+
+        input.value = query;
+        input.focus();
+
+        // Defer so the current click event finishes bubbling
+        // (otherwise the "close on outside click" handler immediately hides results)
+        setTimeout(function () {
+            doSearch(query, resultsEl);
+
+            // If exactly one result, auto-select it
+            var items = resultsEl.querySelectorAll('.search-result-item:not(.search-no-result)');
+            if (items.length === 1) {
+                items[0].click();
+            }
+        }, 0);
+    }
+
+    // ── View Mode Toggle ──
+    var currentViewMode = 'bar'; // 'bar', 'treemap', 'timeline'
+
+    function switchViewMode(mode) {
+        if (currentViewMode === mode) return;
+        
+        currentViewMode = mode;
+        
+        // Update button states
+        var buttons = document.querySelectorAll('.view-btn');
+        buttons.forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        
+        var activeBtn = document.getElementById('view-' + mode);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+        }
+        
+        // Show/hide appropriate containers
+        var app = document.getElementById('app');
+        var connectorSvg = document.getElementById('connector-svg');
+        var detailPanel = document.getElementById('detail-panel');
+        var treemapContainer = document.getElementById('treemap-container');
+        
+        if (mode === 'bar') {
+            // Show bar view
+            if (app) app.style.display = '';
+            if (treemapContainer) treemapContainer.style.display = 'none';
+            // Restore detail panel if it was visible
+            if (currentSelectedSection) {
+                if (detailPanel) detailPanel.style.display = 'flex';
+                if (connectorSvg) connectorSvg.style.display = 'block';
+            }
+        } else if (mode === 'treemap') {
+            // Show treemap view
+            if (app) app.style.display = 'none';
+            if (connectorSvg) connectorSvg.style.display = 'none';
+            if (detailPanel) detailPanel.style.display = 'none';
+            if (treemapContainer) treemapContainer.style.display = 'flex';
+            
+            // Initialize treemap if we have data
+            if (layoutData && window.TreemapView) {
+                window.TreemapView.init(layoutData);
+            }
+        } else if (mode === 'timeline') {
+            // Timeline view - to be implemented
+            if (app) app.style.display = 'none';
+            if (treemapContainer) treemapContainer.style.display = 'none';
+            if (connectorSvg) connectorSvg.style.display = 'none';
+            if (detailPanel) detailPanel.style.display = 'none';
+            // TODO: Show timeline view
+        }
+    }
+
+    // Set up view mode toggle buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        var viewBar = document.getElementById('view-bar');
+        var viewTreemap = document.getElementById('view-treemap');
+        var viewTimeline = document.getElementById('view-timeline');
+        
+        if (viewBar) {
+            viewBar.addEventListener('click', function() {
+                switchViewMode('bar');
+            });
+        }
+        
+        if (viewTreemap) {
+            viewTreemap.addEventListener('click', function() {
+                switchViewMode('treemap');
+            });
+        }
+        
+        if (viewTimeline) {
+            viewTimeline.addEventListener('click', function() {
+                switchViewMode('timeline');
+            });
+        }
+    });
+
+    window.mapViewIPC.onMessage(function (msg) {
+        switch (msg.type) {
+            case 'updateLayout':
+                layoutData = msg.layout;
+                render(layoutData);
+                // If treemap is active, update it too
+                if (currentViewMode === 'treemap' && window.TreemapView) {
+                    window.TreemapView.init(layoutData);
+                }
+                break;
+            case 'switchViewMode':
+                // Handle view mode switch from extension command
+                if (msg.mode) {
+                    switchViewMode(msg.mode);
+                }
+                break;
+            case 'highlightSection':
+                highlightSection(msg.section);
+                break;
+            case 'highlightSymbol':
+                highlightSymbol(msg.symbol, msg.section, msg.address);
+                break;
+            case 'focusSymbol':
+                focusSymbol(msg.symbol, msg.section, msg.address);
+                break;
+            case 'searchSymbol':
+                searchFor(msg.query);
+                break;
+        }
+    });
+})();

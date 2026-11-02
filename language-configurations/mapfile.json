@@ -1,0 +1,29 @@
+{
+	"comments": {
+		"lineComment": "#"
+	},
+	"brackets": [
+		["[", "]"],
+		["(", ")"],
+		["{", "}"]
+	],
+	"autoClosingPairs": [
+		{ "open": "[", "close": "]" },
+		{ "open": "(", "close": ")" },
+		{ "open": "{", "close": "}" },
+		{ "open": "\"", "close": "\"", "notIn": ["string"] }
+	],
+	"surroundingPairs": [
+		["[", "]"],
+		["(", ")"],
+		["{", "}"],
+		["\"", "\""]
+	],
+	"folding": {
+		"markers": {
+			"start": "^(Memory Configuration|Linker script and memory map|Discarded input sections|Cross Reference Table|Allocating common symbols)",
+			"end": "^\\s*$"
+		}
+	},
+	"wordPattern": "[\\w.~%&$:\\\\+\\/-]+"
+}

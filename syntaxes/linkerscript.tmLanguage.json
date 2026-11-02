@@ -1,0 +1,304 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "GNU Linker Script",
+	"scopeName": "source.linkerscript",
+	"patterns": [
+		{"include": "#comments"},
+		{"include": "#preprocessor-like"},
+		{"include": "#entry-command"},
+		{"include": "#sections-block"},
+		{"include": "#memory-block"},
+		{"include": "#phdrs-block"},
+		{"include": "#top-level-commands"},
+		{"include": "#numbers"},
+		{"include": "#strings"},
+		{"include": "#section-names"},
+		{"include": "#uppercase-identifiers"}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.block",
+					"begin": "/\\*",
+					"end": "\\*/",
+					"patterns": [
+						{
+							"name": "comment.block",
+							"match": "."
+						}
+					]
+				},
+				{
+					"name": "comment.line.double-slash",
+					"match": "//.*$"
+				}
+			]
+		},
+		"preprocessor-like": {
+			"patterns": [
+				{
+					"match": "^\\s*(INCLUDE)\\b",
+					"name": "keyword.control.import"
+				}
+			]
+		},
+		"entry-command": {
+			"match": "\\b(ENTRY)\\s*\\(\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*\\)",
+			"captures": {
+				"1": {"name": "keyword.control"},
+				"2": {"name": "entity.name.function"}
+			}
+		},
+		"memory-block": {
+			"name": "meta.block.memory",
+			"begin": "\\b(MEMORY)\\b(?:\\s*(\\{))?",
+			"end": "\\}",
+			"beginCaptures": {
+				"1": {"name": "storage.type"},
+				"2": {"name": "punctuation.section.block.begin"}
+			},
+			"patterns": [
+				{"include": "#comments"},
+				{"include": "#standalone-open-brace"},
+				{
+					"match": "([A-Za-z_]\\w*)\\s*(\\([^)]*\\))?\\s*:\\s*(?:(ORIGIN|org|o)\\s*=\\s*([^,]+)\\s*,)?\\s*(?:(LENGTH|len|l)\\s*=\\s*([^,\\}\\s]+))?",
+					"captures": {
+						"1": {"name": "entity.name.type"},
+						"2": {"name": "storage.modifier"},
+						"3": {"name": "keyword.other"},
+						"4": {"name": "meta.expression"},
+						"5": {"name": "keyword.other"},
+						"6": {"name": "meta.expression"}
+					}
+				}
+			]
+		},
+		"sections-block": {
+			"name": "meta.block.sections",
+			"begin": "\\b(SECTIONS)\\b(?:\\s*(\\{))?",
+			"end": "\\}",
+			"beginCaptures": {
+				"1": {"name": "storage.type"},
+				"2": {"name": "punctuation.section.block.begin"}
+			},
+			"patterns": [
+				{"include": "#comments"},
+				{"include": "#standalone-open-brace"},
+				{"include": "#section-definition"},
+				{"include": "#assignments"},
+				{"include": "#location-counter"}
+			]
+		},
+		"section-definition": {
+			"name": "meta.section.definition",
+			"begin": "(\\.[a-zA-Z_][\\w.]*)(\\s*)(?:([0-9a-fA-Fx]+)(\\s*))?(:)(\\s*)(?:(AT)(\\s*\\()?)?(?:\\s*(\\{))?",
+			"end": "\\}\\s*(?:>\\s*([A-Za-z_]\\w*))?(?:\\s+(AT)>\\s*([A-Za-z_]\\w*))?",
+			"beginCaptures": {
+				"1": {"name": "entity.name.type"},
+				"3": {"name": "constant.numeric"},
+				"5": {"name": "punctuation.separator.key-value"},
+				"7": {"name": "keyword.control"},
+				"8": {"name": "punctuation.section.parens.begin"},
+				"9": {"name": "punctuation.section.block.begin"}
+			},
+			"endCaptures": {
+				"0": {"name": "meta.section.definition.trailing"},
+				"1": {"name": "entity.name.type"},
+				"2": {"name": "keyword.control"},
+				"3": {"name": "entity.name.type"}
+			},
+			"patterns": [
+				{"include": "#comments"},
+				{"include": "#standalone-open-brace"},
+				{"include": "#location-counter"},
+				{"include": "#assignments"},
+				{"include": "#section-content"}
+			]
+		},
+		"standalone-open-brace": {
+			"patterns": [
+				{
+					"match": "^\\s*(\\{)\\s*$",
+					"captures": {
+						"1": {"name": "punctuation.section.block.begin"}
+					}
+				}
+			]
+		},
+		"section-content": {
+			"patterns": [
+				{
+					"comment": "KEEP with input sections",
+					"match": "\\b(KEEP)\\s*\\(\\s*(\\*)?\\s*\\(([^)]+)\\)\\s*\\)",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"name": "keyword.operator"},
+						"3": {"name": "entity.name.section"}
+					}
+				},
+				{
+					"comment": "Input section wildcard",
+					"match": "(\\*)?\\s*\\(([^)]+)\\)",
+					"captures": {
+						"1": {"name": "keyword.operator"},
+						"2": {"name": "entity.name.section"}
+					}
+				},
+				{"include": "#section-names"},
+				{
+					"comment": "SORT functions",
+					"match": "\\b(SORT|SORT_BY_NAME|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_NONE)\\s*\\(",
+					"captures": {
+						"1": {"name": "support.function"}
+					}
+				},
+				{
+					"comment": "EXCLUDE_FILE",
+					"match": "\\b(EXCLUDE_FILE)\\s*\\(",
+					"captures": {
+						"1": {"name": "keyword.control"}
+					}
+				},
+				{"include": "#keywords"},
+				{"include": "#functions"},
+				{"include": "#numbers"},
+				{"include": "#operators"}
+			]
+		},
+		"assignments": {
+			"patterns": [
+				{
+					"match": "\\b(PROVIDE|PROVIDE_HIDDEN|HIDDEN)\\s*\\(\\s*([_a-zA-Z][_a-zA-Z0-9]*)\\s*=",
+					"captures": {
+						"1": {"name": "keyword.control"},
+						"2": {"name": "variable.other"}
+					}
+				},
+				{
+					"match": "\\b([_a-zA-Z][_a-zA-Z0-9]*)\\s*(=|\\+=|-=|\\*=|/=)",
+					"captures": {
+						"1": {"name": "variable.other"},
+						"2": {"name": "keyword.operator.assignment"}
+					}
+				}
+			]
+		},
+		"location-counter": {
+			"patterns": [
+				{
+					"comment": "Location counter with ALIGN",
+					"match": "(\\.)\\s*=\\s*(ALIGN)\\s*\\(([^)]+)\\)",
+					"captures": {
+						"1": {"name": "variable.language"},
+						"2": {"name": "support.function"},
+						"3": {"name": "meta.expression"}
+					}
+				},
+				{
+					"comment": "Location counter assignment",
+					"match": "(\\.)\\s*(=|\\+=)\\s*([^;]+)",
+					"captures": {
+						"1": {"name": "variable.language"},
+						"2": {"name": "keyword.operator.assignment"},
+						"3": {"name": "meta.expression"}
+					}
+				},
+				{
+					"comment": "Location counter in expressions",
+					"match": "\\b(\\.)\\b",
+					"name": "variable.language"
+				}
+			]
+		},
+		"phdrs-block": {
+			"name": "meta.block.phdrs",
+			"begin": "\\b(PHDRS)\\s*\\{",
+			"end": "\\}",
+			"beginCaptures": {
+				"1": {"name": "storage.type"}
+			},
+			"patterns": [
+				{"include": "#comments"},
+				{
+					"match": "([A-Za-z_]\\w*)\\s+(PT_\\w+)\\s*(FLAGS\\s*\\(\\s*([^)]+)\\s*\\))?",
+					"captures": {
+						"1": {"name": "entity.name.type"},
+						"2": {"name": "support.constant"},
+						"3": {"name": "keyword.other"},
+						"4": {"name": "meta.expression"}
+					}
+				}
+			]
+		},
+		"top-level-commands": {
+			"match": "\\b(OUTPUT|OUTPUT_FORMAT|OUTPUT_ARCH|STARTUP|SEARCH_DIR|INPUT|GROUP|AS_NEEDED|TARGET|ASSERT|EXTERN|FORCE_COMMON_ALLOCATION|INHIBIT_COMMON_ALLOCATION|INSERT|NOCROSSREFS|NOCROSSREFS_TO|REGION_ALIAS|VERSION|INCLUDE)\\b",
+			"name": "keyword.control"
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"match": "\\b(KEEP|SORT|SORT_BY_NAME|SORT_BY_ALIGNMENT|SORT_BY_INIT_PRIORITY|SORT_NONE|EXCLUDE_FILE|CREATE_OBJECT_SYMBOLS|CONSTRUCTORS|FILL|ONLY_IF_RO|ONLY_IF_RW|SPECIAL|DISCARD|NOLOAD|DSECT|COPY|INFO|OVERLAY|SUBALIGN|AT|ALIGN_WITH_INPUT|COMMON)\\b",
+					"name": "keyword.other"
+				},
+				{
+					"match": "\\b(BYTE|SHORT|LONG|QUAD|SQUAD|ASCIZ)\\b",
+					"name": "storage.type"
+				}
+			]
+		},
+		"functions": {
+			"match": "\\b(ABSOLUTE|ADDR|ALIGN|ALIGNOF|BLOCK|DATA_SEGMENT_ALIGN|DATA_SEGMENT_END|DATA_SEGMENT_RELRO_END|DEFINED|LENGTH|LOADADDR|LOG2CEIL|MAX|MIN|NEXT|ORIGIN|SEGMENT_START|SIZEOF|SIZEOF_HEADERS)\\b",
+			"name": "support.function"
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"match": "\\b0x[0-9a-fA-F]+\\b",
+					"name": "constant.numeric"
+				},
+				{
+					"match": "\\b\\d+[KkMmGg]\\b",
+					"name": "constant.numeric"
+				},
+				{
+					"match": "\\b\\d+\\b",
+					"name": "constant.numeric"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape",
+					"match": "\\\\."
+				}
+			]
+		},
+		"operators": {
+			"match": "[+\\-*/%&|^~!<>=?:]|&&|\\|\\||<<|>>|==|!=|<=|>=",
+			"name": "keyword.operator"
+		},
+		"section-names": {
+			"patterns": [
+				{
+					"comment": "Section names starting with dot",
+					"match": "\\.[a-zA-Z_][\\w.]*\\*?",
+					"name": "entity.name.section"
+				}
+			]
+		},
+		"uppercase-identifiers": {
+			"patterns": [
+				{
+					"comment": "Uppercase identifiers (memory regions, constants)",
+					"match": "\\b[A-Z][A-Z0-9_]*\\b",
+					"name": "constant.language"
+				}
+			]
+		}
+	}
+}

@@ -1,0 +1,72 @@
+"use strict";
+/*
+ * Copyright (C) 2025 Kishan Parmar
+ * Adapted from gcc_map_view by Rob Derr
+ *
+ * This file is part of GCC Workbench.
+ *
+ * GCC Workbench is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.formatHex = formatHex;
+exports.formatSize = formatSize;
+exports.formatSizeReadable = formatSizeReadable;
+exports.parseSize = parseSize;
+exports.usagePercent = usagePercent;
+function formatHex(value, width = 8) {
+    return '0x' + value.toString(16).toUpperCase().padStart(width, '0');
+}
+function formatSize(bytes) {
+    if (bytes === 0) {
+        return '0';
+    }
+    if (bytes >= 1024 * 1024 && bytes % (1024 * 1024) === 0) {
+        return `${bytes / (1024 * 1024)}M`;
+    }
+    if (bytes >= 1024 && bytes % 1024 === 0) {
+        return `${bytes / 1024}K`;
+    }
+    return `${bytes}`;
+}
+function formatSizeReadable(bytes) {
+    if (bytes >= 1024 * 1024) {
+        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    }
+    if (bytes >= 1024) {
+        return `${(bytes / 1024).toFixed(1)} KB`;
+    }
+    return `${bytes} B`;
+}
+function parseSize(value) {
+    const trimmed = value.trim();
+    // Hex number
+    if (/^0x[0-9a-fA-F]+$/i.test(trimmed)) {
+        return parseInt(trimmed, 16);
+    }
+    // Number with K/M suffix
+    const match = trimmed.match(/^(\d+)\s*([KkMm])$/);
+    if (match) {
+        const num = parseInt(match[1], 10);
+        const suffix = match[2].toUpperCase();
+        if (suffix === 'K') {
+            return num * 1024;
+        }
+        if (suffix === 'M') {
+            return num * 1024 * 1024;
+        }
+    }
+    // Plain decimal number
+    const num = parseInt(trimmed, 10);
+    return isNaN(num) ? 0 : num;
+}
+function usagePercent(used, total) {
+    if (total === 0) {
+        return '0%';
+    }
+    return `${((used / total) * 100).toFixed(1)}%`;
+}
+// Made with Bob
+//# sourceMappingURL=format.js.map

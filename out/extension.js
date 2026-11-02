@@ -68,7 +68,14 @@ const passTreeProvider_1 = require("./passTreeProvider");
 const rtlCache_1 = require("./rtlCache");
 const gimpleCache_1 = require("./gimpleCache");
 const gimpleHoverProvider_1 = require("./gimpleHoverProvider");
-const sourceMapper_1 = require("./sourceMapper"); // Import the new class
+const sourceMapper_1 = require("./sourceMapper");
+const memoryMapIntegration_1 = require("./memoryMapIntegration");
+const mapSymbolProvider_1 = require("./memoryMap/providers/mapSymbolProvider");
+const detection_1 = require("./memoryMap/detection");
+const suStore_1 = require("./stackUsage/suStore");
+const codeLensProvider_1 = require("./stackUsage/codeLensProvider");
+const globalStackUsageDataProvider_1 = require("./stackUsage/globalStackUsageDataProvider");
+const currentFileStackUsageDataProvider_1 = require("./stackUsage/currentFileStackUsageDataProvider");
 const mdCache = new mdCache_1.GccMdCache();
 const rtlCache = new rtlCache_1.RtlDefCache();
 const gimpleCache = new gimpleCache_1.GimpleCache();
@@ -81,7 +88,48 @@ let sourceMapper;
 // Track which folders we have already indexed to avoid spamming re-index on every tab switch
 const initializedBackends = new Set();
 async function activate(context) {
-    // 1. Helper: Auto-detect GCC Dump Language
+    // 1. Initialize Format Detectors
+    (0, detection_1.initializeFormatDetectors)();
+    // 2. Activate Memory Map Features
+    (0, memoryMapIntegration_1.activateMemoryMapFeatures)(context);
+    // 3. Initialize Stack Usage Store
+    const suStore = new suStore_1.SuStore();
+    context.subscriptions.push(suStore);
+    // 4. Setup Stack Usage File Watcher
+    const suWatcher = vscode.workspace.createFileSystemWatcher('**/*.su');
+    suWatcher.onDidCreate(uri => suStore.onAddOrUpdate(uri));
+    suWatcher.onDidChange(uri => suStore.onAddOrUpdate(uri));
+    suWatcher.onDidDelete(uri => suStore.onDelete(uri));
+    context.subscriptions.push(suWatcher);
+    // 5. Register Stack Usage Providers
+    const cSelector = { scheme: 'file', language: 'c' };
+    const cppSelector = { scheme: 'file', language: 'cpp' };
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider(cSelector, new codeLensProvider_1.StackUsageCodeLensProvider(suStore)));
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider(cppSelector, new codeLensProvider_1.StackUsageCodeLensProvider(suStore)));
+    vscode.window.registerTreeDataProvider('gcc-stack-usage.globalStackUsage', new globalStackUsageDataProvider_1.GlobalStackUsageDataProvider(suStore));
+    vscode.window.registerTreeDataProvider('gcc-stack-usage.currentFileStackUsage', new currentFileStackUsageDataProvider_1.CurrentFileStackUsageDataProvider(suStore));
+    // 6. Register Stack Usage Commands
+    context.subscriptions.push(vscode.commands.registerCommand('gcc-stack-usage.updateSuStore', async () => {
+        await suStore.update();
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand('gcc-stack-usage.toggleEnabled', () => {
+        const newState = !suStore.enabled;
+        suStore.setEnabled(newState);
+        vscode.commands.executeCommand('setContext', 'gcc-stack-usage.enabled', newState);
+        if (newState) {
+            vscode.window.showInformationMessage('Stack Usage Analysis enabled');
+        }
+        else {
+            vscode.window.showInformationMessage('Stack Usage Analysis disabled');
+        }
+    }));
+    // Set initial context (disabled by default)
+    vscode.commands.executeCommand('setContext', 'gcc-stack-usage.enabled', false);
+    // Listen for enabled state changes to update code lens
+    suStore.onEnabledChanged((enabled) => {
+        vscode.commands.executeCommand('setContext', 'gcc-stack-usage.enabled', enabled);
+    });
+    // 7. Helper: Auto-detect GCC Dump Language
     // Checks for .t (GIMPLE), .r (RTL), .i (IPA)
     const ensureDumpLanguage = async (doc) => {
         if (doc.uri.scheme !== 'file')
@@ -116,7 +164,10 @@ async function activate(context) {
         { scheme: 'file', language: 'gcc-md' }
     ];
     const gimpleSelector = { scheme: 'file', language: 'gcc-gimple' };
-    // 4. Startup Logic (Run immediately when window loads)
+    const mapfileSelector = { scheme: 'file', language: 'mapfile' };
+    // 4. Register Map File Language Support
+    context.subscriptions.push(vscode.languages.registerDocumentSymbolProvider(mapfileSelector, new mapSymbolProvider_1.MapSymbolProvider()));
+    // 5. Startup Logic (Run immediately when window loads)
     if (vscode.window.activeTextEditor) {
         const editor = vscode.window.activeTextEditor;
         const doc = editor.document;
