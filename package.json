@@ -340,7 +340,7 @@
       },
       {
         "id": "markdown",
-        "filenames": ["README.md", "TODO.md"]
+        "filenames": ["README.md", "TODO.md", "CHANGELOG.md"]
       },
       {
         "id": "gcc-md",
