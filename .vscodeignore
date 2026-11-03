@@ -9,6 +9,9 @@ src/**
 scripts/**
 test/**
 out/test/**
+out-test/**
+tsconfig.test.json
+.claude/**
 **/*.ts
 **/*.map
 
