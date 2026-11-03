@@ -726,6 +726,64 @@ describe('RTL model against GCC 14 dataflow', () => {
     });
 });
 
+/**
+ * rs6000, written the way print-rtl.cc prints it (no PowerPC GCC was at hand): full dumps print
+ * "(reg:TI 3 %r3)" (regno, then reg_names[regno]); -slim prints the name, "%r3:TI". Default names
+ * are bare numbers ("(reg:DI 3 3)", slim "%3:DI"); -mregnames gives %rN, %fN, %vN, %crN.
+ */
+describe('RTL on rs6000', () => {
+    const HEAD = ';; Function f (f, funcdef_no=0, decl_uid=1, cgraph_uid=1, symbol_order=0)';
+    const occ = (fn: FunctionInfo, regno: number) => fn.vars.get('r' + regno)?.occurrences.filter(o => o.uid !== undefined) ?? [];
+    const full = (insns: string[]) => parseRtlDump([HEAD, '', '(note 1 0 9 NOTE_INSN_DELETED)',
+        '(note 9 1 2 2 [bb 2] NOTE_INSN_BASIC_BLOCK)', '(insn 2 9 3 2 (set (reg/f:DI 1 %r1) (reg/f:DI 1 %r1)) -1 (nil))',
+        ...insns.map((p, k) => `(insn ${10 + k} 3 4 2 ${p} -1 (nil))`)]).functions[0];
+
+    it('counts each register a value occupies, as rs6000_hard_regno_nregs does', () => {
+        const fn = full([
+            '(set (reg:TI 3 %r3) (const_int 0))',          // GPRs are 8 bytes on ppc64: r3-r4
+            '(set (reg:IF 33 %f1) (reg:IF 40 %f8))',        // IBM long double: an FPR pair
+            '(set (reg:TD 36 %f4) (reg:TD 40 %f8))',        // _Decimal128: an FPR pair
+            '(set (reg:KF 44 %f12) (reg:KF 45 %f13))',      // IEEE 128-bit: one VSX register
+            '(set (reg:V4SI 46 %f14) (reg:V4SI 66 %v2))',   // VSX vector: one register
+            '(set (reg:OO 70 %v6) (reg:OO 72 %v8))',        // vector pair: two
+            '(set (reg:XO 48 %f16) (reg:XO 52 %f20))',      // MMA accumulator: four FPRs
+            '(set (reg:DF 56 %f24) (reg:DF 57 %f25))',      // one FPR
+        ]);
+        const defs = (r: number) => occ(fn, r).filter(o => o.role === 'def').length;
+        assert.deepStrictEqual([3, 4, 5].map(defs), [1, 1, 0]);
+        assert.deepStrictEqual([33, 34, 35].map(defs), [1, 1, 0]);
+        assert.deepStrictEqual([36, 37, 38].map(defs), [1, 1, 0]);
+        assert.deepStrictEqual([44, 45].map(defs), [1, 0]);
+        assert.deepStrictEqual([46, 47].map(defs), [1, 0]);
+        assert.deepStrictEqual([70, 71, 72].map(defs), [1, 1, 0]);
+        assert.deepStrictEqual([48, 49, 50, 51, 52].map(defs), [1, 1, 1, 1, 0]);
+        assert.deepStrictEqual([56, 57].map(defs), [1, 0]);
+        assert.strictEqual(fn.vars.get('r33')!.hardName, '%f1');
+    });
+
+    it('reads default register names (bare numbers) in full dumps', () => {
+        const fn = full(['(set (reg:TI 3 3) (reg:TI 30 30))', '(set (reg:DF 60 28) (reg:DF 33 1))']);
+        assert.deepStrictEqual([3, 4, 30, 31, 60, 33].map(r => occ(fn, r).length), [1, 1, 1, 1, 1, 1]);
+    });
+
+    it('maps -mregnames names in -slim dumps, without a dataflow table', () => {
+        const fn = parseRtlDump([HEAD, '', '    1: NOTE_INSN_DELETED', '    9: NOTE_INSN_BASIC_BLOCK 2',
+            '    2: %r3:TI=%r30:TI', '    4: %f28:DF=%f1:DF', '    5: %v2:V4SI=%v3:V4SI', '    6: %cr7:CC=cmp(%r9:SI,0)',
+            '    7: %r1:DI=%r1:DI-0x10', '    8: ctr:DI=%r12:DI']).functions[0];
+        const at = (r: number) => occ(fn, r).map(o => o.role).join(',');
+        assert.deepStrictEqual([3, 4, 30, 31, 60, 33, 66, 67, 107, 9, 97, 12].map(at),
+            ['def', 'def', 'use', 'use', 'def', 'use', 'def', 'use', 'def', 'use', 'def', 'use']);
+        assert.strictEqual(fn.vars.get('r60')!.hardName, '%f28');
+        assert.ok(!fn.vars.has('r28') || !occ(fn, 28).length, '%f28 is not GPR 28');
+    });
+
+    it('leaves default -slim names (%31 is r31, f31 or v31) unresolved rather than guessing', () => {
+        const fn = parseRtlDump([HEAD, '', ';;  entry block defs \t 1 [1] 3 [3] 33 [1]', '    1: NOTE_INSN_DELETED',
+            '    9: NOTE_INSN_BASIC_BLOCK 2', '    2: %3:DI=%31:DI']).functions[0];
+        assert.ok(![...fn.vars.values()].some(v => v.occurrences.some(o => o.uid === 2)));
+    });
+});
+
 describe('parseGimpleDump', () => {
     const m = parseGimpleDump(GIMPLE.split('\n'));
     const f = m.functions[0];

@@ -48,6 +48,7 @@ exports.registerDumpLanguage = registerDumpLanguage;
 const vscode = __importStar(require("vscode"));
 const gimpleModel_1 = require("./dumpModel/gimpleModel");
 const rtlModel_1 = require("./dumpModel/rtlModel");
+const rtlFlags_1 = require("./dumpModel/rtlFlags");
 const types_1 = require("./dumpModel/types");
 /**
  * Language features for GCC RTL and GIMPLE dumps: outline, go to definition,
@@ -162,6 +163,13 @@ function uniqueByInsn(list) {
         return true;
     });
 }
+/** One line per flag: "`/v` SUBREG_PROMOTED_UNSIGNED_P: ...", the hovered one in bold. */
+function flagLines(rtx, letters, hovered) {
+    return (0, rtlFlags_1.explainFlags)(rtx, letters).map(f => {
+        const line = `${code('/' + f.letter)}${f.macro ? ` ${esc(f.macro)}` : ''}: ${f.text}`;
+        return f.letter === hovered ? `- **${line}**` : `- ${line}`;
+    }).join('\n') + '\n\n';
+}
 function varHover(doc, hit) {
     const { fn, variable: v, occurrence: o } = hit;
     const real = v.occurrences.filter(x => x.role !== 'log' && x.role !== 'note');
@@ -206,6 +214,10 @@ function varHover(doc, hit) {
         facts.push(`flags ${[...v.flags].map(f => '/' + f).join('')}`);
     facts.push(`${defs.length} def${defs.length === 1 ? '' : 's'}`, `${uses.length} use${uses.length === 1 ? '' : 's'}`);
     md.appendMarkdown(facts.join(' · ') + '\n\n');
+    // The flags GCC printed on this mention: (reg/v/f:DI 108).
+    const here = o.flags?.split('/').filter(Boolean) ?? [];
+    if (here.length && fn.stmtKind !== 'stmt')
+        md.appendMarkdown(`**Flags here** ${code(o.flags)}\n\n` + flagLines('reg', here));
     if (fn.stmtKind === 'stmt' && !v.ssa) {
         const versions = [...fn.vars.values()].filter(x => x.ssa && x.base === v.key).map(x => x.key + (x.defaultDef ? '(D)' : ''));
         if (versions.length)
@@ -428,6 +440,15 @@ class DumpNavigationProvider {
         return t.hit.variable.occurrences.map(o => new vscode.DocumentHighlight(toRange(o), (0, types_1.isWrite)(o) ? K.Write : (0, types_1.isRead)(o) ? K.Read : K.Text));
     }
     provideHover(doc, pos) {
+        const head = doc.languageId === 'gcc-rtl' ? (0, rtlFlags_1.flagHeadAt)(doc.lineAt(pos.line).text, pos.character) : undefined;
+        if (head) {
+            // On "(subreg/s/v:SI": what each flag means for this rtx code, the hovered one first in bold.
+            const hovered = head.letters[head.spans.findIndex(([s, e]) => pos.character >= s && pos.character < e)];
+            const md = new vscode.MarkdownString();
+            md.appendMarkdown(`#### ${code(head.code + head.letters.map(l => '/' + l).join(''))} flags\n\n`);
+            md.appendMarkdown(flagLines(head.code, head.letters, hovered));
+            return new vscode.Hover(md, new vscode.Range(pos.line, head.start + 1, pos.line, head.end));
+        }
         const t = this.index.targetAt(doc, pos);
         if (!t)
             return undefined;

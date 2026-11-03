@@ -77,6 +77,7 @@ const SCALAR_BYTES: Record<string, number> = {
   HF: 2, BF: 2, SF: 4, DF: 8, XF: 16, TF: 16, KF: 16, IF: 16, SD: 4, DD: 8, TD: 16,
   QQ: 1, HQ: 2, SQ: 4, DQ: 8, TQ: 16, UQQ: 1, UHQ: 2, USQ: 4, UDQ: 8, UTQ: 16,
   HA: 2, SA: 4, DA: 8, TA: 16, UHA: 2, USA: 4, UDA: 8, UTA: 16,
+  PTI: 16, OO: 32, XO: 64, TDO: 128, // rs6000 quad-word pair and MMA modes
 };
 
 /** Byte size of a machine mode, or undefined when it cannot be told from the name (CC, SVE, ...). */
@@ -93,17 +94,39 @@ export function modeBytes(mode: string | undefined): number | undefined {
   return undefined;
 }
 
+/** rs6000 register numbering (rs6000.h REGISTER_NAMES): -mregnames prints %r3, %f1, %v0, %cr7, %dm0. */
+const RS6000_FIXED: Record<string, number> = {lr: 96, ctr: 97, ca: 98, ap: 99, vrsave: 108, vscr: 109, sfp: 110};
+export function rs6000Regno(name: string): number | undefined {
+  const m = /^%(r|f|v|cr|dm)(\d+)$/.exec(name);
+  if (!m) return RS6000_FIXED[name];
+  const n = Number(m[2]);
+  const [base, count] = ({r: [0, 32], f: [32, 32], v: [64, 32], cr: [100, 8], dm: [111, 8]} as const)[m[1] as 'r'];
+  return n < count ? base + n : undefined;
+}
+
 /**
  * How many hard registers a value occupies (GCC's hard_regno_nregs), where the dump tells:
  * tuple modes (V2x4SI in v28 is v28-v29) and values wider than a word in general registers
- * (TI in x0 is x0-x1). Other register files keep one register.
+ * (TI in x0 is x0-x1). Other register files keep one register, except on rs6000, which
+ * follows rs6000_hard_regno_nregs_internal.
  */
-export function hardRegSpan(regno: number, name: string, mode: string | undefined, wordBytes: number): number {
+export function hardRegSpan(regno: number, name: string, mode: string | undefined, wordBytes: number,
+                            rs6000 = false): number {
   if (!mode) return 1;
   const tuple = /^V(\d+)x\d+[A-Z]+$/.exec(mode);
   if (tuple) return Number(tuple[1]);
   const bytes = modeBytes(mode);
-  if (bytes === undefined || bytes <= wordBytes) return 1;
+  if (bytes === undefined) return 1;
+  if (rs6000) {
+    // FPRs are 8 bytes, but 16 for the modes VSX loads whole (vectors, TI, IEEE 128-bit, MMA);
+    // a mode that sits in an FPR at all is one VSX supports. AltiVec registers are 16 bytes.
+    // TFmode is IBM (2 FPRs) or IEEE (1) depending on -mabi; it is not in the name, so 1.
+    const size = regno < 32 ? wordBytes
+        : regno < 64 ? (/^V|^(?:V1)?TI$|^K[FC]$|^TF$|^TC$|^OO$|^XO$|^TDO$/.test(mode) ? 16 : 8)
+        : regno < 96 ? 16 : regno >= 111 && regno <= 118 ? 128 : bytes;
+    return Math.max(1, Math.ceil(bytes / size));
+  }
+  if (bytes <= wordBytes) return 1;
   // aarch64 x0-x30; x86 ax..bp, r8-r15; riscv ABI names; arm r0-r12, ip, fp, lr; rs6000 GPRs print their number.
   const gpr = /^(?:x(?:[12]?\d|30)|[re]?(?:ax|bx|cx|dx|si|di|bp)|r(?:\d|1[0-5])|zero|ra|gp|tp|[ast]\d+|ip|fp|lr)$/.test(name)
       || (regno < 32 && name === String(regno));
@@ -172,7 +195,8 @@ class ChunkWalker {
   private conditional = 0;
 
   constructor(private readonly text: string, private readonly baseLine: number,
-              private readonly fn: FunctionBuilder, private readonly wordBytes: number) {
+              private readonly fn: FunctionBuilder, private readonly wordBytes: number,
+              private readonly rs6000 = false) {
     this.lineStarts.push(0);
     for (let i = 0; i < text.length; i++)
       if (text[i] === '\n')
@@ -226,7 +250,7 @@ class ChunkWalker {
     v.occurrences.push(occ);
     this.recorded.push(occ);
     // The other hard registers of a multi-register value, at the same text.
-    if (name) for (let k = 1; k < hardRegSpan(regno, name.text, head.mode, this.wordBytes); k++) {
+    if (name) for (let k = 1; k < hardRegSpan(regno, name.text, head.mode, this.wordBytes, this.rs6000); k++) {
       const extra: Occurrence = {...occ, implicit: true};
       this.fn.variable(regno + k).occurrences.push(extra);
       this.recorded.push(extra);
@@ -451,8 +475,10 @@ export function parseRtlDump(lines: string[], options: RtlParseOptions = {}): Du
   const builders: {b: FunctionBuilder; endLine: number}[] = [];
   let current: FunctionBuilder | undefined;
   // 64-bit targets use DImode pointers; it decides which subreg stores are partial.
-  // aarch64 (x0-x30) and x86-64 (r13-r15) registers say so by name.
-  const wordBytes = lines.some(l => /\(reg\/f:DI |\bsp:DI\b|\[r\d+:DI\b|:[A-Z][A-Za-z0-9]* \d+ (?:x(?:[12]?\d|30)|r1[3-5])[\s)]|(?<![\w.])x(?:[12]?\d|30):[A-Z]/.test(l)) ? 8 : 4;
+  // rs6000: ctr and ca exist nowhere else; -mregnames names start with %.
+  const rs6000 = lines.some(l => /\b9[78] \[(?:ctr|ca)\]|:[A-Z][A-Za-z0-9]* 9[78] (?:ctr|ca)\)|(?<![\w%])%(?:r|f|v|cr)\d+\b/.test(l));
+  // aarch64 (x0-x30) and x86-64 (r13-r15) registers say so by name; rs6000's stack pointer is %r1.
+  const wordBytes = lines.some(l => /\(reg\/f:DI |\bsp:DI\b|\[r\d+:DI\b|:[A-Z][A-Za-z0-9]* \d+ (?:x(?:[12]?\d|30)|r1[3-5])[\s)]|(?<![\w.])x(?:[12]?\d|30):[A-Z]|(?<![\w%])%r1:DI\b/.test(l)) ? 8 : 4;
 
   const finish = (endLine: number) => {
     if (current) builders.push({b: current, endLine: Math.max(endLine, current.line)});
@@ -501,7 +527,7 @@ export function parseRtlDump(lines: string[], options: RtlParseOptions = {}): Du
       const end = chunkEnd(lines, i);
       const b = fn(i);
       const text = lines.slice(i, end + 1).join('\n');
-      const walker = new ChunkWalker(text, i, b, wordBytes);
+      const walker = new ChunkWalker(text, i, b, wordBytes, rs6000);
       const tm = TOP_LEVEL.exec(line);
       const df = !tm && DF_GRAPH.exec(line);
       try {
@@ -566,7 +592,8 @@ export function parseRtlDump(lines: string[], options: RtlParseOptions = {}): Du
     for (const v of b.vars.values())
       if (v.hardName && !hardRegs.has(v.hardName)) hardRegs.set(v.hardName, Number(v.key.slice(1)));
 
-  return {kind: 'rtl', functions: builders.map(({b, endLine}) => build(b, endLine, lines, hardRegs, wordBytes, options))};
+  if (rs6000) for (const n of ['lr', 'ctr', 'ca', 'ap', 'vrsave', 'vscr', 'sfp']) if (!hardRegs.has(n)) hardRegs.set(n, rs6000Regno(n)!);
+  return {kind: 'rtl', functions: builders.map(({b, endLine}) => build(b, endLine, lines, hardRegs, wordBytes, options, rs6000))};
 
   // ---- ;; lines -------------------------------------------------------------
 
@@ -671,7 +698,9 @@ const LOG_UIDS: RegExp[] = [
   /\bi[0-3]\s+(\d+)\b/g,
 ];
 const TRYING = /^Trying ([\d, ]+) -> (\d+):/;
-const SLIM_REG = /(?<![\w.])([a-z][a-z0-9_]*):([A-Z][A-Za-z0-9_]*)\b/g; // modes include V2x4SI, VNx4SI
+// Hard registers print by name: x0, sp, and rs6000's %r3 with -mregnames. Its default names are
+// numbers (%31 is r31, f31 or v31 alike), so those cannot be told apart and are left out.
+const SLIM_REG = /(?<![\w.%])(%?[a-z][a-z0-9_]*):([A-Z][A-Za-z0-9_]*)\b/g; // modes include V2x4SI, VNx4SI
 const SLIM_LABEL = /(?<![\w.])L(\d+)\b/g;
 
 function scanLogLine(b: FunctionBuilder, text: string, line: number, hardRegs: Map<string, number>, uids: Set<number>) {
@@ -692,7 +721,7 @@ function scanLogLine(b: FunctionBuilder, text: string, line: number, hardRegs: M
 
   for (const m of text.matchAll(SLIM_REG)) {
     const name = m[1];
-    const regno = /^r\d+$/.test(name) ? Number(name.slice(1)) : hardRegs.get(name);
+    const regno = /^r\d+$/.test(name) ? Number(name.slice(1)) : hardRegs.get(name) ?? rs6000Regno(name);
     if (regno === undefined) continue;
     const v = b.variable(regno);
     v.occurrences.push({line, start: m.index!, endLine: line, end: m.index! + name.length, role: 'log', mode: m[2]});
@@ -742,23 +771,25 @@ function slimKind(pattern: string): string {
 }
 
 /** The insn chain of a -slim dump: one insn per line, REG notes on the indented lines below. */
-function parseSlimChain(b: FunctionBuilder, lines: string[], hardRegs: Map<string, number>, wordBytes: number) {
+function parseSlimChain(b: FunctionBuilder, lines: string[], hardRegs: Map<string, number>, wordBytes: number,
+                        rs6000: boolean) {
   let bb: number | undefined;
   let pendingLabels: InsnInfo[] = [];
   let last: PendingInsn | undefined;
 
   const reg = (name: string): number | undefined =>
-      (/^r\d+$/.test(name) ? Number(name.slice(1)) : hardRegs.get(name));
+      (/^r\d+$/.test(name) ? Number(name.slice(1)) : hardRegs.get(name) ?? (rs6000 ? rs6000Regno(name) : undefined));
 
   const add = (pending: PendingInsn, regno: number, line: number, start: number, len: number,
                role: Role, mode?: string, partial = false, name?: string) => {
     const v = b.variable(regno);
     if (mode) v.modes.add(mode);
+    if (name && !/^r\d+$/.test(name)) v.hardName ??= name;
     const occ: Occurrence = {line, start, endLine: line, end: start + len, role, mode,
                              uid: role === 'log' ? undefined : pending.info.uid, partial: partial || undefined};
     v.occurrences.push(occ);
     pending.occurrences.push(occ);
-    if (name && !/^r\d+$/.test(name)) for (let k = 1; k < hardRegSpan(regno, name, mode, wordBytes); k++) {
+    if (name && !/^r\d+$/.test(name)) for (let k = 1; k < hardRegSpan(regno, name, mode, wordBytes, rs6000); k++) {
       const extra: Occurrence = {...occ, implicit: true};
       b.variable(regno + k).occurrences.push(extra);
       pending.occurrences.push(extra);
@@ -874,8 +905,8 @@ function parseSlimChain(b: FunctionBuilder, lines: string[], hardRegs: Map<strin
 }
 
 function build(b: FunctionBuilder, endLine: number, lines: string[], hardRegs: Map<string, number>,
-               wordBytes: number, options: RtlParseOptions): FunctionInfo {
-  parseSlimChain(b, lines, hardRegs, wordBytes);
+               wordBytes: number, options: RtlParseOptions, rs6000: boolean): FunctionInfo {
+  parseSlimChain(b, lines, hardRegs, wordBytes, rs6000);
   // Some passes print the chain twice (bbro: before and after cleanup); insns only in the
   // earlier print were deleted in between.
   if (b.chainStart !== undefined)

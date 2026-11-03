@@ -6,6 +6,9 @@
 
 **Extension version:** 2.1.0
 
+> [!WARNING]
+> **Dataflow analysis and the language server features for RTL and GIMPLE dumps are experimental.** You may run into bugs or inaccuracies. We have tried hard to get them right, but if you find a problem, please [open an issue](https://github.com/HotpathLabs/gcc-workbench/issues). Describe what you saw and what you expected. A testcase or the pass dump that shows the problem helps a lot. Thank you!
+
 This repository contains **GCC Workbench**, a Visual Studio Code / VSCodium extension designed to make life easier for GCC compiler engineers.
 
 It goes beyond simple syntax highlighting for **GCC internals** by adding navigation, visualization, and noise-filtering tools specifically tailored for GCC's internal dump files (`.rtl`, `.gimple`, `.md`), plus **linker memory map visualization** for embedded development.
@@ -136,6 +139,8 @@ A language server for dump files. It works on the dump text alone (no `.dot` fil
 * **Insn uids:** prev/next fields, `label_ref`, `-> N`, `L22`, `insn_list` and log lines jump to the insn; hover previews it.
 * **Basic blocks:** click a block number (the bb field of an insn, `[bb N]`, `;; basic block N`, `pred/succ`, `prev/next block`) to jump to its `NOTE_INSN_BASIC_BLOCK`. Hover shows preds, succs, loop depth and GCC's `lr in`/`lr out`.
 * **Hard registers:** a value wider than one register (`(reg:TI 0 x0)`, `V2x4SI` tuples) counts for every register it occupies, and EH landing pads define the EH data registers.
+* **RTX flags:** hover a flag such as `/v` in `subreg/s/v`, `reg/v/f`, `mem/c` or `call_insn/i` to see what it means on that code, using the accessor macros in GCC's `rtl.h` (`SUBREG_PROMOTED_UNSIGNED_P`, `REG_POINTER`, `MEM_NOTRAP_P`, `RTL_PURE_CALL_P`, …). Flags that only mean something together are explained together: `/u` and `/v` on a promoted subreg give the extension (`SRP_SIGNED`, `SRP_UNSIGNED`, or `SRP_POINTER` when neither is set), and `/j` and `/c` on a `code_label` give `LABEL_KIND`. A register hover also lists the flags on that occurrence. `-slim` dumps do not print flags.
+* **rs6000:** reads both default names (`(reg:DI 3 3)`) and `-mregnames` names (`%r3`, `%f1`, `%v2`, `%cr7`), and sizes values the way `rs6000_hard_regno_nregs` does (IBM long double and `_Decimal128` take an FPR pair, VSX vectors and IEEE 128-bit one register, MMA pairs and accumulators two and four). In `-slim` dumps without `-mregnames`, a hard register prints as a bare number (`%31` is r31, f31 or v31), so those are not tracked. `TFmode` counts as one register, because whether it is IBM or IEEE depends on `-mabi`.
 * **Late passes:** insns marked by sched2 (`insn:TI`), blocks after `free_cfg` and passes that print the chain twice (`bbro`) are read from the final chain. Full and `-slim` dumps give the same answers, except where `-slim` leaves information out (call argument registers, `asm` inputs).
 * The model is checked against GCC's own `;; lr` sets and `REG_DEAD`/`REG_UNUSED` notes. In passes that rewrite insns after printing those sets (cprop, combine, ...), GCC's sets describe the chain before the change.
 

@@ -101,7 +101,7 @@
           }
         },
         {
-          "match": "(?<![\\w.])(r\\d+|[a-z][a-z0-9_]*)(:)([A-Z][A-Za-z0-9_]*)\\b",
+          "match": "(?<![\\w.%])(r\\d+|%?[a-z][a-z0-9_]*|%\\d+)(:)([A-Z][A-Za-z0-9_]*)\\b",
           "captures": {
             "1": {
               "name": "variable.parameter.register.gcc.rtl"
@@ -189,7 +189,7 @@
       "patterns":
           [
             {
-              "match": "\\((reg)((?:/[a-z]+)*)(:[A-Z][A-Za-z0-9]*)?\\s+(\\d+)(?:\\s+([A-Za-z_][\\w.]*))?(\\s+\\[[^\\]]*\\])?(?=\\s*\\))",
+              "match": "\\((reg)((?:/[a-z]+)*)(:[A-Z][A-Za-z0-9]*)?\\s+(\\d+)(?:\\s+(%?[A-Za-z_][\\w.]*|\\d+))?(\\s+\\[[^\\]]*\\])?(?=\\s*\\))",
               "captures": {
                 "1": { "name": "keyword.rtl-construct.gcc.rtl" },
                 "2": { "name": "storage.modifier.flag.gcc.rtl" },
