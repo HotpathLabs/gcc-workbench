@@ -2,7 +2,7 @@
   "name": "gcc-syntax-highlighting",
   "displayName": "GCC Workbench (RTL, GIMPLE & MD)",
   "description": "The professional workspace for GCC engineers. Filter noise, navigate Machine description files, RTL/GIMPLE dumps, and visualize linker memory maps.",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "author": {
     "name": "Kishan Parmar",
     "email": "kparmar2101@gmail.com",
@@ -12,12 +12,12 @@
   "icon": "pictures/gcc.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/RegAlloc/gcc-workbench/"
+    "url": "https://github.com/HotpathLabs/gcc-workbench"
   },
   "bugs": {
-    "url": "https://github.com/RegAlloc/gcc-workbench/issues"
+    "url": "https://github.com/HotpathLabs/gcc-workbench/issues"
   },
-  "homepage": "https://github.com/RegAlloc/gcc-workbench/",
+  "homepage": "https://github.com/HotpathLabs/gcc-workbench",
   "_license": {
     "name": "GPL-3.0-or-later",
     "copyright": "Copyright (C) 2025 Kishan Parmar",
@@ -29,13 +29,31 @@
     "rtl",
     "gimple",
     "compiler",
+    "gcc-internals",
+    "compiler-internals",
+    "machine-description",
+    "match.pd",
+    "ssa",
+    "tree-ssa",
+    "dataflow",
+    "liveness",
+    "cfg",
+    "control-flow-graph",
+    "optimization",
+    "pass-dump",
+    "language-server",
     "powerpc",
+    "rs6000",
     "aarch64",
+    "arm64",
+    "embedded",
     "toolchain",
     "linker",
-    "memory",
-    "map",
-    "embedded"
+    "linker-script",
+    "map-file",
+    "memory-map",
+    "stack-usage",
+    "dejagnu"
   ],
   "engines": {
     "vscode": "^1.50.0"
@@ -55,8 +73,7 @@
   "categories": [
     "Programming Languages",
     "Visualization",
-    "Snippets",
-    "Language Packs"
+    "Snippets"
   ],
   "activationEvents": [
     "onLanguage:gcc-md",
@@ -320,6 +337,10 @@
           "light": "./pictures/rs6000.png",
           "dark": "./pictures/rs6000.png"
         }
+      },
+      {
+        "id": "markdown",
+        "filenames": ["README.md", "TODO.md"]
       },
       {
         "id": "gcc-md",

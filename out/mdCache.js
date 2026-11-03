@@ -52,6 +52,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GccMdCache = void 0;
+exports.isMarkdownDoc = isMarkdownDoc;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const vscode = __importStar(require("vscode"));
@@ -68,6 +69,11 @@ class BackendContext {
         this.processingFiles.clear();
         this.commonMdPath = undefined; // Reset cache on clear
     }
+}
+// Markdown documents that share the .md extension; package.json maps them to markdown too.
+const MARKDOWN_FILES = new Set(['readme.md', 'todo.md']);
+function isMarkdownDoc(filePath) {
+    return MARKDOWN_FILES.has(path.basename(filePath).toLowerCase());
 }
 class GccMdCache {
     contexts = new Map();
@@ -103,7 +109,7 @@ class GccMdCache {
     async indexFile(uri, parentCtx) {
         const ctx = parentCtx || this.getContext(uri);
         const filePath = uri.fsPath;
-        if (ctx.processingFiles.has(filePath))
+        if (isMarkdownDoc(filePath) || ctx.processingFiles.has(filePath))
             return;
         ctx.processingFiles.add(filePath);
         try {

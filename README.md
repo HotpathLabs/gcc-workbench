@@ -1,10 +1,10 @@
 # GCC Workbench
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/gcc.png" alt="GCC Workbench Logo" width="300"/>
+  <img src="https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/gcc.png" alt="GCC Workbench Logo" width="300"/>
 </p>
 
-**Extension version:** 2.1.0
+**Extension version:** 3.0.0
 
 > [!WARNING]
 > **Dataflow analysis and the language server features for RTL and GIMPLE dumps are experimental.** You may run into bugs or inaccuracies. We have tried hard to get them right, but if you find a problem, please [open an issue](https://github.com/HotpathLabs/gcc-workbench/issues). Describe what you saw and what you expected. A testcase or the pass dump that shows the problem helps a lot. Thank you!
@@ -65,13 +65,13 @@ Works with ANY GCC-based toolchain - ARM (Cortex-M, Cortex-A), AVR, ESP32, STM32
 
 ### Source <-> RTL Mapping
 
-![Source <-> RTL Mapping Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/source-rtl.png)
+![Source <-> RTL Mapping Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/source-rtl.png)
 
 ### Instant Hover Documentation
 Understand GCC internals without leaving the editor.
 * **RTL Definitions:** Hover over ir insns like `set`, `parallel`, or regnotes `REG_DEAD` to see their official documentation (parsed from `rtl.def` and `reg-notes.def`).
 * **Gimple Definitions:** Same as above, but for gimple.
-![Documentation Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/documentation.png)
+![Documentation Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/documentation.png)
 
 ---
 
@@ -83,7 +83,7 @@ Instead of `ls -ltr *expand*`, use the **GCC Explorer** sidebar view.
 * Sorts them chronologically by pass number (e.g., `005t` -> `300r`).
 * Filters passes by type (GIMPLE vs RTL) or name.
 
-![Explorer Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/Explorer.png)
+![Explorer Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/Explorer.png)
 
 ### 2. Pass Navigation ("Surfing")
 Move through the compilation pipeline without leaving the editor.
@@ -103,7 +103,7 @@ Move through the compilation pipeline without leaving the editor.
 * **Compare with Previous:** One-click button to open a diff view against the previous pass.
 * Instantly visualize exactly what optimizations were performed by a specific pass.
 
-![Diff View](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/Diff-view.png)
+![Diff View](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/Diff-view.png)
 
 ### 6. Focus Mode (Noise Filter)
 RTL and GIMPLE dumps are often 50% metadata.
@@ -115,7 +115,7 @@ RTL and GIMPLE dumps are often 50% metadata.
 * **Open Graph:** One-click button to render the current dump as a Control Flow Graph (CFG) using Graphviz.
 * *Note: Requires a generic Graphviz/DOT extension to be installed for the final rendering.*
 
-![CFG Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/cfg.png)
+![CFG Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/cfg.png)
 
 ### 8. Intelligent MDL/RTL Editing
 * **Go to Definition:** Jump from iterator usages or attribute names in `.md` files directly to their definitions.
@@ -167,7 +167,36 @@ A language server for dump files. It works on the dump text alone (no `.dot` fil
   * pre-EH `try`/`finally`/`catch`, whose bodies get edges into their handlers.
 * **Dump flags:** works with `-raw` (including multi-line `gimple_asm`, where OUTPUT operands are writes and INPUT operands are reads), `-lineno`, `-uid`, `-alias`, `-vops`, `-eh`, `-blocks`, `-details` and `-all`. C++ names (templates, operators, lambdas, `a#0` parameter packs) are read correctly. `.original` (GENERIC) gets navigation without dataflow.
 
-**Limits.** When the dump cannot settle the CFG, hover says so instead of guessing silently. This happens for C++ exceptions without `-eh` and for `try`/`finally` before EH lowering. Without `-blocks` or `-vops`, a call to your own `noreturn` function still gets a fallthrough edge, because nothing in the dump says it doesn't return. This is conservative: a definition can only seem to reach more places, never fewer.
+#### Accuracy: which dumps to use
+
+The language server only knows what the dump prints. Use verbose dumps for exact answers:
+
+* **RTL:** compile with **`-da`**. It writes a full (not `-slim`) dump of every RTL pass with `details` and `blocks` turned on (GCC's `enable_rtl_dump_file`). Each dump then has the `;; basic block` headers, `;; pred`/`;; succ` edges, the `;; lr in/use/def/out` sets, the registers each call reads, `asm` inputs and the `/x` flags.
+* **GIMPLE:** compile with **`-fdump-tree-all-blocks-vops-eh`**. `-da` only covers RTL.
+
+When a dump has less, the extension does one of three things. It says so in the hover, it leaves the item untracked, or it errs towards a definition reaching *more* places. The cases below are the exceptions: there, an answer can be wrong without a warning.
+
+**RTL without `-details`** (for example plain `-fdump-rtl-all`):
+* Block hovers have no `lr in`/`lr out`.
+* Calls are assumed to clobber every call-used hard register. Under `-fipa-ra` (on by default at `-O2`), a call to a function in the same unit may leave some of them untouched, and GCC can rely on that. Such a register then shows **no reaching definition** after the call, although it has one. With `-details`, the block's `;; lr def` set narrows the clobbers and this does not happen.
+* A dump without the `;;  fully invalidated by EH` line gives no call-clobber list at all. Calls are then not treated as clobbering anything, so a hard-register definition can seem to reach past a call.
+
+**RTL without `-blocks`:**
+* The CFG is rebuilt from jumps, labels, returns and barriers, and the hover says so.
+* EH and abnormal edges are not added. A definition can therefore seem **not to reach** an exception handler or a `setjmp` receiver.
+* In cfglayout passes (combine, fwprop, loop2, …), which keep no barriers, the rebuilt CFG is a guess, and the hover warns about it.
+
+**`-slim` RTL** (`-fdump-rtl-all-slim`). GCC leaves out:
+* **The registers a call reads** (argument registers such as `x0` or `r3`). A definition of an argument register before a call shows **no reached use**, and the hover does not warn about this yet.
+* **`asm` inputs.** A value read only by an `asm` shows **no reached use**, with no warning.
+* **The `/x` flags**, so there is nothing to hover.
+* **Hard register numbers.** A name such as `x0` is matched to its number through the register lists GCC prints with each function (`;;  hardware regs used 31 [sp] …`). A register that appears in none of them is not tracked. On rs6000, see the rs6000 bullet above.
+
+**rs6000 `TFmode`** counts as one register. The dump does not say whether it is IBM long double (a register pair) or IEEE 128-bit (one register), because that depends on `-mabi`.
+
+**GIMPLE:**
+* When the dump cannot settle the CFG, the hover says so instead of guessing. This happens for C++ exceptions without `-eh`, and for `try`/`finally` before EH lowering.
+* Without `-blocks` or `-vops`, a call to your own `noreturn` function still gets a fallthrough edge, because nothing in the dump says it doesn't return. This is conservative: a definition can only seem to reach more places, never fewer.
 
 ---
 
@@ -180,7 +209,7 @@ When hacking on GCC, you often need to read and understand complex internal form
 * **Operands:** Distinct coloring for registers, modes, and constraints.
 * **Embedded Code:** Highlights C/C++ blocks embedded inside MD files.
 
-![GCC Machine Description Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/GCC-Machine-Description.png)
+![GCC Machine Description Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/GCC-Machine-Description.png)
 
 ### 2. RTL Dumps (`.expand`, `.vregs`, etc.)
 * **Records:** `insn`, `jump_insn`, `call_insn`, `note`, `barrier`, `code_label`, with their flags (`insn/f`, `call_insn/i`, `jump_insn/j`).
@@ -196,7 +225,7 @@ When hacking on GCC, you often need to read and understand complex internal form
 * **Rules:** `match` / `simplify` rules.
 * **Trees:** Operator trees (e.g., `plus`, `mult`, `bit_and`) and capture logic (`@x`).
 
-![Match Pattern Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/Match.png)
+![Match Pattern Preview](https://raw.githubusercontent.com/HotpathLabs/gcc-workbench/main/pictures/Match.png)
 
 ### 5. Additional Formats
 * **PowerPC/RS6000 Builtins:** `rs6000-builtin.def` highlighting.
@@ -230,17 +259,27 @@ See the [LICENSE](./LICENSE) file for details.
 
 ---
 
+### Versioning
+
+Versions are numbered `MAJOR.MINOR.PATCH`, for example `3.0.0`:
+
+* **MAJOR** (the first number) changes for major releases. The current major release is **3**.
+* **MINOR** (the middle number) changes for new features and improvements. For example, the next dataflow improvement will be released as `3.1.0`.
+* **PATCH** (the last number) changes for bug fixes only, for example `3.0.1`.
+
+The Visual Studio Marketplace (VS Code) and Open VSX (VSCodium) always offer the same version.
+
 ### Project Status & Contributing
 
 The project is now open for the community to utilize, maintain, and evolve.
 
 * **Found a bug?**
     Please raise an issue on the issue tracker:
-    [https://github.com/RegAlloc/gcc-workbench/issues](https://github.com/RegAlloc/gcc-workbench/issues)
+    [https://github.com/HotpathLabs/gcc-workbench/issues](https://github.com/HotpathLabs/gcc-workbench/issues)
 
 * **Want to contribute?**
     Everyone is welcome to continue or expand on this project. Feel free to fork the repository and raise a Pull Request here:
-    [https://github.com/RegAlloc/gcc-workbench](https://github.com/RegAlloc/gcc-workbench)
+    [https://github.com/HotpathLabs/gcc-workbench](https://github.com/HotpathLabs/gcc-workbench)
 
 ### Publisher Trust & Security
 

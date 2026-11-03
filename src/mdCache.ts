@@ -50,6 +50,13 @@ class BackendContext {
   }
 }
 
+// Markdown documents that share the .md extension; package.json maps them to markdown too.
+const MARKDOWN_FILES = new Set(['readme.md', 'todo.md']);
+
+export function isMarkdownDoc(filePath: string): boolean {
+  return MARKDOWN_FILES.has(path.basename(filePath).toLowerCase());
+}
+
 export class GccMdCache {
   private contexts = new Map<string, BackendContext>();
   private readonly ignoredKeywords = new Set([
@@ -88,7 +95,7 @@ export class GccMdCache {
     const ctx = parentCtx || this.getContext(uri);
     const filePath = uri.fsPath;
 
-    if (ctx.processingFiles.has(filePath)) return;
+    if (isMarkdownDoc(filePath) || ctx.processingFiles.has(filePath)) return;
     ctx.processingFiles.add(filePath);
 
     try {

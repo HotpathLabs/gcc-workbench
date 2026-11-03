@@ -244,8 +244,8 @@ function varHover(doc: vscode.TextDocument, hit: VarHit): vscode.MarkdownString 
       md.appendMarkdown(`*⚠ Some edges could not be derived from the dump (dump with -blocks for exact results).*\n`);
   } else if (fn.cfgSource === 'computed' && (flow.defs || flow.uses))
     md.appendMarkdown(fn.cfgUncertain
-        ? `*⚠ CFG guessed from insn order: the dump has no ;; succ lines and no barriers (cfglayout mode?), so fallthrough edges may be wrong. Dump with -details for exact results.*\n`
-        : `*CFG derived from jumps and barriers; the dump has no ;; succ lines.*\n`);
+        ? `*⚠ CFG guessed from insn order: the dump has no ;; succ lines and no barriers (cfglayout mode?), so fallthrough edges may be wrong. Dump with -da (or -blocks) for exact results.*\n`
+        : `*CFG derived from jumps and barriers; the dump has no ;; succ lines, so EH and abnormal edges are missing. Dump with -da (or -blocks) for exact results.*\n`);
   return md;
 }
 
