@@ -104,7 +104,8 @@ Move through the compilation pipeline without leaving the editor.
 
 ### 6. Focus Mode (Noise Filter)
 RTL and GIMPLE dumps are often 50% metadata.
-* **Toggle Noise:** Click the **Eye Icon** to hide `comment` lines, basic block headers.
+* **Toggle Noise:** Click the **Eye Icon** to fade `comment` lines, basic block headers and pass logging (combine's `Trying …` listings, IRA/LRA diagnostics, candidate RTL).
+* REG notes and the insn chain of `-slim` dumps stay visible.
 * Helps you focus purely on the instruction logic and data flow.
 
 ### 7. Control Flow Visualization
@@ -116,6 +117,52 @@ RTL and GIMPLE dumps are often 50% metadata.
 ### 8. Intelligent MDL/RTL Editing
 * **Go to Definition:** Jump from iterator usages or attribute names in `.md` files directly to their definitions.
 * **Hovers:** Hover over standard RTL codes (like `define_insn`, `parallel`, `set`) to view their official documentation (parsed directly from `rtl.def`).
+* **Iterator colours:** `define_*_iterator` and `define_*_attr` names, and their `<attr>` uses, get their own colours.
+
+### 9. Dump Navigation (RTL and GIMPLE)
+A language server for dump files. It works on the dump text alone (no `.dot` files, no GCC run), for both full and `-slim` RTL and every GIMPLE pass.
+
+**Everywhere**
+* **Go to Definition** jumps to the definitions that actually *reach* the spot you clicked, following the control flow graph (CFG).
+* **Find All References** and **highlights** list every def and use; hover tells which one you are on (*written here*, *read here*, *address taken here*).
+* **Hover** shows the type or mode, the reaching defs and the uses they reach, with clickable links to each line.
+* **Outline and breadcrumbs** list the functions and their basic blocks.
+* Names mentioned in pass logging (combine's `Trying 3 -> 11:`, VRP, DOM, ...) link back to the function body.
+
+**RTL**
+* **Registers:** reaching defs follow the dump's `;; pred/succ` edges, or jumps and barriers when the dump has none. Hover shows mode, flags, hard reg, debug names, reaching defs and reached uses.
+* **Partial stores** (`strict_low_part`, `zero_extract`, multi-word `subreg`, `cond_exec`) keep earlier defs alive.
+* **Calls** clobber the call-used hard registers, narrowed per call under `-fipa-ra` using the dump's `;; lr def`.
+* **Insn uids:** prev/next fields, `label_ref`, `-> N`, `L22`, `insn_list` and log lines jump to the insn; hover previews it.
+* **Basic blocks:** click a block number (the bb field of an insn, `[bb N]`, `;; basic block N`, `pred/succ`, `prev/next block`) to jump to its `NOTE_INSN_BASIC_BLOCK`. Hover shows preds, succs, loop depth and GCC's `lr in`/`lr out`.
+* **Hard registers:** a value wider than one register (`(reg:TI 0 x0)`, `V2x4SI` tuples) counts for every register it occupies, and EH landing pads define the EH data registers.
+* **Late passes:** insns marked by sched2 (`insn:TI`), blocks after `free_cfg` and passes that print the chain twice (`bbro`) are read from the final chain. Full and `-slim` dumps give the same answers, except where `-slim` leaves information out (call argument registers, `asm` inputs).
+* The model is checked against GCC's own `;; lr` sets and `REG_DEAD`/`REG_UNUSED` notes. In passes that rewrite insns after printing those sets (cprop, combine, ...), GCC's sets describe the chain before the change.
+
+**GIMPLE**
+* **SSA names:**
+  * Go to Definition jumps to the single def: a PHI, an assignment, a call result or an `asm` output.
+  * A default def (`x_3(D)`) goes to the parameter in the signature, or to the `-alias` line `int x_3(D) = x;`.
+  * Hover shows the type, the variable it versions, `# PT`/`# RANGE` annotations, the def and every use.
+* **Variables** (pre-SSA dumps, address-taken locals, statics, globals): reaching definitions over the CFG.
+  * A store into part of an object (`s.a = …`, `MEM[(int *)&s + 4B] = …`) keeps the rest of the object alive.
+  * `&x` passed to a call may write `x`.
+  * `x ={v} {CLOBBER}` ends its life.
+  * A variable redeclared in an inner block (`{ int s; … }`) is a separate variable. Hover shows "declared on line N (shadows an outer `s`)".
+  * Function `static`s and globals are marked as outliving the call.
+* **Telling names apart:**
+  * A user variable called `tmp_1` is not an SSA name, while `g.0_2` and `pretmp_35` are.
+  * In `# DEBUG x => x_5`, `x` is a debug binding, not a read.
+* **Labels:** `<L7>`, `<D.5666>` and user labels jump to their definition.
+* **Control flow:** the CFG comes from `-blocks` when present. Otherwise it is built from the statements and checked against the PHI arguments:
+  * gotos, switch labels, returns, noreturn calls;
+  * `[LP n]` landing pads and `eh_dispatch` catch handlers;
+  * `setjmp` and other returns-twice calls (`.ABNORMAL_DISPATCHER` edges; `(ab)` names are marked);
+  * a computed `goto`, which only reaches labels whose address is taken (`&&l1`);
+  * pre-EH `try`/`finally`/`catch`, whose bodies get edges into their handlers.
+* **Dump flags:** works with `-raw` (including multi-line `gimple_asm`, where OUTPUT operands are writes and INPUT operands are reads), `-lineno`, `-uid`, `-alias`, `-vops`, `-eh`, `-blocks`, `-details` and `-all`. C++ names (templates, operators, lambdas, `a#0` parameter packs) are read correctly. `.original` (GENERIC) gets navigation without dataflow.
+
+**Limits.** When the dump cannot settle the CFG, hover says so instead of guessing silently. This happens for C++ exceptions without `-eh` and for `try`/`finally` before EH lowering. Without `-blocks` or `-vops`, a call to your own `noreturn` function still gets a fallthrough edge, because nothing in the dump says it doesn't return. This is conservative: a definition can only seem to reach more places, never fewer.
 
 ---
 
@@ -131,12 +178,14 @@ When hacking on GCC, you often need to read and understand complex internal form
 ![GCC Machine Description Preview](https://raw.githubusercontent.com/RegAlloc/gcc-workbench/main/pictures/GCC-Machine-Description.png)
 
 ### 2. RTL Dumps (`.expand`, `.vregs`, etc.)
-* **Records:** `insn`, `jump_insn`, `call_insn`, `note`, `barrier`, `code_label`.
-* **Data:** Registers (`reg:DI 3`), vector modes, `const_int`.
+* **Records:** `insn`, `jump_insn`, `call_insn`, `note`, `barrier`, `code_label`, with their flags (`insn/f`, `call_insn/i`, `jump_insn/j`).
+* **Data:** Registers with flags (`reg/v/f:DI 108 [ a ]`, `subreg/s/v`), memory references (`mem/c:SI`, `MEM[...]`) in their own colour, vector modes, `const_int`, and every code in `rtl.def`.
+* **Logging:** pass diagnostics (combine, IRA, LRA, ...) are coloured as comments, so they stand apart from real RTL. The `-slim` insn chain is coloured as code.
 
 ### 3. GIMPLE Dumps (`.ssa`, `.optimized`, etc.)
 * **Structure:** Basic blocks, PHI nodes, and SSA names.
 * **Statements:** `gimple_call`, `gimple_assign`, `gimple_cond`, `gimple_switch`.
+* Navigation and hover for SSA names, variables, labels and blocks are described in [Dump Navigation](#9-dump-navigation-rtl-and-gimple).
 
 ### 4. `match.pd` Patterns
 * **Rules:** `match` / `simplify` rules.

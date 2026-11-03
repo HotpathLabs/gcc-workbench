@@ -1,0 +1,461 @@
+
+;; Function asmf (asmf, funcdef_no=3, decl_uid=5487, cgraph_uid=4, symbol_order=5)
+
+int asmf (int a)
+{
+  int k;
+  int r;
+  int _5;
+
+  <bb 2> :
+  gimple_assign <ssa_name, k_2, a_1(D), NULL, NULL>
+  gimple_asm <
+    STRING <
+    addl %1, %0
+    >
+    OUTPUT: "=r" r_3
+    INPUT: "r" a_1(D)
+  >
+  gimple_asm <
+    STRING <
+    incl %0
+    >
+    OUTPUT: "=r" k_4
+    INPUT: "0" k_2
+  >
+  gimple_assign <plus_expr, _5, r_3, k_4, NULL>
+  gimple_return <_5>
+
+}
+
+
+
+;; Function counter (counter, funcdef_no=4, decl_uid=5492, cgraph_uid=5, symbol_order=6)
+
+int counter ()
+{
+  static int count = 0;
+  int count.0_1;
+  int _2;
+  int _5;
+
+  <bb 2> :
+  gimple_assign <var_decl, count.0_1, count, NULL, NULL>
+  gimple_assign <plus_expr, _2, count.0_1, 1, NULL>
+  gimple_assign <ssa_name, count, _2, NULL, NULL>
+  gimple_assign <var_decl, _5, count, NULL, NULL>
+  gimple_return <_5>
+
+}
+
+
+
+;; Function shadow (shadow, funcdef_no=5, decl_uid=5496, cgraph_uid=6, symbol_order=7)
+
+int shadow (int n)
+{
+  int s;
+  int i;
+  int i;
+  int s;
+  int _12;
+
+  <bb 2> :
+  gimple_assign <integer_cst, s_5, 0, NULL, NULL>
+  gimple_assign <integer_cst, i_6, 0, NULL, NULL>
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  gimple_assign <plus_expr, s_15, s_1, i_3, NULL>
+  gimple_assign <plus_expr, i_16, i_3, 1, NULL>
+
+  <bb 4> :
+  # gimple_phi <s_1, s_5(2), s_15(3)>
+  # gimple_phi <i_3, i_6(2), i_16(3)>
+  gimple_cond <lt_expr, i_3, n_7(D), NULL, NULL>
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  gimple_assign <ssa_name, i_8, n_7(D), NULL, NULL>
+  goto <bb 7>; [INV]
+
+  <bb 6> :
+  gimple_assign <minus_expr, s_13, s_2, i_4, NULL>
+  gimple_assign <plus_expr, i_14, i_4, -1, NULL>
+
+  <bb 7> :
+  # gimple_phi <s_2, s_1(5), s_13(6)>
+  # gimple_phi <i_4, i_8(5), i_14(6)>
+  gimple_cond <gt_expr, i_4, 0, NULL, NULL>
+    goto <bb 6>; [INV]
+  else
+    goto <bb 8>; [INV]
+
+  <bb 8> :
+  gimple_assign <integer_cst, s_9, 5, NULL, NULL>
+  gimple_assign <ssa_name, g, s_9, NULL, NULL>
+  gimple_assign <ssa_name, _12, s_2, NULL, NULL>
+  gimple_return <_12>
+
+}
+
+
+
+;; Function cgoto (cgoto, funcdef_no=6, decl_uid=5511, cgraph_uid=7, symbol_order=8)
+
+int cgoto (int k)
+{
+  static void * tab[2] = {&l1, &l2};
+  int _1;
+  void * _2;
+  int _3;
+  void * gotovar.1_6;
+  int _7;
+  int _8;
+
+  <bb 2> :
+  gimple_assign <bit_and_expr, _1, k_4(D), 1, NULL>
+  gimple_assign <array_ref, _2, tab[_1], NULL, NULL>
+  gimple_assign <ssa_name, gotovar.1_6, _2, NULL, NULL>
+  gimple_goto <gotovar.1_6>
+
+  <bb 3> :
+gimple_label <l1>
+  gimple_assign <integer_cst, _8, 1, NULL, NULL>
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+gimple_label <l2>
+  gimple_assign <integer_cst, _7, 2, NULL, NULL>
+
+  <bb 5> :
+  # gimple_phi <_3, _8(3), _7(4)>
+  gimple_return <_3>
+
+}
+
+
+
+;; Function ulabel (ulabel, funcdef_no=7, decl_uid=5517, cgraph_uid=8, symbol_order=9)
+
+int ulabel (int n)
+{
+  int t;
+  int _5;
+
+  <bb 2> :
+  gimple_assign <integer_cst, t_2, 0, NULL, NULL>
+
+  <bb 3> :
+  # gimple_phi <t_1, t_2(2), t_3(4)>
+gimple_label <retry>
+  gimple_assign <plus_expr, t_3, t_1, 1, NULL>
+  gimple_cond <lt_expr, t_3, n_4(D), NULL, NULL>
+    goto <bb 4>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 4> :
+  // predicted unlikely by goto predictor.
+  goto <bb 3>; [INV]
+
+  <bb 5> :
+  gimple_assign <ssa_name, _5, t_3, NULL, NULL>
+  gimple_return <_5>
+
+}
+
+
+
+;; Function mkp (mkp, funcdef_no=8, decl_uid=5522, cgraph_uid=9, symbol_order=10)
+
+struct P mkp (int a)
+{
+  struct P p;
+  struct P D.5582;
+  int _1;
+
+  <bb 2> :
+  gimple_assign <ssa_name, p.x, a_3(D), NULL, NULL>
+  gimple_assign <plus_expr, _1, a_3(D), 1, NULL>
+  gimple_assign <ssa_name, p.y, _1, NULL, NULL>
+  gimple_assign <var_decl, D.5582, p, NULL, NULL>
+  gimple_assign <constructor, p, {CLOBBER(eos)}, NULL, NULL>
+  gimple_return <D.5582>
+
+}
+
+
+
+;; Function bits (bits, funcdef_no=9, decl_uid=5527, cgraph_uid=10, symbol_order=11)
+
+int bits (struct B * b, struct B c)
+{
+  <unnamed-unsigned:5> _1;
+  <unnamed-unsigned:3> _2;
+  <unnamed-unsigned:3> _3;
+  int _4;
+  <unnamed-unsigned:5> _5;
+  int _6;
+  int _11;
+
+  <bb 2> :
+  gimple_assign <integer_cst, c.b, 3, NULL, NULL>
+  gimple_assign <component_ref, _1, c.b, NULL, NULL>
+  gimple_assign <nop_expr, _2, _1, NULL, NULL>
+  gimple_assign <ssa_name, b_9(D)->a, _2, NULL, NULL>
+  gimple_assign <component_ref, _3, c.a, NULL, NULL>
+  gimple_assign <nop_expr, _4, _3, NULL, NULL>
+  gimple_assign <component_ref, _5, b_9(D)->b, NULL, NULL>
+  gimple_assign <nop_expr, _6, _5, NULL, NULL>
+  gimple_assign <plus_expr, _11, _4, _6, NULL>
+  gimple_return <_11>
+
+}
+
+
+
+;; Function va (va, funcdef_no=10, decl_uid=5530, cgraph_uid=11, symbol_order=12)
+
+int va (int n)
+{
+  int i;
+  int s;
+  char * ap;
+  int _10;
+  int _13;
+
+  <bb 2> :
+  gimple_call <__builtin_va_start, NULL, &ap, 0>
+  gimple_assign <integer_cst, s_6, 0, NULL, NULL>
+  gimple_assign <integer_cst, i_7, 0, NULL, NULL>
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  gimple_call <.VA_ARG, _13, &ap, 0B, 0B>
+  gimple_assign <plus_expr, s_14, _13, s_1, NULL>
+  gimple_assign <plus_expr, i_15, i_2, 1, NULL>
+
+  <bb 4> :
+  # gimple_phi <s_1, s_6(2), s_14(3)>
+  # gimple_phi <i_2, i_7(2), i_15(3)>
+  gimple_cond <lt_expr, i_2, n_8(D), NULL, NULL>
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  gimple_call <__builtin_va_end, NULL, &ap>
+  gimple_assign <ssa_name, _10, s_1, NULL, NULL>
+  gimple_assign <constructor, ap, {CLOBBER(eos)}, NULL, NULL>
+  gimple_return <_10>
+
+}
+
+
+
+;; Function sj (sj, funcdef_no=11, decl_uid=5541, cgraph_uid=12, symbol_order=14)
+
+int sj (int x)
+{
+  volatile int v;
+  int _1;
+  int v.2_2;
+  int _3;
+  int _4;
+  int _12;
+  int _15;
+  int _16;
+
+  <bb 2> :
+  gimple_assign <ssa_name, v, x_9(D), NULL, NULL>
+
+  <bb 3> :
+  gimple_call <setjmp, _12, &jb>
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  gimple_call <.ABNORMAL_DISPATCHER, NULL, 0>
+
+  <bb 5> :
+  gimple_assign <ssa_name, _1, _12, NULL, NULL>
+  gimple_cond <ne_expr, _1, 0, NULL, NULL>
+    goto <bb 6>; [INV]
+  else
+    goto <bb 7>; [INV]
+
+  <bb 6> :
+  gimple_assign <var_decl, _16, v, NULL, NULL>
+  // predicted unlikely by early return (on trees) predictor.
+  goto <bb 9>; [INV]
+
+  <bb 7> :
+  gimple_assign <var_decl, v.2_2, v, NULL, NULL>
+  gimple_assign <plus_expr, _3, v.2_2, 1, NULL>
+  gimple_assign <ssa_name, v, _3, NULL, NULL>
+  gimple_call <ext, NULL, &v>
+
+  <bb 8> :
+  gimple_assign <integer_cst, _15, 0, NULL, NULL>
+
+  <bb 9> :
+  # gimple_phi <_4, _16(6), _15(8)>
+  gimple_return <_4>
+
+}
+
+
+
+;; Function nr2 (nr2, funcdef_no=12, decl_uid=5545, cgraph_uid=13, symbol_order=15)
+
+int nr2 (int x)
+{
+  int _2;
+
+  <bb 2> :
+  gimple_cond <gt_expr, x_1(D), 3, NULL, NULL>
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  gimple_call <die, NULL>
+
+  <bb 4> :
+  gimple_assign <mult_expr, _2, x_1(D), 2, NULL>
+  gimple_return <_2>
+
+}
+
+
+
+;; Function glob (glob, funcdef_no=13, decl_uid=5548, cgraph_uid=14, symbol_order=16)
+
+int glob (int i)
+{
+  int g.3_1;
+  int _2;
+  int _3;
+  int g.4_4;
+  int _10;
+
+  <bb 2> :
+  gimple_assign <ssa_name, g, i_6(D), NULL, NULL>
+  gimple_assign <var_decl, g.3_1, g, NULL, NULL>
+  gimple_assign <plus_expr, _2, g.3_1, 1, NULL>
+  gimple_assign <ssa_name, garr[i_6(D)], _2, NULL, NULL>
+  gimple_call <ext, NULL, &g>
+  gimple_assign <array_ref, _3, garr[2], NULL, NULL>
+  gimple_assign <var_decl, g.4_4, g, NULL, NULL>
+  gimple_assign <plus_expr, _10, _3, g.4_4, NULL>
+  gimple_return <_10>
+
+}
+
+
+
+;; Function arr (arr, funcdef_no=14, decl_uid=5551, cgraph_uid=15, symbol_order=17)
+
+int arr (int i)
+{
+  int a[4];
+  int _1;
+  int _10;
+
+  <bb 2> :
+  gimple_assign <integer_cst, a[0], 1, NULL, NULL>
+  gimple_assign <integer_cst, a[1], 2, NULL, NULL>
+  gimple_assign <integer_cst, a[2], 3, NULL, NULL>
+  gimple_assign <integer_cst, a[3], 4, NULL, NULL>
+  gimple_assign <integer_cst, a[i_7(D)], 7, NULL, NULL>
+  gimple_call <ext, NULL, &a>
+  gimple_assign <bit_and_expr, _1, i_7(D), 3, NULL>
+  gimple_assign <array_ref, _10, a[_1], NULL, NULL>
+  gimple_assign <constructor, a, {CLOBBER(eos)}, NULL, NULL>
+  gimple_return <_10>
+
+}
+
+
+
+;; Function vv (vv, funcdef_no=15, decl_uid=5557, cgraph_uid=16, symbol_order=18)
+
+v4si vv (v4si a, v4si b)
+{
+  vector(4) int _1;
+  v4si _4;
+
+  <bb 2> :
+  gimple_assign <mult_expr, _1, a_2(D), b_3(D), NULL>
+  gimple_assign <plus_expr, _4, _1, { 1, 1, 1, 1 }, NULL>
+  gimple_return <_4>
+
+}
+
+
+
+;; Function cnd (cnd, funcdef_no=16, decl_uid=5562, cgraph_uid=17, symbol_order=19)
+
+int cnd (int a, int b)
+{
+  int iftmp.5_1;
+  int iftmp.5_4;
+  int iftmp.5_5;
+  int _6;
+
+  <bb 2> :
+  gimple_cond <gt_expr, a_2(D), b_3(D), NULL, NULL>
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  gimple_assign <minus_expr, iftmp.5_5, a_2(D), b_3(D), NULL>
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  gimple_assign <minus_expr, iftmp.5_4, b_3(D), a_2(D), NULL>
+
+  <bb 5> :
+  # gimple_phi <iftmp.5_1, iftmp.5_5(3), iftmp.5_4(4)>
+  gimple_assign <ssa_name, _6, iftmp.5_1, NULL, NULL>
+  gimple_return <_6>
+
+}
+
+
+
+;; Function ch (ch, funcdef_no=17, decl_uid=5565, cgraph_uid=18, symbol_order=20)
+
+char ch (const char * s)
+{
+  char _1;
+  char iftmp.6_2;
+  char iftmp.6_5;
+  char iftmp.6_6;
+  char _7;
+
+  <bb 2> :
+  gimple_assign <mem_ref, _1, *s_4(D), NULL, NULL>
+  gimple_cond <eq_expr, _1, 39, NULL, NULL>
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  gimple_assign <integer_cst, iftmp.6_6, -1, NULL, NULL>
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  gimple_assign <integer_cst, iftmp.6_5, 120, NULL, NULL>
+
+  <bb 5> :
+  # gimple_phi <iftmp.6_2, iftmp.6_6(3), iftmp.6_5(4)>
+  gimple_assign <ssa_name, _7, iftmp.6_2, NULL, NULL>
+  gimple_return <_7>
+
+}
+
+

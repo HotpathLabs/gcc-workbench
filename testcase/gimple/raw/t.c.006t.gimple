@@ -1,0 +1,190 @@
+int loop (int * a, int n)
+gimple_bind <
+  int D.5711;
+  int s;
+
+  gimple_assign <integer_cst, s, 0, NULL, NULL>
+  gimple_bind <
+    int i;
+
+    gimple_assign <integer_cst, i, 0, NULL, NULL>
+    gimple_goto <<D.5667>>
+    gimple_label <<D.5666>>
+    gimple_assign <nop_expr, _1, i, NULL, NULL>
+    gimple_assign <mult_expr, _2, _1, 4, NULL>
+    gimple_assign <pointer_plus_expr, _3, a, _2, NULL>
+    gimple_assign <mem_ref, _4, *_3, NULL, NULL>
+    gimple_assign <plus_expr, s, s, _4, NULL>
+    gimple_assign <plus_expr, i, i, 1, NULL>
+    gimple_label <<D.5667>>
+    gimple_cond <lt_expr, i, n, <D.5666>, <D.5664>>
+    gimple_label <<D.5664>>
+  >
+  gimple_assign <var_decl, D.5711, s, NULL, NULL>
+  gimple_return <D.5711>
+>
+
+
+int sw (int k, int y)
+gimple_bind <
+  int D.5713;
+
+  gimple_switch <k, default: <D.5676>, case 0: <D.5672>, case 1: <D.5673>, case 2: <D.5674>, case 5: <D.5675>>
+  gimple_label <<D.5672>>
+  gimple_assign <plus_expr, y, y, 3, NULL>
+  gimple_goto <<D.5677>>
+  gimple_label <<D.5673>>
+  gimple_assign <mult_expr, y, y, 7, NULL>
+  gimple_goto <<D.5677>>
+  gimple_label <<D.5674>>
+  gimple_assign <plus_expr, y, y, -11, NULL>
+  gimple_goto <<D.5677>>
+  gimple_label <<D.5675>>
+  gimple_assign <integer_cst, D.5713, 9, NULL, NULL>
+  gimple_return <D.5713>
+  gimple_label <<D.5676>>
+  gimple_call <sq, y, y>
+  gimple_label <<D.5677>>
+  gimple_assign <parm_decl, D.5713, y, NULL, NULL>
+  gimple_return <D.5713>
+>
+
+
+int sq (int x)
+gimple_bind <
+  int D.5715;
+
+  gimple_assign <mult_expr, D.5715, x, x, NULL>
+  gimple_return <D.5715>
+>
+
+
+int addr (int v)
+gimple_bind <
+  int D.5717;
+  int tmp_1;
+  int * p;
+  struct S s;
+
+  gimple_try <GIMPLE_TRY_FINALLY,
+    EVAL <
+      gimple_assign <parm_decl, tmp_1, v, NULL, NULL>
+      gimple_assign <addr_expr, p, &tmp_1, NULL, NULL>
+      gimple_assign <mem_ref, _1, *p, NULL, NULL>
+      gimple_assign <var_decl, g.0_2, g, NULL, NULL>
+      gimple_assign <plus_expr, _3, _1, g.0_2, NULL>
+      gimple_assign <ssa_name, *p, _3, NULL, NULL>
+      gimple_assign <parm_decl, s.a, v, NULL, NULL>
+      gimple_assign <float_expr, _4, v, NULL, NULL>
+      gimple_assign <mult_expr, _5, _4, 2.0e+0, NULL>
+      gimple_assign <ssa_name, s.b, _5, NULL, NULL>
+      gimple_assign <component_ref, _6, s.a, NULL, NULL>
+      gimple_assign <var_decl, tmp_1.1_7, tmp_1, NULL, NULL>
+      gimple_assign <plus_expr, _8, _6, tmp_1.1_7, NULL>
+      gimple_assign <component_ref, _9, s.b, NULL, NULL>
+      gimple_assign <fix_trunc_expr, _10, _9, NULL, NULL>
+      gimple_assign <plus_expr, D.5717, _8, _10, NULL>
+      gimple_return <D.5717>
+    >
+    CLEANUP <
+      gimple_assign <constructor, tmp_1, {CLOBBER(eos)}, NULL, NULL>
+      gimple_assign <constructor, s, {CLOBBER(eos)}, NULL, NULL>
+    >
+  >
+>
+
+
+int nr (int x)
+gimple_bind <
+  int D.5724;
+
+  gimple_cond <lt_expr, x, 0, <D.5720>, <D.5721>>
+  gimple_label <<D.5720>>
+  gimple_call <abort, NULL>
+  gimple_label <<D.5721>>
+  gimple_cond <gt_expr, x, 100, <D.5722>, <D.5723>>
+  gimple_label <<D.5722>>
+  gimple_call <__builtin_unreachable, NULL>
+  gimple_label <<D.5723>>
+  gimple_assign <plus_expr, D.5724, x, 1, NULL>
+  gimple_return <D.5724>
+>
+
+
+void cpy (char * d, const char * src, size_t n)
+gimple_bind <
+  gimple_cond <ne_expr, n, 0, <D.5726>, <D.5727>>
+  gimple_label <<D.5726>>
+  gimple_call <__builtin_object_size, _1, d, 0>
+  gimple_call <__builtin___memcpy_chk, NULL, d, src, n, _1>
+  gimple_label <<D.5727>>
+  gimple_call <strlen, _2, d>
+  gimple_assign <nop_expr, _3, _2, NULL, NULL>
+  gimple_assign <ssa_name, g, _3, NULL, NULL>
+>
+
+
+int vec (int * restrict a, int * restrict b, int n)
+gimple_bind <
+  int D.5728;
+  int s;
+
+  gimple_assign <integer_cst, s, 0, NULL, NULL>
+  gimple_bind <
+    int i;
+
+    gimple_assign <integer_cst, i, 0, NULL, NULL>
+    gimple_goto <<D.5702>>
+    gimple_label <<D.5701>>
+    gimple_assign <nop_expr, _1, i, NULL, NULL>
+    gimple_assign <mult_expr, _2, _1, 4, NULL>
+    gimple_assign <pointer_plus_expr, _3, b, _2, NULL>
+    gimple_assign <mem_ref, _4, *_3, NULL, NULL>
+    gimple_assign <nop_expr, _5, i, NULL, NULL>
+    gimple_assign <mult_expr, _6, _5, 4, NULL>
+    gimple_assign <pointer_plus_expr, _7, a, _6, NULL>
+    gimple_assign <mult_expr, _8, _4, 3, NULL>
+    gimple_assign <ssa_name, *_7, _8, NULL, NULL>
+    gimple_assign <nop_expr, _9, i, NULL, NULL>
+    gimple_assign <mult_expr, _10, _9, 4, NULL>
+    gimple_assign <pointer_plus_expr, _11, a, _10, NULL>
+    gimple_assign <mem_ref, _12, *_11, NULL, NULL>
+    gimple_assign <bit_xor_expr, s, s, _12, NULL>
+    gimple_assign <plus_expr, i, i, 1, NULL>
+    gimple_label <<D.5702>>
+    gimple_cond <lt_expr, i, n, <D.5701>, <D.5699>>
+    gimple_label <<D.5699>>
+  >
+  gimple_assign <var_decl, D.5728, s, NULL, NULL>
+  gimple_return <D.5728>
+>
+
+
+int unin (int c)
+gimple_bind <
+  int D.5732;
+  int u;
+
+  gimple_cond <ne_expr, c, 0, <D.5730>, <D.5731>>
+  gimple_label <<D.5730>>
+  gimple_assign <integer_cst, u, 4, NULL, NULL>
+  gimple_label <<D.5731>>
+  gimple_assign <var_decl, D.5732, u, NULL, NULL>
+  gimple_return <D.5732>
+>
+
+
+complex double cx (complex double z)
+gimple_bind <
+  complex double D.5734;
+  complex double D.5735;
+
+  gimple_assign <mult_expr, D.5735, z, z, NULL>
+  gimple_assign <realpart_expr, _1, REALPART_EXPR <D.5735>, NULL, NULL>
+  gimple_assign <plus_expr, _2, _1, 1.0e+0, NULL>
+  gimple_assign <imagpart_expr, _3, IMAGPART_EXPR <D.5735>, NULL, NULL>
+  gimple_assign <complex_expr, D.5734, _2, _3, NULL>
+  gimple_return <D.5734>
+>
+
+

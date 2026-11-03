@@ -1,0 +1,210 @@
+
+;; Function _OSSwapInt16 (null)
+;; enabled by -tree-original
+
+
+{
+  return (__uint16_t) ((signed short) _data << 8 | (signed short) ((short unsigned int) _data >> 8));
+}
+
+
+;; Function _OSSwapInt32 (null)
+;; enabled by -tree-original
+
+
+{
+  _data = (_data r<< 16 ^ _data) >> 8 & 16711935 ^ _data r<< 24;
+  return _data;
+}
+
+
+;; Function _OSSwapInt64 (null)
+;; enabled by -tree-original
+
+
+{
+  typedef union 
+  {
+    __uint64_t _ull;
+    __uint32_t _ul[2];
+  } unionunion 
+  {
+    __uint64_t _ull;
+    __uint32_t _ul[2];
+  };
+  union 
+  {
+    __uint64_t _ull;
+    __uint32_t _ul[2];
+  } _u;
+
+    union 
+  {
+    __uint64_t _ull;
+    __uint32_t _ul[2];
+  } _u;
+  _u._ul[0] = (unsigned int) (_data >> 32);
+  _u._ul[1] = (unsigned int) _data;
+  _u._ul[0] = _OSSwapInt32 (_u._ul[0]);
+  _u._ul[1] = _OSSwapInt32 (_u._ul[1]);
+  return _u._ull;
+}
+
+
+;; Function sq (null)
+;; enabled by -tree-original
+
+
+{
+  return x * x;
+}
+
+
+;; Function loop (null)
+;; enabled by -tree-original
+
+
+{
+  int s = 0;
+
+    int s = 0;
+  {
+    int i = 0;
+
+        int i = 0;
+    goto <D.5667>;
+    <D.5666>:;
+    s = *(a + (sizetype) ((long unsigned int) i * 4)) + s;
+    i++ ;
+    <D.5667>:;
+    if (i < n) goto <D.5666>; else goto <D.5664>;
+    <D.5664>:;
+  }
+  return s;
+}
+
+
+;; Function sw (null)
+;; enabled by -tree-original
+
+
+{
+  switch (k)
+    {
+      case 0:;
+      y = y + 3;
+      goto <D.5677>;
+      case 1:;
+      y = y * 7;
+      goto <D.5677>;
+      case 2:;
+      y = y + -11;
+      goto <D.5677>;
+      case 5:;
+      return 9;
+      default:;
+      y = sq (y);
+      <D.5677>:;
+    }
+  return y;
+}
+
+
+;; Function addr (null)
+;; enabled by -tree-original
+
+
+{
+  int tmp_1 = v;
+  int * p = &tmp_1;
+  struct S s;
+
+    int tmp_1 = v;
+    int * p = &tmp_1;
+  *p = *p + g;
+    struct S s;
+  s.a = v;
+  s.b = (float) v * 2.0e+0;
+  return (s.a + tmp_1) + (int) s.b;
+}
+
+
+;; Function nr (null)
+;; enabled by -tree-original
+
+
+{
+  if (x < 0)
+    {
+      abort ();
+    }
+  if (x > 100)
+    {
+      __builtin_unreachable ();
+    }
+  return x + 1;
+}
+
+
+;; Function cpy (null)
+;; enabled by -tree-original
+
+
+{
+  if (n != 0)
+    {
+      __builtin___memcpy_chk ((void *) d, (const void *) src, n, __builtin_object_size ((const void *) d, 0));
+    }
+  g = (int) strlen ((const char *) d);
+}
+
+
+;; Function vec (null)
+;; enabled by -tree-original
+
+
+{
+  int s = 0;
+
+    int s = 0;
+  {
+    int i = 0;
+
+        int i = 0;
+    goto <D.5702>;
+    <D.5701>:;
+    *(a + (sizetype) ((long unsigned int) i * 4)) = *(b + (sizetype) ((long unsigned int) i * 4)) * 3;
+    s = *(a + (sizetype) ((long unsigned int) i * 4)) ^ s;
+    i++ ;
+    <D.5702>:;
+    if (i < n) goto <D.5701>; else goto <D.5699>;
+    <D.5699>:;
+  }
+  return s;
+}
+
+
+;; Function unin (null)
+;; enabled by -tree-original
+
+
+{
+  int u;
+
+    int u;
+  if (c != 0)
+    {
+      u = 4;
+    }
+  return u;
+}
+
+
+;; Function cx (null)
+;; enabled by -tree-original
+
+
+{
+  return COMPLEX_EXPR <REALPART_EXPR <SAVE_EXPR <z * z>> + 1.0e+0, IMAGPART_EXPR <SAVE_EXPR <z * z>>>;
+}
+

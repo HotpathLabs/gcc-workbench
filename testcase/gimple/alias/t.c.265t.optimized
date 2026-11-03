@@ -1,0 +1,327 @@
+
+;; Function loop (loop, funcdef_no=4, decl_uid=5660, cgraph_uid=5, symbol_order=5)
+
+Removing basic block 6
+Removing basic block 7
+Removing basic block 8
+int loop (int * a, int n)
+{
+  # PT = nonlocal null 
+  int * a_9(D) = a;
+  int n_7(D) = n;
+  unsigned long ivtmp.19;
+  int s;
+  int _4;
+  void * _5;
+  unsigned long _17;
+  unsigned long _18;
+  unsigned int _20;
+  unsigned long _21;
+
+  <bb 2> [local count: 118111600]:
+  if (n_7(D) > 0)
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 3> [local count: 105119324]:
+  ivtmp.19_6 = (unsigned long) a_9(D);
+  # RANGE [irange] unsigned long [1, 2147483647] MASK 0x7fffffff VALUE 0x0
+  _18 = (unsigned long) n_7(D);
+  _20 = (unsigned int) _18;
+  _17 = (unsigned long) a_9(D);
+  _21 = WIDEN_MULT_PLUS_EXPR <_20, 4, _17>;
+
+  <bb 4> [local count: 955630224]:
+  # s_14 = PHI <s_10(4), 0(3)>
+  # ivtmp.19_13 = PHI <ivtmp.19_12(4), ivtmp.19_6(3)>
+  # PT = nonlocal null 
+  _5 = (void *) ivtmp.19_13;
+  _4 = MEM[(int *)_5];
+  s_10 = _4 + s_14;
+  ivtmp.19_12 = ivtmp.19_13 + 4;
+  if (ivtmp.19_12 != _21)
+    goto <bb 4>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 5> [local count: 118111600]:
+  # s_15 = PHI <s_10(4), 0(2)>
+  return s_15;
+
+}
+
+
+
+;; Function sw (sw, funcdef_no=5, decl_uid=5670, cgraph_uid=6, symbol_order=6)
+
+Removing basic block 12
+Removing basic block 13
+Removing basic block 14
+int sw (int k, int y)
+{
+  int k_2(D) = k;
+  int y_4(D) = y;
+  int _1;
+  int _8;
+
+  <bb 2> [local count: 1073741808]:
+  if (k_2(D) == 2)
+    goto <bb 9>; [20.00%]
+  else
+    goto <bb 3>; [80.00%]
+
+  <bb 3> [local count: 858993443]:
+  if (k_2(D) > 2)
+    goto <bb 6>; [37.50%]
+  else
+    goto <bb 4>; [62.50%]
+
+  <bb 4> [local count: 536870902]:
+  if (k_2(D) == 0)
+    goto <bb 7>; [40.00%]
+  else
+    goto <bb 5>; [60.00%]
+
+  <bb 5> [local count: 322122542]:
+  if (k_2(D) == 1)
+    goto <bb 8>; [66.67%]
+  else
+    goto <bb 10>; [33.33%]
+
+  <bb 6> [local count: 322122541]:
+  if (k_2(D) == 5)
+    goto <bb 11>; [66.67%]
+  else
+    goto <bb 10>; [33.33%]
+
+  <bb 7> [local count: 214748365]:
+  # RANGE [irange] int [-2147483645, +INF]
+  y_7 = y_4(D) + 3;
+  goto <bb 11>; [100.00%]
+
+  <bb 8> [local count: 214748365]:
+  y_6 = y_4(D) * 7;
+  goto <bb 11>; [100.00%]
+
+  <bb 9> [local count: 214748365]:
+  # RANGE [irange] int [-INF, 2147483636]
+  y_5 = y_4(D) + -11;
+  goto <bb 11>; [100.00%]
+
+  <bb 10> [local count: 214748365]:
+  # RANGE [irange] int [0, +INF] MASK 0xfffffffd VALUE 0x0
+  _8 = y_4(D) * y_4(D);
+
+  <bb 11> [local count: 1073741824]:
+  # _1 = PHI <9(6), y_6(8), y_7(7), _8(10), y_5(9)>
+  return _1;
+
+}
+
+
+
+;; Function addr (addr, funcdef_no=6, decl_uid=5679, cgraph_uid=7, symbol_order=7)
+
+int addr (int v)
+{
+  int v_8(D) = v;
+  int g.0_1;
+  int _2;
+  float _3;
+  float _4;
+  int _5;
+  int _6;
+  int _9;
+
+  <bb 2> [local count: 1073741824]:
+  g.0_1 = g;
+  _2 = g.0_1 + v_8(D);
+  _3 = (float) v_8(D);
+  _4 = _3 * 2.0e+0;
+  _5 = _2 + v_8(D);
+  _6 = (int) _4;
+  _9 = _5 + _6;
+  return _9;
+
+}
+
+
+
+;; Function nr (nr, funcdef_no=7, decl_uid=5685, cgraph_uid=8, symbol_order=8)
+
+int nr (int x)
+{
+  int x_1(D) = x;
+  int _2;
+
+  <bb 2> [local count: 1073741824]:
+  if (x_1(D) < 0)
+    goto <bb 3>; [0.00%]
+  else
+    goto <bb 4>; [100.00%]
+
+  <bb 3> [count: 0]:
+  # USE = nonlocal escaped 
+  # CLB = nonlocal escaped 
+  abort ();
+
+  <bb 4> [local count: 1073741824]:
+  # RANGE [irange] int [1, 101]
+  _2 = x_1(D) + 1;
+  return _2;
+
+}
+
+
+
+;; Function cpy (cpy, funcdef_no=8, decl_uid=5690, cgraph_uid=9, symbol_order=9)
+
+Removing basic block 5
+void cpy (char * d, const char * src, size_t n)
+{
+  # PT = nonlocal null 
+  char * d_7(D) = d;
+  # PT = nonlocal null 
+  const char * src_8(D) = src;
+  size_t n_5(D) = n;
+  long unsigned int _2;
+  int _3;
+
+  <bb 2> [local count: 1073741824]:
+  if (n_5(D) != 0)
+    goto <bb 3>; [33.00%]
+  else
+    goto <bb 4>; [67.00%]
+
+  <bb 3> [local count: 354334800]:
+  __builtin_memcpy (d_7(D), src_8(D), n_5(D));
+
+  <bb 4> [local count: 1073741824]:
+  # RANGE [irange] long unsigned int [0, 9223372036854775805]
+  # USE = nonlocal 
+  _2 = strlen (d_7(D));
+  _3 = (int) _2;
+  g = _3;
+  return;
+
+}
+
+
+
+;; Function vec (vec, funcdef_no=9, decl_uid=5695, cgraph_uid=10, symbol_order=10)
+
+Removing basic block 6
+Removing basic block 7
+Removing basic block 8
+int vec (int * restrict a, int * restrict b, int n)
+{
+  # PT = null { D.5793 } (nonlocal, restrict)
+  int * restrict a_13(D) = a;
+  # PT = null { D.5794 } (nonlocal, restrict)
+  int * restrict b_12(D) = b;
+  int n_11(D) = n;
+  sizetype ivtmp.44;
+  int s;
+  int _4;
+  int _6;
+  sizetype _8;
+  sizetype _9;
+  unsigned int _19;
+
+  <bb 2> [local count: 118111600]:
+  if (n_11(D) > 0)
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 3> [local count: 105119324]:
+  # RANGE [irange] sizetype [1, 2147483647] MASK 0x7fffffff VALUE 0x0
+  _9 = (sizetype) n_11(D);
+  _19 = (unsigned int) _9;
+  # RANGE [irange] sizetype [4, 8589934588] MASK 0x1fffffffc VALUE 0x0
+  _8 = _19 w* 4;
+
+  <bb 4> [local count: 955630224]:
+  # s_20 = PHI <s_15(4), 0(3)>
+  # RANGE [irange] sizetype [0, 0][4, 8589934584] MASK 0x1fffffffc VALUE 0x0
+  # ivtmp.44_18 = PHI <ivtmp.44_17(4), 0(3)>
+  _4 = MEM[(int *)b_12(D) + ivtmp.44_18 * 1 clique 1 base 1];
+  _6 = _4 * 3;
+  MEM[(int *)a_13(D) + ivtmp.44_18 * 1 clique 1 base 2] = _6;
+  s_15 = _6 ^ s_20;
+  # RANGE [irange] sizetype [4, 8589934588] MASK 0x1fffffffc VALUE 0x0
+  ivtmp.44_17 = ivtmp.44_18 + 4;
+  if (_8 != ivtmp.44_17)
+    goto <bb 4>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 5> [local count: 118111600]:
+  # s_21 = PHI <s_15(4), 0(2)>
+  return s_21;
+
+}
+
+
+
+;; Function unin (unin, funcdef_no=10, decl_uid=5704, cgraph_uid=11, symbol_order=11)
+
+int unin (int c)
+{
+  int c_1(D) = c;
+  <bb 2> [local count: 1073741824]:
+  return 4;
+
+}
+
+
+
+;; Function cx (cx, funcdef_no=11, decl_uid=5708, cgraph_uid=12, symbol_order=12)
+
+Removing basic block 5
+complex double cx (complex double z)
+{
+  complex double z_4(D) = z;
+  double z$imag;
+  double z$real;
+  double _2;
+  complex double _6;
+  double _11;
+  double _12;
+  double _13;
+  double _14;
+  complex double _15;
+  double _16;
+  double _17;
+  double _18;
+  double _19;
+
+  <bb 2> [local count: 1073741824]:
+  z$real_8 = REALPART_EXPR <z_4(D)>;
+  z$imag_9 = IMAGPART_EXPR <z_4(D)>;
+  # RANGE [frange] double [-0.0 (-0x0.0p+0), +Inf] +-NAN
+  _11 = z$imag_9 * z$imag_9;
+  _12 = z$real_8 * z$imag_9;
+  _13 = .FMS (z$real_8, z$real_8, _11);
+  _14 = _12 * 2.0e+0;
+  if (_13 unord _14)
+    goto <bb 3>; [0.05%]
+  else
+    goto <bb 4>; [99.95%]
+
+  <bb 3> [local count: 536864]:
+  _15 = __muldc3 (z$real_8, z$imag_9, z$real_8, z$imag_9);
+  _16 = REALPART_EXPR <_15>;
+  _17 = IMAGPART_EXPR <_15>;
+
+  <bb 4> [local count: 1073741824]:
+  # _18 = PHI <_13(2), _16(3)>
+  # _19 = PHI <_14(2), _17(3)>
+  _2 = _18 + 1.0e+0;
+  _6 = COMPLEX_EXPR <_2, _19>;
+  return _6;
+
+}
+
+

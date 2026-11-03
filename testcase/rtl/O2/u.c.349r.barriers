@@ -1,0 +1,303 @@
+;; Function nr2 (nr2, funcdef_no=12, decl_uid=5545, cgraph_uid=13, symbol_order=15)
+
+
+
+nr2
+
+Dataflow summary:
+;;  fully invalidated by EH 	 0 [x0] 1 [x1] 2 [x2] 3 [x3] 4 [x4] 5 [x5] 6 [x6] 7 [x7] 8 [x8] 9 [x9] 10 [x10] 11 [x11] 12 [x12] 13 [x13] 14 [x14] 15 [x15] 16 [x16] 17 [x17] 18 [x18] 30 [x30] 32 [v0] 33 [v1] 34 [v2] 35 [v3] 36 [v4] 37 [v5] 38 [v6] 39 [v7] 48 [v16] 49 [v17] 50 [v18] 51 [v19] 52 [v20] 53 [v21] 54 [v22] 55 [v23] 56 [v24] 57 [v25] 58 [v26] 59 [v27] 60 [v28] 61 [v29] 62 [v30] 63 [v31] 66 [cc] 68 [p0] 69 [p1] 70 [p2] 71 [p3] 72 [p4] 73 [p5] 74 [p6] 75 [p7] 76 [p8] 77 [p9] 78 [p10] 79 [p11] 80 [p12] 81 [p13] 82 [p14] 83 [p15] 84 [ffr] 85 [ffrt]
+;;  hardware regs used 	 31 [sp]
+;;  regular block artificial uses 	 29 [x29] 31 [sp]
+;;  eh block artificial uses 	 29 [x29] 31 [sp] 64 [sfp] 65 [ap]
+;;  entry block defs 	 0 [x0] 1 [x1] 2 [x2] 3 [x3] 4 [x4] 5 [x5] 6 [x6] 7 [x7] 8 [x8] 29 [x29] 30 [x30] 31 [sp] 32 [v0] 33 [v1] 34 [v2] 35 [v3] 36 [v4] 37 [v5] 38 [v6] 39 [v7] 64 [sfp] 68 [p0] 69 [p1] 70 [p2] 71 [p3]
+;;  exit block uses 	 0 [x0] 29 [x29] 30 [x30] 31 [sp] 64 [sfp]
+;;  regs ever live 	 0 [x0] 16 [x16] 17 [x17] 29 [x29] 30 [x30] 31 [sp] 66 [cc]
+;;  ref usage 	r0={3d,4u} r1={2d} r2={2d} r3={2d} r4={2d} r5={2d} r6={2d} r7={2d} r8={2d} r9={1d} r10={1d} r11={1d} r12={1d} r13={1d} r14={1d} r15={1d} r16={2d} r17={2d} r18={1d} r29={2d,6u} r30={2d,2u} r31={2d,11u} r32={2d} r33={2d} r34={2d} r35={2d} r36={2d} r37={2d} r38={2d} r39={2d} r48={1d} r49={1d} r50={1d} r51={1d} r52={1d} r53={1d} r54={1d} r55={1d} r56={1d} r57={1d} r58={1d} r59={1d} r60={1d} r61={1d} r62={1d} r63={1d} r64={1d,1u} r66={2d,1u} r68={2d} r69={2d} r70={2d} r71={2d} r72={1d} r73={1d} r74={1d} r75={1d} r76={1d} r77={1d} r78={1d} r79={1d} r80={1d} r81={1d} r82={1d} r83={1d} r84={1d} r85={1d} 
+;;    total ref usage 119{94d,25u,0e} in 9{8 regular + 1 call} insns.
+(note 1 0 4 NOTE_INSN_DELETED)
+(note 4 1 3 [bb 2] NOTE_INSN_BASIC_BLOCK)
+(note 3 4 8 NOTE_INSN_FUNCTION_BEG)
+(insn:TI 8 3 9 (set (reg:CC 66 cc)
+        (compare:CC (reg/v:SI 0 x0 [orig:101 x ] [101])
+            (const_int 3 [0x3]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":77:6 405 {cmpsi}
+     (nil))
+(jump_insn 9 8 14 (set (pc)
+        (if_then_else (gt (reg:CC 66 cc)
+                (const_int 0 [0]))
+            (label_ref:DI 46)
+            (pc))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":77:6 19 {condjump}
+     (expr_list:REG_DEAD (reg:CC 66 cc)
+        (int_list:REG_BR_PROB 429500 (nil)))
+ -> 46)
+(note 14 9 15 [bb 3] NOTE_INSN_BASIC_BLOCK)
+(note 15 14 20 NOTE_INSN_DELETED)
+(insn:TI 20 15 21 (set (reg/i:SI 0 x0)
+        (ashift:SI (reg/v:SI 0 x0 [orig:101 x ] [101])
+            (const_int 1 [0x1]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":79:1 751 {*aarch64_ashl_sisd_or_int_si3}
+     (nil))
+(insn 21 20 36 (use (reg/i:SI 0 x0)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":79:1 -1
+     (nil))
+(jump_insn 36 21 37 (simple_return) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":79:1 35 {simple_return}
+     (nil)
+ -> simple_return)
+(barrier 37 36 46)
+(code_label 46 37 10 34 (nil) [1 uses])
+(note 10 46 26 [bb 4] NOTE_INSN_BASIC_BLOCK)
+(insn/f:TI 26 10 27 (parallel [
+            (set (reg/f:DI 31 sp)
+                (plus:DI (reg/f:DI 31 sp)
+                    (const_int -16 [0xfffffffffffffff0])))
+            (set/f (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int -16 [0xfffffffffffffff0])) [7  S8 A8])
+                (reg/f:DI 29 x29))
+            (set/f (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int -8 [0xfffffffffffffff8])) [7  S8 A8])
+                (reg:DI 30 x30))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":76:1 101 {*storewb_pre_pair_8}
+     (expr_list:REG_DEAD (reg:DI 30 x30)
+        (nil)))
+(insn/f 27 26 28 (set (reg/f:DI 29 x29)
+        (reg/f:DI 31 sp)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":76:1 71 {*movdi_aarch64}
+     (nil))
+(insn 28 27 29 (set (mem:BLK (scratch) [0  A8])
+        (unspec:BLK [
+                (reg/f:DI 31 sp)
+                (reg/f:DI 29 x29)
+                (const_int 29 [0x1d])
+            ] UNSPEC_PRLG_STK)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":76:1 1140 {stack_tie}
+     (nil))
+(note 29 28 11 NOTE_INSN_PROLOGUE_END)
+(call_insn:TI 11 29 12 (parallel [
+            (call (mem:DI (symbol_ref:DI ("die") [flags 0x41]  <function_decl 0x10870a000 die>) [0 die S8 A8])
+                (const_int 0 [0]))
+            (unspec:DI [
+                    (const_int 2 [0x2])
+                ] UNSPEC_CALLEE_ABI)
+            (clobber (reg:DI 30 x30))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":77:14 discrim 1 64 {*call_insn}
+     (expr_list:REG_CALL_DECL (symbol_ref:DI ("die") [flags 0x41]  <function_decl 0x10870a000 die>)
+        (expr_list:REG_NORETURN (const_int 0 [0])
+            (nil)))
+    (expr_list (clobber (reg:DI 17 x17))
+        (expr_list (clobber (reg:DI 16 x16))
+            (nil))))
+(barrier 12 11 24)
+(note 24 12 25 NOTE_INSN_DELETED)
+(note 25 24 0 NOTE_INSN_DELETED)
+
+;; Function sj (sj, funcdef_no=11, decl_uid=5541, cgraph_uid=12, symbol_order=14)
+
+
+
+sj
+
+Dataflow summary:
+;;  fully invalidated by EH 	 0 [x0] 1 [x1] 2 [x2] 3 [x3] 4 [x4] 5 [x5] 6 [x6] 7 [x7] 8 [x8] 9 [x9] 10 [x10] 11 [x11] 12 [x12] 13 [x13] 14 [x14] 15 [x15] 16 [x16] 17 [x17] 18 [x18] 30 [x30] 32 [v0] 33 [v1] 34 [v2] 35 [v3] 36 [v4] 37 [v5] 38 [v6] 39 [v7] 48 [v16] 49 [v17] 50 [v18] 51 [v19] 52 [v20] 53 [v21] 54 [v22] 55 [v23] 56 [v24] 57 [v25] 58 [v26] 59 [v27] 60 [v28] 61 [v29] 62 [v30] 63 [v31] 66 [cc] 68 [p0] 69 [p1] 70 [p2] 71 [p3] 72 [p4] 73 [p5] 74 [p6] 75 [p7] 76 [p8] 77 [p9] 78 [p10] 79 [p11] 80 [p12] 81 [p13] 82 [p14] 83 [p15] 84 [ffr] 85 [ffrt]
+;;  hardware regs used 	 31 [sp]
+;;  regular block artificial uses 	 29 [x29] 31 [sp]
+;;  eh block artificial uses 	 29 [x29] 31 [sp] 64 [sfp] 65 [ap]
+;;  entry block defs 	 0 [x0] 1 [x1] 2 [x2] 3 [x3] 4 [x4] 5 [x5] 6 [x6] 7 [x7] 8 [x8] 19 [x19] 29 [x29] 30 [x30] 31 [sp] 32 [v0] 33 [v1] 34 [v2] 35 [v3] 36 [v4] 37 [v5] 38 [v6] 39 [v7] 64 [sfp] 68 [p0] 69 [p1] 70 [p2] 71 [p3]
+;;  exit block uses 	 0 [x0] 19 [x19] 29 [x29] 30 [x30] 31 [sp] 64 [sfp]
+;;  regs ever live 	 0 [x0] 1 [x1] 2 [x2] 16 [x16] 17 [x17] 19 [x19] 29 [x29] 30 [x30] 31 [sp] 66 [cc]
+;;  ref usage 	r0={7d,8u} r1={6d,3u} r2={4d,1u} r3={3d} r4={3d} r5={3d} r6={3d} r7={3d} r8={3d} r9={2d} r10={2d} r11={2d} r12={2d} r13={2d} r14={2d} r15={2d} r16={4d} r17={4d} r18={2d} r19={5d,4u} r29={4d,11u} r30={5d,4u} r31={4d,27u} r32={3d} r33={3d} r34={3d} r35={3d} r36={3d} r37={3d} r38={3d} r39={3d} r48={2d} r49={2d} r50={2d} r51={2d} r52={2d} r53={2d} r54={2d} r55={2d} r56={2d} r57={2d} r58={2d} r59={2d} r60={2d} r61={2d} r62={2d} r63={2d} r64={1d,1u} r66={2d} r68={3d} r69={3d} r70={3d} r71={3d} r72={2d} r73={2d} r74={2d} r75={2d} r76={2d} r77={2d} r78={2d} r79={2d} r80={2d} r81={2d} r82={2d} r83={2d} r84={2d} r85={2d} 
+;;    total ref usage 235{176d,59u,0e} in 31{29 regular + 2 call} insns.
+(note 1 0 4 NOTE_INSN_DELETED)
+(note 4 1 3 [bb 2] NOTE_INSN_BASIC_BLOCK)
+(note 3 4 9 NOTE_INSN_FUNCTION_BEG)
+(note 9 3 18 NOTE_INSN_DELETED)
+(note 18 9 46 NOTE_INSN_DELETED)
+(insn/f:TI 46 18 2 (parallel [
+            (set (reg/f:DI 31 sp)
+                (plus:DI (reg/f:DI 31 sp)
+                    (const_int -48 [0xffffffffffffffd0])))
+            (set/f (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int -48 [0xffffffffffffffd0])) [7  S8 A8])
+                (reg/f:DI 29 x29))
+            (set/f (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int -40 [0xffffffffffffffd8])) [7  S8 A8])
+                (reg:DI 30 x30))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":67:1 101 {*storewb_pre_pair_8}
+     (expr_list:REG_DEAD (reg:DI 30 x30)
+        (nil)))
+(insn 2 46 47 (set (reg/v:SI 1 x1 [orig:103 x ] [103])
+        (reg:SI 0 x0 [108])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":67:1 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg:SI 0 x0 [108])
+        (nil)))
+(insn/f 47 2 8 (set (reg/f:DI 29 x29)
+        (reg/f:DI 31 sp)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":67:1 71 {*movdi_aarch64}
+     (nil))
+(insn:TI 8 47 48 (set (reg/f:DI 2 x2 [105])
+        (high:DI (symbol_ref:DI ("jb") [flags 0xa02]  <var_decl 0x10821ed00 jb>))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":69:7 71 {*movdi_aarch64}
+     (expr_list:REG_EQUIV (high:DI (symbol_ref:DI ("jb") [flags 0xa02]  <var_decl 0x10821ed00 jb>))
+        (nil)))
+(insn 48 8 10 (set (mem:BLK (scratch) [0  A8])
+        (unspec:BLK [
+                (reg/f:DI 31 sp)
+                (reg/f:DI 29 x29)
+                (const_int 29 [0x1d])
+            ] UNSPEC_PRLG_STK)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":67:1 1140 {stack_tie}
+     (nil))
+(insn:TI 10 48 49 (set (reg:DI 0 x0)
+        (lo_sum:DI (reg/f:DI 2 x2 [105])
+            (symbol_ref:DI ("jb") [flags 0xa02]  <var_decl 0x10821ed00 jb>))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":69:7 1112 {add_losym_di}
+     (expr_list:REG_DEAD (reg/f:DI 2 x2 [105])
+        (expr_list:REG_EQUAL (symbol_ref:DI ("jb") [flags 0xa02]  <var_decl 0x10821ed00 jb>)
+            (nil))))
+(insn/f:TI 49 10 50 (set (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                (const_int 16 [0x10])) [7  S8 A8])
+        (reg:DI 19 x19)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":67:1 71 {*movdi_aarch64}
+     (expr_list:REG_DEAD (reg:DI 19 x19)
+        (nil)))
+(note 50 49 6 NOTE_INSN_PROLOGUE_END)
+(insn:TI 6 50 11 (set (mem/v/c:SI (plus:DI (reg/f:DI 29 x29)
+                (const_int 44 [0x2c])) [1 v+0 S4 A32])
+        (reg/v:SI 1 x1 [orig:103 x ] [103])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":68:16 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg/v:SI 1 x1 [orig:103 x ] [103])
+        (nil)))
+(call_insn:TI 11 6 19 (parallel [
+            (set (reg:SI 0 x0)
+                (call (mem:DI (symbol_ref:DI ("setjmp") [flags 0x41]  <function_decl 0x108595300 setjmp>) [0 setjmp S8 A8])
+                    (const_int 0 [0])))
+            (unspec:DI [
+                    (const_int 2 [0x2])
+                ] UNSPEC_CALLEE_ABI)
+            (clobber (reg:DI 30 x30))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":69:7 65 {*call_value_insn}
+     (expr_list:REG_CALL_DECL (symbol_ref:DI ("setjmp") [flags 0x41]  <function_decl 0x108595300 setjmp>)
+        (expr_list:REG_SETJMP (const_int 0 [0])
+            (nil)))
+    (expr_list (clobber (reg:DI 17 x17))
+        (expr_list (clobber (reg:DI 16 x16))
+            (expr_list:DI (use (reg:DI 0 x0))
+                (nil)))))
+(jump_insn:TI 19 11 20 (set (pc)
+        (if_then_else (eq (reg:SI 0 x0 [orig:102 <retval> ] [102])
+                (const_int 0 [0]))
+            (label_ref 24)
+            (pc))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":69:6 discrim 1 36 {aarch64_cbeqsi1}
+     (int_list:REG_BR_PROB 524845004 (nil))
+ -> 24)
+(note 20 19 21 [bb 3] NOTE_INSN_BASIC_BLOCK)
+(insn:TI 21 20 37 (set (reg:DI 19 x19)
+        (zero_extend:DI (mem/v/c:SI (plus:DI (reg/f:DI 29 x29)
+                    (const_int 44 [0x2c])) [1 v+0 S4 A32]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":70:12 108 {*zero_extendsidi2_aarch64}
+     (nil))
+(insn:TI 37 21 74 (set (reg/i:SI 0 x0)
+        (reg:SI 19 x19 [orig:102 <retval> ] [102])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg:SI 19 x19 [orig:102 <retval> ] [102])
+        (nil)))
+(note 74 37 52 NOTE_INSN_EPILOGUE_BEG)
+(insn 52 74 38 (set (reg:DI 19 x19)
+        (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                (const_int 16 [0x10])) [7  S8 A8])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 71 {*movdi_aarch64}
+     (nil))
+(insn 38 52 53 (use (reg/i:SI 0 x0)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 -1
+     (nil))
+(insn 53 38 54 (set (mem:BLK (scratch) [0  A8])
+        (unspec:BLK [
+                (reg/f:DI 31 sp) repeated x2
+                (const_int 31 [0x1f])
+            ] UNSPEC_PRLG_STK)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 1140 {stack_tie}
+     (nil))
+(insn/f:TI 54 53 55 (parallel [
+            (set (reg/f:DI 31 sp)
+                (plus:DI (reg/f:DI 31 sp)
+                    (const_int 48 [0x30])))
+            (set (reg/f:DI 29 x29)
+                (mem/c:DI (reg/f:DI 31 sp) [7  S8 A8]))
+            (set (reg:DI 30 x30)
+                (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int 8 [0x8])) [7  S8 A8]))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 95 {*loadwb_post_pair_8}
+     (expr_list:REG_CFA_DEF_CFA (reg/f:DI 31 sp)
+        (expr_list:REG_CFA_RESTORE (reg:DI 30 x30)
+            (expr_list:REG_CFA_RESTORE (reg/f:DI 29 x29)
+                (expr_list:REG_CFA_RESTORE (reg:DI 19 x19)
+                    (nil))))))
+(insn 55 54 56 (use (reg:DI 30 x30)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 -1
+     (nil))
+(jump_insn 56 55 60 (return) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 34 {*do_return}
+     (nil)
+ -> return)
+(barrier 60 56 24)
+(code_label 24 60 25 26 (nil) [1 uses])
+(note 25 24 29 [bb 4] NOTE_INSN_BASIC_BLOCK)
+(note 29 25 26 NOTE_INSN_DELETED)
+(insn:TI 26 29 57 (set (reg:DI 1 x1)
+        (zero_extend:DI (mem/v/c:SI (plus:DI (reg/f:DI 29 x29)
+                    (const_int 44 [0x2c])) [1 v+0 S4 A32]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":71:4 108 {*zero_extendsidi2_aarch64}
+     (nil))
+(insn 57 26 30 (set (reg:SI 19 x19 [orig:102 <retval> ] [102])
+        (reg:SI 0 x0 [109])) 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg:SI 0 x0 [109])
+        (nil)))
+(insn 30 57 27 (set (reg:DI 0 x0)
+        (plus:DI (reg/f:DI 29 x29)
+            (const_int 44 [0x2c]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":72:3 121 {*adddi3_aarch64}
+     (nil))
+(insn:TI 27 30 28 (set (reg:SI 1 x1 [orig:101 _2 ] [101])
+        (plus:SI (reg:SI 1 x1 [orig:100 v.2_1 ] [100])
+            (const_int 1 [0x1]))) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":71:4 120 {*addsi3_aarch64}
+     (nil))
+(insn:TI 28 27 31 (set (mem/v/c:SI (plus:DI (reg/f:DI 29 x29)
+                (const_int 44 [0x2c])) [1 v+0 S4 A32])
+        (reg:SI 1 x1 [orig:101 _2 ] [101])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":71:4 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg:SI 1 x1 [orig:101 _2 ] [101])
+        (nil)))
+(call_insn:TI 31 28 63 (parallel [
+            (set (reg:SI 0 x0)
+                (call (mem:DI (symbol_ref:DI ("ext") [flags 0x41]  <function_decl 0x10870a100 ext>) [0 ext S8 A8])
+                    (const_int 0 [0])))
+            (unspec:DI [
+                    (const_int 2 [0x2])
+                ] UNSPEC_CALLEE_ABI)
+            (clobber (reg:DI 30 x30))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":72:3 65 {*call_value_insn}
+     (expr_list:REG_UNUSED (reg:SI 0 x0)
+        (expr_list:REG_CALL_DECL (symbol_ref:DI ("ext") [flags 0x41]  <function_decl 0x10870a100 ext>)
+            (nil)))
+    (expr_list (clobber (reg:DI 17 x17))
+        (expr_list (clobber (reg:DI 16 x16))
+            (expr_list:DI (use (reg:DI 0 x0))
+                (nil)))))
+(insn:TI 63 31 75 (set (reg/i:SI 0 x0)
+        (reg:SI 19 x19 [orig:102 <retval> ] [102])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 70 {*movsi_aarch64}
+     (expr_list:REG_DEAD (reg:SI 19 x19 [orig:102 <retval> ] [102])
+        (nil)))
+(note 75 63 66 NOTE_INSN_EPILOGUE_BEG)
+(insn 66 75 64 (set (reg:DI 19 x19)
+        (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                (const_int 16 [0x10])) [7  S8 A8])) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 71 {*movdi_aarch64}
+     (nil))
+(insn 64 66 67 (use (reg/i:SI 0 x0)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 -1
+     (nil))
+(insn 67 64 68 (set (mem:BLK (scratch) [0  A8])
+        (unspec:BLK [
+                (reg/f:DI 31 sp) repeated x2
+                (const_int 31 [0x1f])
+            ] UNSPEC_PRLG_STK)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 1140 {stack_tie}
+     (nil))
+(insn/f:TI 68 67 69 (parallel [
+            (set (reg/f:DI 31 sp)
+                (plus:DI (reg/f:DI 31 sp)
+                    (const_int 48 [0x30])))
+            (set (reg/f:DI 29 x29)
+                (mem/c:DI (reg/f:DI 31 sp) [7  S8 A8]))
+            (set (reg:DI 30 x30)
+                (mem/c:DI (plus:DI (reg/f:DI 31 sp)
+                        (const_int 8 [0x8])) [7  S8 A8]))
+        ]) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 95 {*loadwb_post_pair_8}
+     (expr_list:REG_CFA_DEF_CFA (reg/f:DI 31 sp)
+        (expr_list:REG_CFA_RESTORE (reg:DI 30 x30)
+            (expr_list:REG_CFA_RESTORE (reg/f:DI 29 x29)
+                (expr_list:REG_CFA_RESTORE (reg:DI 19 x19)
+                    (nil))))))
+(insn 69 68 70 (use (reg:DI 30 x30)) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 -1
+     (nil))
+(jump_insn 70 69 73 (return) "/Users/kishan/opensource/VsCode-Extentions/gcc-workbench/testcase/gimple/u/u.c":74:1 34 {*do_return}
+     (nil)
+ -> return)
+(barrier 73 70 44)
+(note 44 73 45 NOTE_INSN_DELETED)
+(note 45 44 0 NOTE_INSN_DELETED)
+

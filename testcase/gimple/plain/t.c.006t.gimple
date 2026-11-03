@@ -1,0 +1,190 @@
+int loop (int * a, int n)
+{
+  int D.5711;
+  int s;
+
+  s = 0;
+  {
+    int i;
+
+    i = 0;
+    goto <D.5667>;
+    <D.5666>:
+    _1 = (long unsigned int) i;
+    _2 = _1 * 4;
+    _3 = a + _2;
+    _4 = *_3;
+    s = s + _4;
+    i = i + 1;
+    <D.5667>:
+    if (i < n) goto <D.5666>; else goto <D.5664>;
+    <D.5664>:
+  }
+  D.5711 = s;
+  return D.5711;
+}
+
+
+int sw (int k, int y)
+{
+  int D.5713;
+
+  switch (k) <default: <D.5676>, case 0: <D.5672>, case 1: <D.5673>, case 2: <D.5674>, case 5: <D.5675>>
+  <D.5672>:
+  y = y + 3;
+  goto <D.5677>;
+  <D.5673>:
+  y = y * 7;
+  goto <D.5677>;
+  <D.5674>:
+  y = y + -11;
+  goto <D.5677>;
+  <D.5675>:
+  D.5713 = 9;
+  return D.5713;
+  <D.5676>:
+  y = sq (y);
+  <D.5677>:
+  D.5713 = y;
+  return D.5713;
+}
+
+
+int sq (int x)
+{
+  int D.5715;
+
+  D.5715 = x * x;
+  return D.5715;
+}
+
+
+int addr (int v)
+{
+  int D.5717;
+  int tmp_1;
+  int * p;
+  struct S s;
+
+  try
+    {
+      tmp_1 = v;
+      p = &tmp_1;
+      _1 = *p;
+      g.0_2 = g;
+      _3 = _1 + g.0_2;
+      *p = _3;
+      s.a = v;
+      _4 = (float) v;
+      _5 = _4 * 2.0e+0;
+      s.b = _5;
+      _6 = s.a;
+      tmp_1.1_7 = tmp_1;
+      _8 = _6 + tmp_1.1_7;
+      _9 = s.b;
+      _10 = (int) _9;
+      D.5717 = _8 + _10;
+      return D.5717;
+    }
+  finally
+    {
+      tmp_1 = {CLOBBER(eos)};
+      s = {CLOBBER(eos)};
+    }
+}
+
+
+int nr (int x)
+{
+  int D.5724;
+
+  if (x < 0) goto <D.5720>; else goto <D.5721>;
+  <D.5720>:
+  abort ();
+  <D.5721>:
+  if (x > 100) goto <D.5722>; else goto <D.5723>;
+  <D.5722>:
+  __builtin_unreachable ();
+  <D.5723>:
+  D.5724 = x + 1;
+  return D.5724;
+}
+
+
+void cpy (char * d, const char * src, size_t n)
+{
+  if (n != 0) goto <D.5726>; else goto <D.5727>;
+  <D.5726>:
+  _1 = __builtin_object_size (d, 0);
+  __builtin___memcpy_chk (d, src, n, _1);
+  <D.5727>:
+  _2 = strlen (d);
+  _3 = (int) _2;
+  g = _3;
+}
+
+
+int vec (int * restrict a, int * restrict b, int n)
+{
+  int D.5728;
+  int s;
+
+  s = 0;
+  {
+    int i;
+
+    i = 0;
+    goto <D.5702>;
+    <D.5701>:
+    _1 = (long unsigned int) i;
+    _2 = _1 * 4;
+    _3 = b + _2;
+    _4 = *_3;
+    _5 = (long unsigned int) i;
+    _6 = _5 * 4;
+    _7 = a + _6;
+    _8 = _4 * 3;
+    *_7 = _8;
+    _9 = (long unsigned int) i;
+    _10 = _9 * 4;
+    _11 = a + _10;
+    _12 = *_11;
+    s = s ^ _12;
+    i = i + 1;
+    <D.5702>:
+    if (i < n) goto <D.5701>; else goto <D.5699>;
+    <D.5699>:
+  }
+  D.5728 = s;
+  return D.5728;
+}
+
+
+int unin (int c)
+{
+  int D.5732;
+  int u;
+
+  if (c != 0) goto <D.5730>; else goto <D.5731>;
+  <D.5730>:
+  u = 4;
+  <D.5731>:
+  D.5732 = u;
+  return D.5732;
+}
+
+
+complex double cx (complex double z)
+{
+  complex double D.5734;
+  complex double D.5735;
+
+  D.5735 = z * z;
+  _1 = REALPART_EXPR <D.5735>;
+  _2 = _1 + 1.0e+0;
+  _3 = IMAGPART_EXPR <D.5735>;
+  D.5734 = COMPLEX_EXPR <_2, _3>;
+  return D.5734;
+}
+
+

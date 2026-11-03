@@ -1,0 +1,299 @@
+int asmf (int a)
+{
+  int D.5568;
+  int r;
+  int k;
+
+  k = a;
+  __asm__("addl %1, %0" : "=r" r : "r" a);
+  __asm__ __volatile__("incl %0" : "=r" k : "0" k);
+  D.5568 = r + k;
+  return D.5568;
+}
+
+
+int counter ()
+{
+  int D.5570;
+  static int count = 0;
+
+  count.0_1 = count;
+  _2 = count.0_1 + 1;
+  count = _2;
+  D.5570 = count;
+  return D.5570;
+}
+
+
+int shadow (int n)
+{
+  int D.5572;
+  int s;
+
+  s = 0;
+  {
+    int i;
+
+    i = 0;
+    goto <D.5505>;
+    <D.5504>:
+    s = s + i;
+    i = i + 1;
+    <D.5505>:
+    if (i < n) goto <D.5504>; else goto <D.5502>;
+    <D.5502>:
+  }
+  {
+    int i;
+
+    i = n;
+    goto <D.5509>;
+    <D.5508>:
+    s = s - i;
+    i = i + -1;
+    <D.5509>:
+    if (i > 0) goto <D.5508>; else goto <D.5506>;
+    <D.5506>:
+  }
+  {
+    int s;
+
+    s = 5;
+    g = s;
+  }
+  D.5572 = s;
+  return D.5572;
+}
+
+
+int cgoto (int k)
+{
+  int D.5574;
+  static void * tab[2] = {&l1, &l2};
+  void l1 = <<< error >>>;
+  void l2 = <<< error >>>;
+
+  _1 = k & 1;
+  _2 = tab[_1];
+  goto _2;
+  l1:
+  D.5574 = 1;
+  return D.5574;
+  l2:
+  D.5574 = 2;
+  return D.5574;
+}
+
+
+int ulabel (int n)
+{
+  int D.5580;
+  int t;
+  void retry = <<< error >>>;
+
+  t = 0;
+  retry:
+  t = t + 1;
+  if (t < n) goto <D.5578>; else goto <D.5579>;
+  <D.5578>:
+  // predicted unlikely by goto predictor.
+  goto retry;
+  <D.5579>:
+  D.5580 = t;
+  return D.5580;
+}
+
+
+struct P mkp (int a)
+{
+  struct P D.5582;
+  struct P p;
+
+  try
+    {
+      p.x = a;
+      _1 = a + 1;
+      p.y = _1;
+      D.5582 = p;
+      return D.5582;
+    }
+  finally
+    {
+      p = {CLOBBER(eos)};
+    }
+}
+
+
+int bits (struct B * b, struct B c)
+{
+  int D.5585;
+
+  c.b = 3;
+  _1 = c.b;
+  _2 = (<unnamed-unsigned:3>) _1;
+  b->a = _2;
+  _3 = c.a;
+  _4 = (int) _3;
+  _5 = b->b;
+  _6 = (int) _5;
+  D.5585 = _4 + _6;
+  return D.5585;
+}
+
+
+int va (int n)
+{
+  int D.5587;
+  int D.5588;
+  char * ap;
+  int s;
+
+  try
+    {
+      __builtin_va_start (&ap, 0);
+      s = 0;
+      {
+        int i;
+
+        i = 0;
+        goto <D.5538>;
+        <D.5537>:
+        D.5587 = .VA_ARG (&ap, 0B, 0B);
+        s = D.5587 + s;
+        i = i + 1;
+        <D.5538>:
+        if (i < n) goto <D.5537>; else goto <D.5535>;
+        <D.5535>:
+      }
+      __builtin_va_end (&ap);
+      D.5588 = s;
+      return D.5588;
+    }
+  finally
+    {
+      ap = {CLOBBER(eos)};
+    }
+}
+
+
+int sj (int x)
+{
+  int D.5593;
+  volatile int v;
+
+  v = x;
+  _1 = setjmp (&jb);
+  if (_1 != 0) goto <D.5591>; else goto <D.5592>;
+  <D.5591>:
+  D.5593 = v;
+  // predicted unlikely by early return (on trees) predictor.
+  return D.5593;
+  <D.5592>:
+  v.2_2 = v;
+  _3 = v.2_2 + 1;
+  v = _3;
+  ext (&v);
+  D.5593 = 0;
+  return D.5593;
+}
+
+
+int nr2 (int x)
+{
+  int D.5598;
+
+  if (x > 3) goto <D.5596>; else goto <D.5597>;
+  <D.5596>:
+  die ();
+  <D.5597>:
+  D.5598 = x * 2;
+  return D.5598;
+}
+
+
+int glob (int i)
+{
+  int D.5600;
+
+  g = i;
+  g.3_1 = g;
+  _2 = g.3_1 + 1;
+  garr[i] = _2;
+  ext (&g);
+  _3 = garr[2];
+  g.4_4 = g;
+  D.5600 = _3 + g.4_4;
+  return D.5600;
+}
+
+
+int arr (int i)
+{
+  int D.5602;
+  int a[4];
+
+  try
+    {
+      a[0] = 1;
+      a[1] = 2;
+      a[2] = 3;
+      a[3] = 4;
+      a[i] = 7;
+      ext (&a);
+      _1 = i & 3;
+      D.5602 = a[_1];
+      return D.5602;
+    }
+  finally
+    {
+      a = {CLOBBER(eos)};
+    }
+}
+
+
+v4si vv (v4si a, v4si b)
+{
+  v4si D.5605;
+  v4si D.5559 = { 1, 1, 1, 1 };
+
+  _1 = a * b;
+  D.5605 = _1 + { 1, 1, 1, 1 };
+  return D.5605;
+}
+
+
+int cnd (int a, int b)
+{
+  int D.5607;
+  int iftmp.5;
+
+  if (a > b) goto <D.5609>; else goto <D.5610>;
+  <D.5609>:
+  iftmp.5 = a - b;
+  goto <D.5611>;
+  <D.5610>:
+  iftmp.5 = b - a;
+  <D.5611>:
+  D.5607 = iftmp.5;
+  return D.5607;
+}
+
+
+char ch (const char * s)
+{
+  char D.5613;
+  char iftmp.6;
+
+  _1 = *s;
+  if (_1 == 39) goto <D.5615>; else goto <D.5616>;
+  <D.5615>:
+  iftmp.6 = -1;
+  goto <D.5617>;
+  <D.5616>:
+  iftmp.6 = 120;
+  <D.5617>:
+  D.5613 = iftmp.6;
+  return D.5613;
+}
+
+

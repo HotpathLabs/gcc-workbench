@@ -1,0 +1,543 @@
+
+;; Function asmf (asmf, funcdef_no=3, decl_uid=5487, cgraph_uid=4, symbol_order=5)
+
+int asmf (int a)
+{
+  int a_1(D) = a;
+  int k;
+  int r;
+  int _5;
+
+  <bb 2> :
+  k_2 = a_1(D);
+  __asm__("addl %1, %0" : "=r" r_3 : "r" a_1(D));
+  __asm__ __volatile__("incl %0" : "=r" k_4 : "0" k_2);
+  _5 = r_3 + k_4;
+  # VUSE <.MEM_6(D)>
+  return _5;
+
+}
+
+
+
+;; Function counter (counter, funcdef_no=4, decl_uid=5492, cgraph_uid=5, symbol_order=6)
+
+int counter ()
+{
+  static int count = 0;
+  int count.0_1;
+  int _2;
+  int _5;
+
+  <bb 2> :
+  # VUSE <.MEM_3(D)>
+  count.0_1 = count;
+  _2 = count.0_1 + 1;
+  # .MEM_4 = VDEF <.MEM_3(D)>
+  count = _2;
+  # VUSE <.MEM_4>
+  _5 = count;
+  # VUSE <.MEM_4>
+  return _5;
+
+}
+
+
+
+;; Function shadow (shadow, funcdef_no=5, decl_uid=5496, cgraph_uid=6, symbol_order=7)
+
+int shadow (int n)
+{
+  int n_7(D) = n;
+  int s;
+  int i;
+  int i;
+  int s;
+  int _12;
+
+  <bb 2> :
+  s_5 = 0;
+  i_6 = 0;
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  s_15 = s_1 + i_3;
+  i_16 = i_3 + 1;
+
+  <bb 4> :
+  # s_1 = PHI <s_5(2), s_15(3)>
+  # i_3 = PHI <i_6(2), i_16(3)>
+  if (i_3 < n_7(D))
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  i_8 = n_7(D);
+  goto <bb 7>; [INV]
+
+  <bb 6> :
+  s_13 = s_2 - i_4;
+  i_14 = i_4 + -1;
+
+  <bb 7> :
+  # s_2 = PHI <s_1(5), s_13(6)>
+  # i_4 = PHI <i_8(5), i_14(6)>
+  if (i_4 > 0)
+    goto <bb 6>; [INV]
+  else
+    goto <bb 8>; [INV]
+
+  <bb 8> :
+  s_9 = 5;
+  # .MEM_11 = VDEF <.MEM_10(D)>
+  g = s_9;
+  _12 = s_2;
+  # VUSE <.MEM_11>
+  return _12;
+
+}
+
+
+
+;; Function cgoto (cgoto, funcdef_no=6, decl_uid=5511, cgraph_uid=7, symbol_order=8)
+
+int cgoto (int k)
+{
+  int k_4(D) = k;
+  static void * tab[2] = {&l1, &l2};
+  int _1;
+  void * _2;
+  int _3;
+  void * gotovar.1_6;
+  int _7;
+  int _8;
+
+  <bb 2> :
+  _1 = k_4(D) & 1;
+  # VUSE <.MEM_5(D)>
+  _2 = tab[_1];
+  gotovar.1_6 = _2;
+  goto gotovar.1_6;
+
+  <bb 3> :
+l1:
+  _8 = 1;
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+l2:
+  _7 = 2;
+
+  <bb 5> :
+  # _3 = PHI <_8(3), _7(4)>
+  # VUSE <.MEM_5(D)>
+  return _3;
+
+}
+
+
+
+;; Function ulabel (ulabel, funcdef_no=7, decl_uid=5517, cgraph_uid=8, symbol_order=9)
+
+int ulabel (int n)
+{
+  int n_4(D) = n;
+  int t;
+  int _5;
+
+  <bb 2> :
+  t_2 = 0;
+
+  <bb 3> :
+  # t_1 = PHI <t_2(2), t_3(4)>
+retry:
+  t_3 = t_1 + 1;
+  if (t_3 < n_4(D))
+    goto <bb 4>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 4> :
+  // predicted unlikely by goto predictor.
+  goto <bb 3>; [INV]
+
+  <bb 5> :
+  _5 = t_3;
+  # VUSE <.MEM_6(D)>
+  return _5;
+
+}
+
+
+
+;; Function mkp (mkp, funcdef_no=8, decl_uid=5522, cgraph_uid=9, symbol_order=10)
+
+struct P mkp (int a)
+{
+  int a_3(D) = a;
+  struct P p;
+  struct P D.5582;
+  int _1;
+
+  <bb 2> :
+  # .MEM_4 = VDEF <.MEM_2(D)>
+  p.x = a_3(D);
+  _1 = a_3(D) + 1;
+  # .MEM_5 = VDEF <.MEM_4>
+  p.y = _1;
+  # .MEM_6 = VDEF <.MEM_5>
+  D.5582 = p;
+  # .MEM_7 = VDEF <.MEM_6>
+  p ={v} {CLOBBER(eos)};
+  # VUSE <.MEM_7>
+  return D.5582;
+
+}
+
+
+
+;; Function bits (bits, funcdef_no=9, decl_uid=5527, cgraph_uid=10, symbol_order=11)
+
+int bits (struct B * b, struct B c)
+{
+  struct B * b_9(D) = b;
+  <unnamed-unsigned:5> _1;
+  <unnamed-unsigned:3> _2;
+  <unnamed-unsigned:3> _3;
+  int _4;
+  <unnamed-unsigned:5> _5;
+  int _6;
+  int _11;
+
+  <bb 2> :
+  # .MEM_8 = VDEF <.MEM_7(D)>
+  c.b = 3;
+  # VUSE <.MEM_8>
+  _1 = c.b;
+  _2 = (<unnamed-unsigned:3>) _1;
+  # .MEM_10 = VDEF <.MEM_8>
+  b_9(D)->a = _2;
+  # VUSE <.MEM_10>
+  _3 = c.a;
+  _4 = (int) _3;
+  # VUSE <.MEM_10>
+  _5 = b_9(D)->b;
+  _6 = (int) _5;
+  _11 = _4 + _6;
+  # VUSE <.MEM_10>
+  return _11;
+
+}
+
+
+
+;; Function va (va, funcdef_no=10, decl_uid=5530, cgraph_uid=11, symbol_order=12)
+
+int va (int n)
+{
+  int n_8(D) = n;
+  int i;
+  int s;
+  char * ap;
+  int _10;
+  int _13;
+
+  <bb 2> :
+  # .MEM_5 = VDEF <.MEM_4(D)>
+  # USE = anything 
+  # CLB = anything 
+  __builtin_va_start (&ap, 0);
+  s_6 = 0;
+  i_7 = 0;
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  # .MEM_12 = VDEF <.MEM_3>
+  # USE = anything 
+  # CLB = anything 
+  _13 = .VA_ARG (&ap, 0B, 0B);
+  s_14 = _13 + s_1;
+  i_15 = i_2 + 1;
+
+  <bb 4> :
+  # s_1 = PHI <s_6(2), s_14(3)>
+  # i_2 = PHI <i_7(2), i_15(3)>
+  # .MEM_3 = PHI <.MEM_5(2), .MEM_12(3)>
+  if (i_2 < n_8(D))
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  # .MEM_9 = VDEF <.MEM_3>
+  # USE = anything 
+  # CLB = anything 
+  __builtin_va_end (&ap);
+  _10 = s_1;
+  # .MEM_11 = VDEF <.MEM_9>
+  ap ={v} {CLOBBER(eos)};
+  # VUSE <.MEM_11>
+  return _10;
+
+}
+
+
+
+;; Function sj (sj, funcdef_no=11, decl_uid=5541, cgraph_uid=12, symbol_order=14)
+
+int sj (int x)
+{
+  int x_9(D) = x;
+  volatile int v;
+  int _1;
+  int v.2_2;
+  int _3;
+  int _4;
+  int _12;
+  int _15;
+  int _16;
+
+  <bb 2> :
+  # .MEM_10 = VDEF <.MEM_8(D)>
+  v ={v} x_9(D);
+
+  <bb 3> :
+  # .MEM_5(ab) = PHI <.MEM_10(2), .MEM_17(ab)(4)>
+  # .MEM_11(ab) = VDEF <.MEM_5(ab)>
+  # USE = anything 
+  # CLB = anything 
+  _12 = setjmp (&jb);
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  # .MEM_6(ab) = PHI <.MEM_11(ab)(3), .MEM_14(ab)(7)>
+  # .MEM_17(ab) = VDEF <.MEM_6(ab)>
+  # USE = anything 
+  # CLB = anything 
+  .ABNORMAL_DISPATCHER (0);
+
+  <bb 5> :
+  _1 = _12;
+  if (_1 != 0)
+    goto <bb 6>; [INV]
+  else
+    goto <bb 7>; [INV]
+
+  <bb 6> :
+  # VUSE <.MEM_11(ab)>
+  _16 ={v} v;
+  // predicted unlikely by early return (on trees) predictor.
+  goto <bb 9>; [INV]
+
+  <bb 7> :
+  # VUSE <.MEM_11(ab)>
+  v.2_2 ={v} v;
+  _3 = v.2_2 + 1;
+  # .MEM_13 = VDEF <.MEM_11(ab)>
+  v ={v} _3;
+  # .MEM_14(ab) = VDEF <.MEM_13>
+  # USE = anything 
+  # CLB = anything 
+  ext (&v);
+
+  <bb 8> :
+  _15 = 0;
+
+  <bb 9> :
+  # _4 = PHI <_16(6), _15(8)>
+  # .MEM_7 = PHI <.MEM_11(ab)(6), .MEM_14(ab)(8)>
+  # VUSE <.MEM_7>
+  return _4;
+
+}
+
+
+
+;; Function nr2 (nr2, funcdef_no=12, decl_uid=5545, cgraph_uid=13, symbol_order=15)
+
+int nr2 (int x)
+{
+  int x_1(D) = x;
+  int _2;
+
+  <bb 2> :
+  if (x_1(D) > 3)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  # .MEM_4 = VDEF <.MEM_3(D)>
+  # USE = anything 
+  # CLB = anything 
+  die ();
+
+  <bb 4> :
+  _2 = x_1(D) * 2;
+  # VUSE <.MEM_3(D)>
+  return _2;
+
+}
+
+
+
+;; Function glob (glob, funcdef_no=13, decl_uid=5548, cgraph_uid=14, symbol_order=16)
+
+int glob (int i)
+{
+  int i_6(D) = i;
+  int g.3_1;
+  int _2;
+  int _3;
+  int g.4_4;
+  int _10;
+
+  <bb 2> :
+  # .MEM_7 = VDEF <.MEM_5(D)>
+  g = i_6(D);
+  # VUSE <.MEM_7>
+  g.3_1 = g;
+  _2 = g.3_1 + 1;
+  # .MEM_8 = VDEF <.MEM_7>
+  garr[i_6(D)] = _2;
+  # .MEM_9 = VDEF <.MEM_8>
+  # USE = anything 
+  # CLB = anything 
+  ext (&g);
+  # VUSE <.MEM_9>
+  _3 = garr[2];
+  # VUSE <.MEM_9>
+  g.4_4 = g;
+  _10 = _3 + g.4_4;
+  # VUSE <.MEM_9>
+  return _10;
+
+}
+
+
+
+;; Function arr (arr, funcdef_no=14, decl_uid=5551, cgraph_uid=15, symbol_order=17)
+
+int arr (int i)
+{
+  int i_7(D) = i;
+  int a[4];
+  int _1;
+  int _10;
+
+  <bb 2> :
+  # .MEM_3 = VDEF <.MEM_2(D)>
+  a[0] = 1;
+  # .MEM_4 = VDEF <.MEM_3>
+  a[1] = 2;
+  # .MEM_5 = VDEF <.MEM_4>
+  a[2] = 3;
+  # .MEM_6 = VDEF <.MEM_5>
+  a[3] = 4;
+  # .MEM_8 = VDEF <.MEM_6>
+  a[i_7(D)] = 7;
+  # .MEM_9 = VDEF <.MEM_8>
+  # USE = anything 
+  # CLB = anything 
+  ext (&a);
+  _1 = i_7(D) & 3;
+  # VUSE <.MEM_9>
+  _10 = a[_1];
+  # .MEM_11 = VDEF <.MEM_9>
+  a ={v} {CLOBBER(eos)};
+  # VUSE <.MEM_11>
+  return _10;
+
+}
+
+
+
+;; Function vv (vv, funcdef_no=15, decl_uid=5557, cgraph_uid=16, symbol_order=18)
+
+v4si vv (v4si a, v4si b)
+{
+  v4si a_2(D) = a;
+  v4si b_3(D) = b;
+  vector(4) int _1;
+  v4si _4;
+
+  <bb 2> :
+  _1 = a_2(D) * b_3(D);
+  _4 = _1 + { 1, 1, 1, 1 };
+  # VUSE <.MEM_5(D)>
+  return _4;
+
+}
+
+
+
+;; Function cnd (cnd, funcdef_no=16, decl_uid=5562, cgraph_uid=17, symbol_order=19)
+
+int cnd (int a, int b)
+{
+  int a_2(D) = a;
+  int b_3(D) = b;
+  int iftmp.5_1;
+  int iftmp.5_4;
+  int iftmp.5_5;
+  int _6;
+
+  <bb 2> :
+  if (a_2(D) > b_3(D))
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  iftmp.5_5 = a_2(D) - b_3(D);
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  iftmp.5_4 = b_3(D) - a_2(D);
+
+  <bb 5> :
+  # iftmp.5_1 = PHI <iftmp.5_5(3), iftmp.5_4(4)>
+  _6 = iftmp.5_1;
+  # VUSE <.MEM_7(D)>
+  return _6;
+
+}
+
+
+
+;; Function ch (ch, funcdef_no=17, decl_uid=5565, cgraph_uid=18, symbol_order=20)
+
+char ch (const char * s)
+{
+  const char * s_4(D) = s;
+  char _1;
+  char iftmp.6_2;
+  char iftmp.6_5;
+  char iftmp.6_6;
+  char _7;
+
+  <bb 2> :
+  # VUSE <.MEM_3(D)>
+  _1 = *s_4(D);
+  if (_1 == 39)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  iftmp.6_6 = -1;
+  goto <bb 5>; [INV]
+
+  <bb 4> :
+  iftmp.6_5 = 120;
+
+  <bb 5> :
+  # iftmp.6_2 = PHI <iftmp.6_6(3), iftmp.6_5(4)>
+  _7 = iftmp.6_2;
+  # VUSE <.MEM_3(D)>
+  return _7;
+
+}
+
+

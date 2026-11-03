@@ -1,0 +1,311 @@
+
+;; Function sq (sq, funcdef_no=3, decl_uid=5656, cgraph_uid=4, symbol_order=4)
+
+int sq (int x)
+{
+  int _2;
+
+  <bb 2> :
+  _2 = x_1(D) * x_1(D);
+  return _2;
+
+}
+
+
+
+;; Function loop (loop, funcdef_no=4, decl_uid=5660, cgraph_uid=5, symbol_order=5)
+
+int loop (int * a, int n)
+{
+  int i;
+  int s;
+  long unsigned int _1;
+  long unsigned int _2;
+  int * _3;
+  int _4;
+  int _10;
+
+  <bb 2> :
+  s_7 = 0;
+  i_8 = 0;
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  _1 = (long unsigned int) i_6;
+  _2 = _1 * 4;
+  _3 = a_12(D) + _2;
+  _4 = *_3;
+  s_13 = s_5 + _4;
+  i_14 = i_6 + 1;
+
+  <bb 4> :
+  # s_5 = PHI <s_7(2), s_13(3)>
+  # i_6 = PHI <i_8(2), i_14(3)>
+  if (i_6 < n_9(D))
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  _10 = s_5;
+  return _10;
+
+}
+
+
+
+;; Function sw (sw, funcdef_no=5, decl_uid=5670, cgraph_uid=6, symbol_order=6)
+
+int sw (int k, int y)
+{
+  int _2;
+  int _6;
+  int _14;
+
+  <bb 2> :
+  switch (k_5(D)) <default: <L4> [INV], case 0: <L0> [INV], case 1: <L1> [INV], case 2: <L2> [INV], case 5: <L3> [INV]>
+
+  <bb 3> :
+<L0>:
+  y_11 = y_8(D) + 3;
+  goto <bb 8>; [INV]
+
+  <bb 4> :
+<L1>:
+  y_10 = y_8(D) * 7;
+  goto <bb 8>; [INV]
+
+  <bb 5> :
+<L2>:
+  y_9 = y_8(D) + -11;
+  goto <bb 8>; [INV]
+
+  <bb 6> :
+<L3>:
+  _6 = 9;
+  goto <bb 9>; [INV]
+
+  <bb 7> :
+<L4>:
+  y_13 = sq (y_8(D));
+
+  <bb 8> :
+  # y_1 = PHI <y_11(3), y_10(4), y_9(5), y_13(7)>
+  _14 = y_1;
+
+  <bb 9> :
+  # _2 = PHI <_6(6), _14(8)>
+  return _2;
+
+}
+
+
+
+;; Function addr (addr, funcdef_no=6, decl_uid=5679, cgraph_uid=7, symbol_order=7)
+
+int addr (int v)
+{
+  struct S s;
+  int * p;
+  int tmp_1;
+  int _1;
+  int g.0_2;
+  int _3;
+  float _4;
+  float _5;
+  int _6;
+  int tmp_1.1_7;
+  int _8;
+  float _9;
+  int _10;
+  int _18;
+
+  <bb 2> :
+  tmp_1 = v_12(D);
+  p_14 = &tmp_1;
+  _1 = *p_14;
+  g.0_2 = g;
+  _3 = _1 + g.0_2;
+  *p_14 = _3;
+  s.a = v_12(D);
+  _4 = (float) v_12(D);
+  _5 = _4 * 2.0e+0;
+  s.b = _5;
+  _6 = s.a;
+  tmp_1.1_7 = tmp_1;
+  _8 = _6 + tmp_1.1_7;
+  _9 = s.b;
+  _10 = (int) _9;
+  _18 = _8 + _10;
+  tmp_1 ={v} {CLOBBER(eos)};
+  s ={v} {CLOBBER(eos)};
+  return _18;
+
+}
+
+
+
+;; Function nr (nr, funcdef_no=7, decl_uid=5685, cgraph_uid=8, symbol_order=8)
+
+int nr (int x)
+{
+  int _2;
+
+  <bb 2> :
+  if (x_1(D) < 0)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  abort ();
+
+  <bb 4> :
+  if (x_1(D) > 100)
+    goto <bb 5>; [INV]
+  else
+    goto <bb 6>; [INV]
+
+  <bb 5> :
+  __builtin_unreachable ();
+
+  <bb 6> :
+  _2 = x_1(D) + 1;
+  return _2;
+
+}
+
+
+
+;; Function cpy (cpy, funcdef_no=8, decl_uid=5690, cgraph_uid=9, symbol_order=9)
+
+void cpy (char * d, const char * src, size_t n)
+{
+  long unsigned int _1;
+  long unsigned int _2;
+  int _3;
+
+  <bb 2> :
+  if (n_5(D) != 0)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  _1 = __builtin_object_size (d_7(D), 0);
+  __builtin___memcpy_chk (d_7(D), src_8(D), n_5(D), _1);
+
+  <bb 4> :
+  _2 = strlen (d_7(D));
+  _3 = (int) _2;
+  g = _3;
+  return;
+
+}
+
+
+
+;; Function vec (vec, funcdef_no=9, decl_uid=5695, cgraph_uid=10, symbol_order=10)
+
+int vec (int * restrict a, int * restrict b, int n)
+{
+  int i;
+  int s;
+  long unsigned int _1;
+  long unsigned int _2;
+  int * _3;
+  int _4;
+  long unsigned int _5;
+  long unsigned int _6;
+  int * _7;
+  int _8;
+  long unsigned int _9;
+  long unsigned int _10;
+  int * _11;
+  int _12;
+  int _20;
+
+  <bb 2> :
+  s_16 = 0;
+  i_17 = 0;
+  goto <bb 4>; [INV]
+
+  <bb 3> :
+  _1 = (long unsigned int) i_14;
+  _2 = _1 * 4;
+  _3 = b_21(D) + _2;
+  _4 = *_3;
+  _5 = (long unsigned int) i_14;
+  _6 = _5 * 4;
+  _7 = a_22(D) + _6;
+  _8 = _4 * 3;
+  *_7 = _8;
+  _9 = (long unsigned int) i_14;
+  _10 = _9 * 4;
+  _11 = a_22(D) + _10;
+  _12 = *_11;
+  s_24 = s_13 ^ _12;
+  i_25 = i_14 + 1;
+
+  <bb 4> :
+  # s_13 = PHI <s_16(2), s_24(3)>
+  # i_14 = PHI <i_17(2), i_25(3)>
+  if (i_14 < n_19(D))
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 5> :
+  _20 = s_13;
+  return _20;
+
+}
+
+
+
+;; Function unin (unin, funcdef_no=10, decl_uid=5704, cgraph_uid=11, symbol_order=11)
+
+int unin (int c)
+{
+  int u;
+  int _5;
+
+  <bb 2> :
+  if (c_2(D) != 0)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 4>; [INV]
+
+  <bb 3> :
+  u_4 = 4;
+
+  <bb 4> :
+  # u_1 = PHI <u_3(D)(2), u_4(3)>
+  _5 = u_1;
+  return _5;
+
+}
+
+
+
+;; Function cx (cx, funcdef_no=11, decl_uid=5708, cgraph_uid=12, symbol_order=12)
+
+complex double cx (complex double z)
+{
+  double _1;
+  double _2;
+  double _3;
+  complex double _5;
+  complex double _6;
+
+  <bb 2> :
+  _5 = z_4(D) * z_4(D);
+  _1 = REALPART_EXPR <_5>;
+  _2 = _1 + 1.0e+0;
+  _3 = IMAGPART_EXPR <_5>;
+  _6 = COMPLEX_EXPR <_2, _3>;
+  return _6;
+
+}
+
+

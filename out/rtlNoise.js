@@ -26,12 +26,27 @@ const BASIC_NOISE = /^\s*(\(clobber|\(barrier|\(use|;;)/;
  * compact `12: r1=r2` / `REG_DEAD` listings, BB edge
  * summaries, and candidate RTL blocks (`(set ...)`, `(parallel [...])`).
  * Mirrors the `log` rules in syntaxes/rtl.tmLanguage.json.
+ *
+ * In -slim dumps the insn chain itself is `12: r1=r2` lines; it follows the
+ * ;; dataflow block (or starts with a NOTE_INSN_ line) and stays visible.
  */
 function findNoiseLines(lines) {
     const noisy = [];
     let inCandidate = false;
+    let inSlimChain = false;
+    let prevText = '';
     lines.forEach((line, i) => {
         const col0 = line.length > 0 && !/\s/.test(line[0]);
+        const prev = prevText;
+        if (line.trim())
+            prevText = line;
+        if (/^\s{0,5}\d+: /.test(line) && (inSlimChain || prev.startsWith(';;') || /^\s*\d+: NOTE_INSN_/.test(line))) {
+            inSlimChain = true;
+            return;
+        }
+        if (inSlimChain && /^ {6,}\S/.test(line))
+            return;
+        inSlimChain = false;
         if (inCandidate && col0) {
             inCandidate = false;
         }
@@ -46,7 +61,7 @@ function findNoiseLines(lines) {
         }
         if (BASIC_NOISE.test(line) ||
             (col0 && line[0] !== '(') ||
-            /^\(\s*(?:\d+\s*)*\)->/.test(line) ||
+            /^\(\s*(?:\d+(?:\(EH\))?\s*)*\)->/.test(line) ||
             /^\s+\d+:\s/.test(line) ||
             /^\s+[A-Za-z_]/.test(line)) {
             noisy.push(i);

@@ -1,0 +1,272 @@
+
+;; Function lam(int)::<lambda(int)>::operator() (_ZZ3lamiENKUliE_clEi, funcdef_no=1502, decl_uid=39216, cgraph_uid=309, symbol_order=345)
+
+int lam(int)::<lambda(int)>::operator() (const struct ._anon_71 * const __closure, int y)
+{
+  int _1;
+  int _5;
+
+  <bb 2> :
+  _1 = __closure_3(D)->__k;
+  _5 = y_4(D) * _1;
+  return _5;
+
+}
+
+
+
+;; Function {anonymous}::anon (_ZN12_GLOBAL__N_14anonEi, funcdef_no=1506, decl_uid=39295, cgraph_uid=314, symbol_order=350)
+
+int {anonymous}::anon (int z)
+{
+  int _2;
+
+  <bb 2> :
+  _2 = z_1(D) + 1;
+  return _2;
+
+}
+
+
+
+;; Function R::R (_ZN1RC1Ei, funcdef_no=1497, decl_uid=39186, cgraph_uid=305, symbol_order=341)
+
+void R::R (struct R * const this, int x)
+{
+  <bb 2> :
+  *this_2(D) ={v} {CLOBBER(bob)};
+  this_2(D)->v = x_4(D);
+  return;
+
+}
+
+
+
+;; Function R::~R (_ZN1RD1Ev, funcdef_no=1500, decl_uid=39192, cgraph_uid=308, symbol_order=344)
+
+void R::~R (struct R * const this)
+{
+  <bb 2> :
+  this_2(D)->v = 0;
+  *this_2(D) ={v} {CLOBBER(eob)};
+  return;
+
+}
+
+
+
+;; Function lam (_Z3lami, funcdef_no=1501, decl_uid=39207, cgraph_uid=310, symbol_order=346)
+
+int lam (int k)
+{
+  struct ._anon_71 f;
+  int _5;
+
+  <bb 2> :
+  f.__k = k_2(D);
+  _5 = lam(int)::<lambda(int)>::operator() (&f, 3);
+  f ={v} {CLOBBER(eos)};
+  return _5;
+
+}
+
+
+
+;; Function raii (_Z4raiii, funcdef_no=1504, decl_uid=39269, cgraph_uid=312, symbol_order=348)
+
+int raii (int x)
+{
+  struct R r;
+  int _5;
+  void * _9;
+
+  <bb 2> :
+  R::R (&r, x_3(D));
+  if (x_3(D) < 0)
+    goto <bb 3>; [INV]
+  else
+    goto <bb 5>; [INV]
+
+  <bb 3> :
+  _9 = __cxa_allocate_exception (16);
+  std::runtime_error::runtime_error (_9, "neg");
+
+  <bb 4> :
+  __cxa_throw (_9, &_ZTISt13runtime_error, __dt_comp );
+
+  <bb 5> :
+  _5 = r.v;
+  R::~R (&r);
+  r ={v} {CLOBBER(eos)};
+  return _5;
+
+  <bb 6> :
+<L5>:
+  __cxa_free_exception (_9);
+  resx 3
+
+  <bb 7> :
+<L6>:
+  R::~R (&r);
+  resx 2
+
+  <bb 8> :
+<L7>:
+  r ={v} {CLOBBER(eos)};
+  resx 1
+
+}
+
+
+
+;; Function tryf (_Z4tryfi, funcdef_no=1505, decl_uid=39287, cgraph_uid=313, symbol_order=349)
+
+int tryf (int x)
+{
+  const struct runtime_error & e;
+  void * _1;
+  void * _2;
+  int _3;
+  int _8;
+  int _9;
+  int _11;
+  struct runtime_error * _14;
+  int _16;
+
+  <bb 2> :
+  _8 = raii (x_6(D));
+
+  <bb 3> :
+  _9 = _8;
+
+  <bb 4> :
+  # _3 = PHI <_9(3), _16(6), _11(7)>
+  return _3;
+
+  <bb 5> :
+<L1>:
+  eh_dispatch 1
+
+  <bb 6> :
+<L2>:
+  _1 = __builtin_eh_pointer (1);
+  _14 = __cxa_begin_catch (_1);
+  e_15 = _14;
+  _16 = -1;
+  __cxa_end_catch ();
+  goto <bb 4>; [INV]
+
+  <bb 7> :
+<L4>:
+  _2 = __builtin_eh_pointer (1);
+  __cxa_begin_catch (_2);
+  _11 = -2;
+  __cxa_end_catch ();
+  goto <bb 4>; [INV]
+
+}
+
+
+
+;; Function callanon (_Z8callanoni, funcdef_no=1507, decl_uid=39298, cgraph_uid=315, symbol_order=351)
+
+int callanon (int z)
+{
+  int _4;
+
+  <bb 2> :
+  _4 = {anonymous}::anon (z_2(D));
+  return _4;
+
+}
+
+
+
+;; Function Op::operator() (_ZNK2OpclEi, funcdef_no=1508, decl_uid=39304, cgraph_uid=316, symbol_order=352)
+
+int Op::operator() (const struct Op * const this, int a)
+{
+  int _2;
+
+  <bb 2> :
+  _2 = a_1(D) + 1;
+  return _2;
+
+}
+
+
+
+;; Function Op::operator< (_ZNK2OpltERKS_, funcdef_no=1509, decl_uid=39309, cgraph_uid=317, symbol_order=353)
+
+bool Op::operator< (const struct Op * const this, const struct Op & D.39307)
+{
+  bool _1;
+
+  <bb 2> :
+  _1 = 0;
+  return _1;
+
+}
+
+
+
+;; Function useop (_Z5useopi, funcdef_no=1510, decl_uid=39315, cgraph_uid=318, symbol_order=354)
+
+int useop (int a)
+{
+  struct Op o;
+  int _1;
+  bool _2;
+  int _3;
+  int _8;
+
+  <bb 2> :
+  _1 = Op::operator() (&o, a_5(D));
+  _2 = Op::operator< (&o, &o);
+  _3 = (int) _2;
+  _8 = _1 + _3;
+  o ={v} {CLOBBER(eos)};
+  return _8;
+
+}
+
+
+
+;; Function sum<int&, int&, int> (_Z3sumIJRiS0_iEEiDpOT_, funcdef_no=1782, decl_uid=39263, cgraph_uid=590, symbol_order=626)
+
+int sum<int&, int&, int> (int & a#0, int & a#1, int & a#2)
+{
+  int _1;
+  int _2;
+  int _3;
+  int _4;
+  int _9;
+
+  <bb 2> :
+  _1 = *a#0_6(D);
+  _2 = *a#1_7(D);
+  _3 = _1 + _2;
+  _4 = *a#2_8(D);
+  _9 = _3 + _4;
+  return _9;
+
+}
+
+
+
+;; Function pack (_Z4packii, funcdef_no=1503, decl_uid=39261, cgraph_uid=311, symbol_order=347)
+
+int pack (int a, int b)
+{
+  int D.39267;
+  int _4;
+
+  <bb 2> :
+  D.39267 = 3;
+  _4 = sum<int&, int&, int> (&a, &b, &D.39267);
+  D.39267 ={v} {CLOBBER(eos)};
+  return _4;
+
+}
+
+

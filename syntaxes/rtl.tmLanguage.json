@@ -7,6 +7,7 @@
   "scopeName": "source.gcc.rtl",
   "patterns":
       [
+        { "include": "#slim-chain" },
         {
           "include": "#log"
         },
@@ -75,6 +76,82 @@
         }
       ],
   "repository": {
+    "slim-chain": {
+      "comment": "The insn chain of a -slim dump ('   12: r99:SI=r104:SI'). It starts with a NOTE_INSN_ line; the same form inside 'Trying' listings stays a log comment.",
+      "begin": "^(?=\\s{0,5}\\d+: NOTE_INSN_)",
+      "end": "^(?!\\s{0,5}\\d+: |\\s{6,}\\S)",
+      "patterns": [
+        {
+          "match": "^\\s*(\\d+)(:)",
+          "captures": {
+            "1": {
+              "name": "constant.numeric.integer.uid.gcc.rtl"
+            }
+          }
+        },
+        {
+          "include": "#note-directives"
+        },
+        {
+          "match": "(;\\s*pc falls through to BB \\d+.*)$",
+          "captures": {
+            "1": {
+              "name": "comment.line.log.gcc.rtl"
+            }
+          }
+        },
+        {
+          "match": "(?<![\\w.])(r\\d+|[a-z][a-z0-9_]*)(:)([A-Z][A-Za-z0-9_]*)\\b",
+          "captures": {
+            "1": {
+              "name": "variable.parameter.register.gcc.rtl"
+            },
+            "3": {
+              "name": "support.type.machine-mode.gcc.rtl"
+            }
+          }
+        },
+        {
+          "match": "(#)(\\d+)",
+          "captures": {
+            "2": {
+              "name": "constant.numeric.integer.gcc.rtl"
+            }
+          }
+        },
+        {
+          "match": "(?<![\\w.])L\\d+\\b",
+          "name": "entity.name.label.gcc.rtl"
+        },
+        {
+          "match": "\\bREG_[A-Z0-9_]+\\b",
+          "name": "keyword.control.expr-list.gcc.rtl"
+        },
+        {
+          "match": "\\b(clobber|use|call|barrier|simple_return|return|debug|pc|argc)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.gcc.rtl"
+            }
+          }
+        },
+        {
+          "match": "\\b([a-z_][a-z0-9_]*)(?=\\()",
+          "captures": {
+            "1": {
+              "name": "keyword.operator.arithmetic.gcc.rtl"
+            }
+          }
+        },
+        {
+          "match": "`[^']*'",
+          "name": "string.quoted.other.symbol.gcc.rtl"
+        },
+        {
+          "include": "#numbers"
+        }
+      ]
+    },
     "log": {
       "comment": "Pass diagnostics in verbose dumps (combine, ira, ...). Scoped as comments so they share the comment colour and Focus mode can fade them.",
       "patterns":
@@ -86,7 +163,7 @@
             },
             {
               "comment": "Basic-block edge summary: ( )->[0]->( 2 )",
-              "match": "^\\(\\s*(?:\\d+\\s*)*\\)->.*$",
+              "match": "^\\(\\s*(?:\\d+(?:\\(EH\\))?\\s*)*\\)->.*$",
               "name": "comment.line.log.gcc.rtl"
             },
             {
@@ -112,7 +189,7 @@
       "patterns":
           [
             {
-              "match": "\\((reg)((?:/[a-z]+)*)(:[A-Z][A-Z0-9]*)?\\s+(\\d+)(?:\\s+([A-Za-z_][\\w.]*))?(\\s+\\[[^\\]]*\\])?(?=\\s*\\))",
+              "match": "\\((reg)((?:/[a-z]+)*)(:[A-Z][A-Za-z0-9]*)?\\s+(\\d+)(?:\\s+([A-Za-z_][\\w.]*))?(\\s+\\[[^\\]]*\\])?(?=\\s*\\))",
               "captures": {
                 "1": { "name": "keyword.rtl-construct.gcc.rtl" },
                 "2": { "name": "storage.modifier.flag.gcc.rtl" },
@@ -123,7 +200,7 @@
               }
             },
             {
-              "match": "\\((subreg)((?:/[a-z]+)*)(:[A-Z][A-Z0-9]*)?(?=\\s)",
+              "match": "\\((subreg)((?:/[a-z]+)*)(:[A-Z][A-Za-z0-9]*)?(?=\\s)",
               "captures": {
                 "1": { "name": "keyword.rtl-construct.gcc.rtl" },
                 "2": { "name": "storage.modifier.flag.gcc.rtl" },
@@ -184,12 +261,12 @@
           ]
     },
     "instructions": {
-      "comment": "Top-level insns. GCC appends flags after the name: insn/f (frame related), call_insn/i (inline), jump_insn/j, insn/s, insn/v, insn/c, insn/u.",
+      "comment": "Top-level insns. GCC appends flags after the name: insn/f (frame related), call_insn/i (inline), jump_insn/j, insn/s, insn/v, insn/c, insn/u; after sched2 a mode marks the first insn of a cycle: insn:TI, insn/f:TI.",
       "patterns":
           [
             {
               "match":
-                  "\\((insn|jump_insn|call_insn|debug_insn)(/[a-z]+)?\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
+                  "\\((insn|jump_insn|call_insn|debug_insn)((?:/[a-z]+)*)(?:(:)([A-Z]+))?\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)",
               "captures": {
                 "1": {
                   "name": "keyword.control.instruction.gcc.rtl"
@@ -198,12 +275,18 @@
                   "name": "storage.modifier.flag.gcc.rtl"
                 },
                 "3": {
-                  "name": "constant.numeric.uid.gcc.rtl"
+                  "name": "punctuation.separator.mode.gcc.rtl"
                 },
                 "4": {
-                  "name": "constant.numeric.prev.gcc.rtl"
+                  "name": "support.type.machine-mode.gcc.rtl"
                 },
                 "5": {
+                  "name": "constant.numeric.uid.gcc.rtl"
+                },
+                "6": {
+                  "name": "constant.numeric.prev.gcc.rtl"
+                },
+                "7": {
                   "name": "constant.numeric.next.gcc.rtl"
                 }
               }
@@ -423,7 +506,7 @@
           ]
     },
     "modes": {
-      "match": ":[A-Z][A-Z0-9]*\\b",
+      "match": ":[A-Z][A-Za-z0-9]*\\b",
       "name": "support.type.machine-mode.gcc.rtl"
     },
     "labels": {

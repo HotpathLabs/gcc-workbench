@@ -1,0 +1,368 @@
+
+;; Function std::vector<int>::_M_realloc_append<const int&> (_ZNSt6vectorIiSaIiEE17_M_realloc_appendIJRKiEEEvDpOT_, funcdef_no=1285, decl_uid=27954, cgraph_uid=170, symbol_order=187)
+
+Removing basic block 12
+Removing basic block 13
+void std::vector<int>::_M_realloc_append<const int&> (struct vector * const this, const int & __args#0)
+{
+  const size_type __len;
+  long unsigned int _1;
+  long unsigned int _2;
+  int * _3;
+  int * _4;
+  long int _5;
+  int * _8;
+  int * _9;
+  int _19;
+  long unsigned int _24;
+  long unsigned int prephitmp_31;
+  int * _32;
+  long unsigned int _36;
+  int * _38;
+  int * _39;
+  long int _42;
+  long int _43;
+  long unsigned int _44;
+  long unsigned int _47;
+  long unsigned int _49;
+  int * _55;
+  __complex__ long unsigned int _56;
+  long int _57;
+  long unsigned int _58;
+  long int _62;
+
+;;   basic block 2, loop depth 0
+;;    pred:       ENTRY
+  _38 = MEM[(int * *)this_11(D)];
+  _39 = MEM[(int * *)this_11(D) + 8B];
+  # DEBUG D#15 => this_11(D)
+  # DEBUG __n => 1
+  # DEBUG __s => "vector::_M_realloc_append"
+  # DEBUG D#16 => D#15
+  # DEBUG this => D#16
+  # DEBUG D#14 s=> this
+  # DEBUG D#2 => &D#14->D.27784
+  # DEBUG this => D#14
+  _42 = _39 - _38;
+  _43 = _42 /[ex] 4;
+  _44 = (long unsigned int) _43;
+  # DEBUG this => NULL
+  if (_44 == 2305843009213693951)
+    goto <bb 3>; [0.00%]
+  else
+    goto <bb 4>; [100.00%]
+;;    succ:       3
+;;                4
+
+;;   basic block 3, loop depth 0
+;;    pred:       2
+  std::__throw_length_error ("vector::_M_realloc_append");
+;;    succ:      
+
+;;   basic block 4, loop depth 0
+;;    pred:       2
+  # DEBUG __b => &__n
+  _47 = MAX_EXPR <_44, 1>;
+  # DEBUG __b => NULL
+  _56 = .ADD_OVERFLOW (_44, _47);
+  __len_48 = REALPART_EXPR <_56>;
+  _36 = IMAGPART_EXPR <_56>;
+  # DEBUG __len => __len_48
+  if (_36 != 0)
+    goto <bb 6>; [35.00%]
+  else
+    goto <bb 5>; [65.00%]
+;;    succ:       6
+;;                5
+
+;;   basic block 5, loop depth 0
+;;    pred:       4
+  # DEBUG D#2 => &D#14->D.27784
+  _49 = MIN_EXPR <__len_48, 2305843009213693951>;
+  # DEBUG __s => NULL
+  # DEBUG __len => NULL
+  # DEBUG this => NULL
+  # DEBUG __n => NULL
+  # DEBUG __len => _49
+  _24 = _49 * 4;
+;;    succ:       6
+
+;;   basic block 6, loop depth 0
+;;    pred:       5
+;;                4
+  # prephitmp_31 = PHI <_24(5), 9223372036854775804(4)>
+  # DEBUG __s => NULL
+  # DEBUG __len => NULL
+  # DEBUG this => NULL
+  # DEBUG __n => NULL
+  # DEBUG __len => NULL
+  # DEBUG __old_start => _38
+  # DEBUG __old_finish => _39
+  # DEBUG D#5 => _42 /[ex] 4
+  # DEBUG __elems => (const size_type) D#5
+  # DEBUG this => &this_11(D)->D.27784
+  # DEBUG D#17 => &MEM[(struct _Vector_base *)this_11(D)]._M_impl
+  # DEBUG __a => D#17
+  # DEBUG D#10 => D#17
+  # DEBUG D#11 => 0B
+  # DEBUG D#13 => D#10
+  # DEBUG this => D#13
+  # DEBUG D#12 => D#11
+  # DEBUG D.28887 => D#12
+  _55 = operator new (prephitmp_31);
+  # DEBUG this => NULL
+  # DEBUG D.28887 => NULL
+  # DEBUG __a => NULL
+  # DEBUG this => NULL
+  # DEBUG __new_start => _55
+  # DEBUG __new_finish => _55
+  # DEBUG D#18 => &this_11(D)->D.27784._M_impl
+  _2 = (long unsigned int) _42;
+  _3 = _55 + _2;
+  # DEBUG __a => D#18
+  # DEBUG __p => _3
+  # DEBUG __args#0 => __args#0_18(D)
+  # DEBUG this => D#18
+  # DEBUG __p => _3
+  # DEBUG __args#0 => __args#0_18(D)
+  _19 = MEM[(const type &)__args#0_18(D)];
+  *_3 = _19;
+  # DEBUG this => NULL
+  # DEBUG __p => NULL
+  # DEBUG __args#0 => NULL
+  # DEBUG __a => NULL
+  # DEBUG __p => NULL
+  # DEBUG __args#0 => NULL
+  # DEBUG D#4 => &this_11(D)->D.27784
+  # DEBUG D#3 => &D#4->_M_impl
+  # DEBUG __first => _38
+  # DEBUG __last => _39
+  # DEBUG __result => _55
+  # DEBUG __alloc => D#3
+  # DEBUG __first => _38
+  # DEBUG __last => _39
+  # DEBUG __result => _55
+  # DEBUG __alloc => D#3
+  # DEBUG __first => _38
+  # DEBUG __last => _39
+  # DEBUG __result => _55
+  # DEBUG __alloc => D#3
+  # DEBUG __count => _42 /[ex] 4
+  _1 = _2 + 4;
+  _32 = _55 + _1;
+  if (_42 > 0)
+    goto <bb 7>; [41.48%]
+  else
+    goto <bb 8>; [58.52%]
+;;    succ:       7
+;;                8
+
+;;   basic block 7, loop depth 0
+;;    pred:       6
+  __builtin_memcpy (_55, _38, _2);
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG D#19 => _2 + 4
+  # DEBUG __new_finish => _55 + D#19
+  _8 = this_11(D)->D.27784._M_impl.D.27078._M_end_of_storage;
+  _62 = _8 - _38;
+  # DEBUG D#9 => D#8
+  # DEBUG this => D#9
+  # DEBUG D#7 s=> this
+  goto <bb 10>; [100.00%]
+;;    succ:       10
+
+;;   basic block 8, loop depth 0
+;;    pred:       6
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG __first => NULL
+  # DEBUG __last => NULL
+  # DEBUG __result => NULL
+  # DEBUG __alloc => NULL
+  # DEBUG D#20 => _2 + 4
+  # DEBUG __new_finish => _55 + D#20
+  # DEBUG D#9 => D#8
+  # DEBUG this => D#9
+  # DEBUG D#7 s=> this
+  if (_38 != 0B)
+    goto <bb 9>; [20.49%]
+  else
+    goto <bb 11>; [79.51%]
+;;    succ:       9
+;;                11
+
+;;   basic block 9, loop depth 0
+;;    pred:       8
+  _4 = this_11(D)->D.27784._M_impl.D.27078._M_end_of_storage;
+  _5 = _4 - _38;
+;;    succ:       10
+
+;;   basic block 10, loop depth 0
+;;    pred:       9
+;;                7
+  # _57 = PHI <_5(9), _62(7)>
+  # DEBUG D#1 => D#7->_M_alloc
+  # DEBUG __a => D#1
+  # DEBUG __p => _38
+  # DEBUG this => D#1
+  # DEBUG __p => _38
+  _58 = (long unsigned int) _57;
+  operator delete (_38, _58);
+  # DEBUG this => NULL
+  # DEBUG __p => NULL
+  # DEBUG __a => NULL
+  # DEBUG __p => NULL
+;;    succ:       11
+
+;;   basic block 11, loop depth 0
+;;    pred:       8
+;;                10
+  # DEBUG this => NULL
+  this_11(D)->D.27784._M_impl.D.27078._M_start = _55;
+  this_11(D)->D.27784._M_impl.D.27078._M_finish = _32;
+  _9 = _55 + prephitmp_31;
+  this_11(D)->D.27784._M_impl.D.27078._M_end_of_storage = _9;
+  return;
+;;    succ:       EXIT
+
+}
+
+
+
+;; Function use (_Z3useRSt6vectorIiSaIiEEi, funcdef_no=1276, decl_uid=26644, cgraph_uid=152, symbol_order=168)
+
+int use (struct vector & v, int x)
+Eh tree:
+   2 try land:{1,<L2>} catch:{}
+{
+  int r;
+  void * _1;
+  int _2;
+  int _3;
+  int _7;
+  int _11;
+  int _12;
+  int * _17;
+  long int _18;
+  long int _19;
+  int * _20;
+  int * _21;
+  int * _23;
+  int * pretmp_35;
+  int * prephitmp_36;
+
+;;   basic block 2, loop depth 0
+;;    pred:       ENTRY
+  # DEBUG BEGIN_STMT
+  # DEBUG k$v => x_6(D)
+  # DEBUG BEGIN_STMT
+  # DEBUG this => &k
+  # DEBUG BEGIN_STMT
+  _7 = x_6(D) * 2;
+  # DEBUG this => NULL
+  # DEBUG a => _7
+  # DEBUG b => 1
+  _11 = _7 + 1;
+  # DEBUG a => NULL
+  # DEBUG b => NULL
+  r = _11;
+  # DEBUG BEGIN_STMT
+  # DEBUG BEGIN_STMT
+  # DEBUG this => v_9(D)
+  # DEBUG __x => &r
+  _20 = v_9(D)->D.27784._M_impl.D.27078._M_finish;
+  _21 = v_9(D)->D.27784._M_impl.D.27078._M_end_of_storage;
+  if (_20 != _21)
+    goto <bb 3>; [82.57%]
+  else
+    goto <bb 4>; [17.43%]
+;;    succ:       3
+;;                4
+
+;;   basic block 3, loop depth 0
+;;    pred:       2
+  # DEBUG D#6 => &v_9(D)->D.27784._M_impl
+  # DEBUG __a => D#6
+  # DEBUG __p => _20
+  # DEBUG __args#0 => &r
+  # DEBUG this => D#6
+  # DEBUG __p => _20
+  # DEBUG __args#0 => &r
+  *_20 = _11;
+  # DEBUG this => NULL
+  # DEBUG __p => NULL
+  # DEBUG __args#0 => NULL
+  # DEBUG __a => NULL
+  # DEBUG __p => NULL
+  # DEBUG __args#0 => NULL
+  _23 = _20 + 4;
+  v_9(D)->D.27784._M_impl.D.27078._M_finish = _23;
+  goto <bb 6>; [100.00%]
+;;    succ:       6
+
+;;   basic block 4, loop depth 0
+;;    pred:       2
+  [LP 1] std::vector<int>::_M_realloc_append<const int&> (v_9(D), &r);
+;;    succ:       5
+;;                8
+
+;;   basic block 5, loop depth 0
+;;    pred:       4
+  pretmp_35 = MEM[(const struct vector *)v_9(D)].D.27784._M_impl.D.27078._M_finish;
+;;    succ:       6
+
+;;   basic block 6, loop depth 0
+;;    pred:       3
+;;                5
+  # prephitmp_36 = PHI <_23(3), pretmp_35(5)>
+  # DEBUG this => NULL
+  # DEBUG __x => NULL
+  # DEBUG BEGIN_STMT
+  # DEBUG this => v_9(D)
+  _17 = MEM[(const struct vector *)v_9(D)].D.27784._M_impl.D.27078._M_start;
+  _18 = prephitmp_36 - _17;
+  _19 = _18 /[ex] 4;
+  # DEBUG this => NULL
+  _2 = (int) _19;
+  _12 = _2 + _11;
+;;    succ:       7
+
+;;   basic block 7, loop depth 0
+;;    pred:       6
+;;                8
+  # _3 = PHI <_12(6), -1(8)>
+  # DEBUG k$v => NULL
+  r ={v} {CLOBBER(eos)};
+  return _3;
+;;    succ:       EXIT
+
+;;   basic block 8, loop depth 0
+;;    pred:       4
+<L2>: [LP 1]
+  _1 = __builtin_eh_pointer (2);
+  __cxa_begin_catch (_1);
+  # DEBUG BEGIN_STMT
+  __cxa_end_catch ();
+  goto <bb 7>; [0.00%]
+;;    succ:       7
+
+}
+
+

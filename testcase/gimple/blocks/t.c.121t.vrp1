@@ -1,0 +1,1033 @@
+
+;; Function loop (loop, funcdef_no=4, decl_uid=5660, cgraph_uid=5, symbol_order=5)
+
+;; 2 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2 3 4 5
+;;
+;; Loop 1
+;;  header 4, latch 3
+;;  depth 1, outer 0, finite_p
+;;  upper_bound 2147483647
+;;  likely_upper_bound 2147483647
+;;  iterations by profile: 8.090909 (unreliable, maybe flat) entry count:118111600 (estimated locally, freq 1.0000)
+;;  nodes: 4 3
+;; 2 succs { 4 }
+;; 3 succs { 4 }
+;; 4 succs { 3 5 }
+;; 5 succs { 1 }
+;; Created LCSSA PHI: s_12 = PHI <s_5(4)>
+
+Updating SSA:
+Registering new PHI nodes in block #4
+Registering new PHI nodes in block #3
+Updating SSA information for statement s_10 = _4 + s_5;
+Registering new PHI nodes in block #5
+Updating SSA information for statement return s_5;
+
+SSA replacement table
+N_i -> { O_1 ... O_j } means that N_i replaces O_1, ..., O_j
+
+s_12 -> { s_5 }
+Incremental SSA update started at block: 4
+Number of blocks in CFG: 6
+Number of blocks to update: 3 ( 50%)
+Affected blocks: 3 4 5
+
+
+
+Substituting values and folding statements
+
+ Registering value_relation (i_11 > i_6) (bb3) at i_11 = i_6 + 1;
+Estimating # of iterations of loop 1
+Analyzing # of iterations of loop 1
+  exit condition [0, + , 1](no_overflow) < n_7(D)
+  bounds on difference of bases: -2147483648 ... 2147483647
+  result:
+    zero if n_7(D) < 0
+    # of iterations (unsigned int) n_7(D), bounded by 2147483647
+Analyzing # of iterations of loop 1
+  exit condition [0, + , 1](no_overflow) < n_7(D)
+  bounds on difference of bases: -2147483648 ... 2147483647
+  result:
+    zero if n_7(D) < 0
+    # of iterations (unsigned int) n_7(D), bounded by 2147483647
+Statement (exit)if (i_6 < n_7(D))
+ is executed at most n_7(D) < 0 ? 0 : (unsigned int) n_7(D) (bounded by 2147483647) + 1 times in loop 1.
+Induction variable (int *) a_9(D) + 4 * iteration does not wrap in statement _3 = a_9(D) + _2;
+ in loop 1.
+Statement _3 = a_9(D) + _2;
+ is executed at most 4611686018427387902 (bounded by 4611686018427387902) + 1 times in loop 1.
+Induction variable (int) 1 + 1 * iteration does not wrap in statement i_11 = i_6 + 1;
+ in loop 1.
+Statement i_11 = i_6 + 1;
+ is executed at most 2147483646 (bounded by 2147483646) + 1 times in loop 1.
+Loops range found for i_6: [irange] int [0, +INF] and calculated range :[irange] int [0, +INF]
+Folding PHI node: s_5 = PHI <0(2), s_10(3)>
+No folding possible
+Folding PHI node: i_6 = PHI <0(2), i_11(3)>
+No folding possible
+Folding statement: if (i_6 < n_7(D))
+ Registering value_relation (i_6 < n_7(D)) on (4->3)
+ Registering value_relation (i_6 >= n_7(D)) on (4->5)
+
+Visiting conditional with predicate: if (i_6 < n_7(D))
+
+With known ranges
+	i_6: [irange] int [0, +INF]	n_7(D): [irange] int VARYING
+
+Predicate evaluates to: DON'T KNOW
+Not folded
+ Registering value_relation (s_12 == s_5) (bb5) at s_12 = PHI <s_5(4)>
+Folding PHI node: s_12 = PHI <s_5(4)>
+No folding possible
+Folding statement: return s_12;
+Not folded
+Folding statement: _1 = (long unsigned int) i_6;
+ Registering value_relation (_1 pe32 i_6) (bb3) at _1 = (long unsigned int) i_6;
+Not folded
+Folding statement: _2 = _1 * 4;
+Not folded
+Folding statement: _3 = a_9(D) + _2;
+Not folded
+Folding statement: _4 = *_3;
+   on-exit update _3 in BB3 : [irange] int * [1, +INF]
+Not folded
+Folding statement: s_10 = _4 + s_5;
+Not folded
+Checking for transitive inferred ranges in BB 3
+Folding statement: i_11 = i_6 + 1;
+ Registering value_relation (i_11 > i_6) (bb3) at i_11 = i_6 + 1;
+    Intersecting with existing (i_11 > i_6) to produce (i_11 > i_6) No Change.
+Loops range found for i_6: [irange] int [0, +INF] and calculated range :[irange] int [0, +INF]
+ Registering value_relation (i_11 > i_6) (bb3) at i_11 = i_6 + 1;
+    Intersecting with existing (i_11 > i_6) to produce (i_11 > i_6) No Change.
+Not folded
+
+=========== BB 2 ============
+    <bb 2> [local count: 118111600]:
+    goto <bb 4>; [100.00%]
+
+
+=========== BB 3 ============
+_3	[irange] int * [1, +INF]
+i_6	[irange] int [0, 2147483646]
+Partial equiv (_1 pe32 i_6)
+Relational : (i_6 < n_7(D))
+Relational : (i_11 > i_6)
+    <bb 3> [local count: 955630224]:
+    _1 = (long unsigned int) i_6;
+    _2 = _1 * 4;
+    _3 = a_9(D) + _2;
+    _4 = *_3;
+    s_10 = _4 + s_5;
+    i_11 = i_6 + 1;
+
+_1 : [irange] long unsigned int [0, 2147483646] MASK 0x7fffffff VALUE 0x0
+_2 : [irange] long unsigned int [0, 8589934584] MASK 0xfffffffffffffffc VALUE 0x0
+i_11 : [irange] int [1, +INF]
+
+=========== BB 4 ============
+Imports: i_6  n_7(D)  
+Exports: i_6  n_7(D)  
+n_7(D)	[irange] int VARYING
+Equivalence set : [s_5]
+    <bb 4> [local count: 1073741824]:
+    # s_5 = PHI <0(2), s_10(3)>
+    # i_6 = PHI <0(2), i_11(3)>
+    if (i_6 < n_7(D))
+      goto <bb 3>; [89.00%]
+    else
+      goto <bb 5>; [11.00%]
+
+i_6 : [irange] int [0, +INF]
+4->3  (T) i_6 : 	[irange] int [0, 2147483646]
+4->3  (T) n_7(D) : 	[irange] int [1, +INF]
+4->5  (F) i_6 : 	[irange] int [0, +INF]
+
+=========== BB 5 ============
+Equivalence set : [s_5, s_12]
+Relational : (i_6 >= n_7(D))
+    <bb 5> [local count: 118111600]:
+    # s_12 = PHI <s_5(4)>
+    return s_12;
+
+Non-varying global ranges:
+=========================:
+_1  : [irange] long unsigned int [0, 2147483646] MASK 0x7fffffff VALUE 0x0
+_2  : [irange] long unsigned int [0, 8589934584] MASK 0xfffffffffffffffc VALUE 0x0
+i_6  : [irange] int [0, +INF]
+i_11  : [irange] int [1, +INF]
+
+int loop (int * a, int n)
+{
+  int i;
+  int s;
+  long unsigned int _1;
+  long unsigned int _2;
+  int * _3;
+  int _4;
+
+;;   basic block 2, loop depth 0, count 118111600 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 3, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  goto <bb 4>; [100.00%]
+;;    succ:       4 [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE) ../t.c:9:3
+
+;;   basic block 3, loop depth 1, count 955630224 (estimated locally, freq 8.0909), maybe hot
+;;    prev block 2, next block 4, flags: (NEW, VISITED)
+;;    pred:       4 [89.0% (guessed)]  count:955630224 (estimated locally, freq 8.0909) (TRUE_VALUE,EXECUTABLE)
+  _1 = (long unsigned int) i_6;
+  _2 = _1 * 4;
+  _3 = a_9(D) + _2;
+  _4 = *_3;
+  s_10 = _4 + s_5;
+  i_11 = i_6 + 1;
+;;    succ:       4 [always]  count:955630224 (estimated locally, freq 8.0909) (FALLTHRU,DFS_BACK,EXECUTABLE)
+
+;;   basic block 4, loop depth 1, count 1073741824 (estimated locally, freq 9.0909), maybe hot
+;;    prev block 3, next block 5, flags: (NEW, VISITED)
+;;    pred:       2 [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE) ../t.c:9:3
+;;                3 [always]  count:955630224 (estimated locally, freq 8.0909) (FALLTHRU,DFS_BACK,EXECUTABLE)
+  # s_5 = PHI <0(2), s_10(3)>
+  # i_6 = PHI <0(2), i_11(3)>
+  if (i_6 < n_7(D))
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+;;    succ:       3 [89.0% (guessed)]  count:955630224 (estimated locally, freq 8.0909) (TRUE_VALUE,EXECUTABLE)
+;;                5 [11.0% (guessed)]  count:118111600 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+
+;;   basic block 5, loop depth 0, count 118111600 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 4, next block 1, flags: (NEW, VISITED)
+;;    pred:       4 [11.0% (guessed)]  count:118111600 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+  # s_12 = PHI <s_5(4)>
+  return s_12;
+;;    succ:       EXIT [always]  count:118111600 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:11:10
+
+}
+
+
+
+;; Function sw (sw, funcdef_no=5, decl_uid=5670, cgraph_uid=6, symbol_order=6)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2 3 4 5 6 7
+;; 2 succs { 6 3 4 5 7 }
+;; 3 succs { 7 }
+;; 4 succs { 7 }
+;; 5 succs { 7 }
+;; 6 succs { 7 }
+;; 7 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: switch (k_2(D)) <default: <L7> [20.00%], case 0: <L0> [20.00%], case 1: <L1> [20.00%], case 2: <L2> [20.00%], case 5: <L8> [20.00%]>
+Not folded
+Folding statement: <L2>:
+Not folded
+Folding statement: y_5 = y_4(D) + -11;
+ Registering value_relation (y_5 < y_4(D)) (bb5) at y_5 = y_4(D) + -11;
+Not folded
+Folding statement: <L1>:
+Not folded
+Folding statement: y_6 = y_4(D) * 7;
+Not folded
+Folding statement: <L0>:
+Not folded
+Folding statement: y_7 = y_4(D) + 3;
+ Registering value_relation (y_7 > y_4(D)) (bb3) at y_7 = y_4(D) + 3;
+Not folded
+Folding statement: <L7>:
+Not folded
+Folding statement: _8 = y_4(D) * y_4(D);
+ folding with relation y_4(D) == y_4(D)
+Not folded
+Folding PHI node: _1 = PHI <9(2), y_6(4), y_7(3), _8(6), y_5(5)>
+No folding possible
+Folding statement: <L8>:
+Not folded
+Folding statement: return _1;
+Not folded
+
+=========== BB 2 ============
+Imports: k_2(D)  
+Exports: k_2(D)  
+k_2(D)	[irange] int VARYING
+    <bb 2> [local count: 1073741808]:
+    switch (k_2(D)) <default: <L7> [20.00%], case 0: <L0> [20.00%], case 1: <L1> [20.00%], case 2: <L2> [20.00%], case 5: <L8> [20.00%]>
+
+2->6      k_2(D) : 	[irange] int [-INF, -1][3, 4][6, +INF]
+2->3      k_2(D) : 	[irange] int [0, 0]
+2->4      k_2(D) : 	[irange] int [1, 1]
+2->5      k_2(D) : 	[irange] int [2, 2]
+2->7      k_2(D) : 	[irange] int [5, 5]
+
+=========== BB 3 ============
+Relational : (y_7 > y_4(D))
+    <bb 3> [local count: 214748365]:
+  <L0>:
+    y_7 = y_4(D) + 3;
+    goto <bb 7>; [100.00%]
+
+y_7 : [irange] int [-2147483645, +INF]
+
+=========== BB 4 ============
+    <bb 4> [local count: 214748365]:
+  <L1>:
+    y_6 = y_4(D) * 7;
+    goto <bb 7>; [100.00%]
+
+
+=========== BB 5 ============
+Relational : (y_5 < y_4(D))
+    <bb 5> [local count: 214748365]:
+  <L2>:
+    y_5 = y_4(D) + -11;
+    goto <bb 7>; [100.00%]
+
+y_5 : [irange] int [-INF, 2147483636]
+
+=========== BB 6 ============
+    <bb 6> [local count: 214748365]:
+  <L7>:
+    _8 = y_4(D) * y_4(D);
+
+_8 : [irange] int [0, +INF] MASK 0xfffffffd VALUE 0x0
+
+=========== BB 7 ============
+    <bb 7> [local count: 1073741824]:
+    # _1 = PHI <9(2), y_6(4), y_7(3), _8(6), y_5(5)>
+  <L8>:
+    return _1;
+
+Non-varying global ranges:
+=========================:
+y_5  : [irange] int [-INF, 2147483636]
+y_7  : [irange] int [-2147483645, +INF]
+_8  : [irange] int [0, +INF] MASK 0xfffffffd VALUE 0x0
+
+int sw (int k, int y)
+{
+  int _1;
+  int _8;
+
+;;   basic block 2, loop depth 0, count 1073741808 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 3, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       ENTRY [always]  count:1073741808 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  switch (k_2(D)) <default: <L7> [20.00%], case 0: <L0> [20.00%], case 1: <L1> [20.00%], case 2: <L2> [20.00%], case 5: <L8> [20.00%]>
+;;    succ:       6 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+;;                3 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+;;                4 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+;;                5 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+;;                7 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+
+;;   basic block 3, loop depth 0, count 214748365 (estimated locally, freq 0.2000), maybe hot
+;;    prev block 2, next block 4, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       2 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+<L0>:
+  y_7 = y_4(D) + 3;
+  goto <bb 7>; [100.00%]
+;;    succ:       7 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:16:21
+
+;;   basic block 4, loop depth 0, count 214748365 (estimated locally, freq 0.2000), maybe hot
+;;    prev block 3, next block 5, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       2 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+<L1>:
+  y_6 = y_4(D) * 7;
+  goto <bb 7>; [100.00%]
+;;    succ:       7 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:17:21
+
+;;   basic block 5, loop depth 0, count 214748365 (estimated locally, freq 0.2000), maybe hot
+;;    prev block 4, next block 6, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       2 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+<L2>:
+  y_5 = y_4(D) + -11;
+  goto <bb 7>; [100.00%]
+;;    succ:       7 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:18:22
+
+;;   basic block 6, loop depth 0, count 214748365 (estimated locally, freq 0.2000), maybe hot
+;;    prev block 5, next block 7, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       2 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+<L7>:
+  _8 = y_4(D) * y_4(D);
+;;    succ:       7 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE)
+
+;;   basic block 7, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 6, next block 1, flags: (NEW, REACHABLE, VISITED)
+;;    pred:       2 [20.0% (adjusted)]  count:214748365 (estimated locally, freq 0.2000) (EXECUTABLE)
+;;                4 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:17:21
+;;                3 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:16:21
+;;                6 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE)
+;;                5 [always]  count:214748365 (estimated locally, freq 0.2000) (FALLTHRU,EXECUTABLE) ../t.c:18:22
+  # _1 = PHI <9(2), y_6(4), y_7(3), _8(6), y_5(5)>
+<L8>:
+  return _1;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE)
+
+}
+
+
+
+;; Function addr (addr, funcdef_no=6, decl_uid=5679, cgraph_uid=7, symbol_order=7)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2
+;; 2 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: g.0_1 = g;
+Not folded
+Folding statement: _2 = g.0_1 + v_8(D);
+Not folded
+Folding statement: _3 = (float) v_8(D);
+Not folded
+Folding statement: _4 = _3 * 2.0e+0;
+Not folded
+Folding statement: _5 = _2 + v_8(D);
+Not folded
+Folding statement: _6 = (int) _4;
+Not folded
+Folding statement: _9 = _5 + _6;
+Not folded
+Folding statement: return _9;
+Not folded
+
+=========== BB 2 ============
+    <bb 2> [local count: 1073741824]:
+    g.0_1 = g;
+    _2 = g.0_1 + v_8(D);
+    _3 = (float) v_8(D);
+    _4 = _3 * 2.0e+0;
+    _5 = _2 + v_8(D);
+    _6 = (int) _4;
+    _9 = _5 + _6;
+    return _9;
+
+Non-varying global ranges:
+=========================:
+
+int addr (int v)
+{
+  int g.0_1;
+  int _2;
+  float _3;
+  float _4;
+  int _5;
+  int _6;
+  int _9;
+
+;;   basic block 2, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 1, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:1073741824 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  g.0_1 = g;
+  _2 = g.0_1 + v_8(D);
+  _3 = (float) v_8(D);
+  _4 = _3 * 2.0e+0;
+  _5 = _2 + v_8(D);
+  _6 = (int) _4;
+  _9 = _5 + _6;
+  return _9;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:31:22
+
+}
+
+
+
+;; Function nr (nr, funcdef_no=7, decl_uid=5685, cgraph_uid=8, symbol_order=8)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2 3 4 5 6
+;; 2 succs { 3 4 }
+;; 3 succs { }
+;; 4 succs { 5 6 }
+;; 5 succs { }
+;; 6 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: if (x_1(D) < 0)
+
+Visiting conditional with predicate: if (x_1(D) < 0)
+
+With known ranges
+	x_1(D): [irange] int VARYING
+
+Predicate evaluates to: DON'T KNOW
+Not folded
+Folding statement: if (x_1(D) > 100)
+
+Visiting conditional with predicate: if (x_1(D) > 100)
+
+With known ranges
+	x_1(D): [irange] int [0, +INF]
+
+Predicate evaluates to: DON'T KNOW
+Not folded
+Folding statement: _2 = x_1(D) + 1;
+ Registering value_relation (_2 > x_1(D)) (bb6) at _2 = x_1(D) + 1;
+Not folded
+Folding statement: return _2;
+Not folded
+Folding statement: __builtin_unreachable ();
+Not folded
+Folding statement: abort ();
+Not folded
+
+=========== BB 2 ============
+Imports: x_1(D)  
+Exports: x_1(D)  
+x_1(D)	[irange] int VARYING
+    <bb 2> [local count: 1073741824]:
+    if (x_1(D) < 0)
+      goto <bb 3>; [0.00%]
+    else
+      goto <bb 4>; [100.00%]
+
+2->3  (T) x_1(D) : 	[irange] int [-INF, -1]
+2->4  (F) x_1(D) : 	[irange] int [0, +INF]
+
+=========== BB 3 ============
+    <bb 3> [count: 0]:
+    abort ();
+
+
+=========== BB 4 ============
+Imports: x_1(D)  
+Exports: x_1(D)  
+x_1(D)	[irange] int [0, +INF]
+    <bb 4> [local count: 1073741824]:
+    if (x_1(D) > 100)
+      goto <bb 5>; [0.00%]
+    else
+      goto <bb 6>; [100.00%]
+
+4->5  (T) x_1(D) : 	[irange] int [101, +INF]
+4->6  (F) x_1(D) : 	[irange] int [0, 100]
+
+=========== BB 5 ============
+    <bb 5> [count: 0]:
+    __builtin_unreachable ();
+
+
+=========== BB 6 ============
+x_1(D)	[irange] int [0, 100]
+Relational : (_2 > x_1(D))
+    <bb 6> [local count: 1073741824]:
+    _2 = x_1(D) + 1;
+    return _2;
+
+_2 : [irange] int [1, 101]
+Non-varying global ranges:
+=========================:
+_2  : [irange] int [1, 101]
+
+Recording return range [irange] int [1, 101]
+int nr (int x)
+{
+  int _2;
+
+;;   basic block 2, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 3, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:1073741824 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  if (x_1(D) < 0)
+    goto <bb 3>; [0.00%]
+  else
+    goto <bb 4>; [100.00%]
+;;    succ:       3 [never]  count:0 (precise, freq 0.0000) (TRUE_VALUE,EXECUTABLE)
+;;                4 [always]  count:1073741824 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+
+;;   basic block 3, loop depth 0, count 0 (precise, freq 0.0000), probably never executed
+;;    prev block 2, next block 4, flags: (NEW, VISITED)
+;;    pred:       2 [never]  count:0 (precise, freq 0.0000) (TRUE_VALUE,EXECUTABLE)
+  abort ();
+;;    succ:      
+
+;;   basic block 4, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 3, next block 5, flags: (NEW, VISITED)
+;;    pred:       2 [always]  count:1073741824 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+  if (x_1(D) > 100)
+    goto <bb 5>; [0.00%]
+  else
+    goto <bb 6>; [100.00%]
+;;    succ:       5 [never]  count:0 (precise, freq 0.0000) (TRUE_VALUE,EXECUTABLE)
+;;                6 [always]  count:1073741824 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+
+;;   basic block 5, loop depth 0, count 0 (precise, freq 0.0000), probably never executed
+;;    prev block 4, next block 6, flags: (NEW, VISITED)
+;;    pred:       4 [never]  count:0 (precise, freq 0.0000) (TRUE_VALUE,EXECUTABLE)
+  __builtin_unreachable ();
+;;    succ:      
+
+;;   basic block 6, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 5, next block 1, flags: (NEW, VISITED)
+;;    pred:       4 [always]  count:1073741824 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+  _2 = x_1(D) + 1;
+  return _2;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:39:12
+
+}
+
+
+
+;; Function cpy (cpy, funcdef_no=8, decl_uid=5690, cgraph_uid=9, symbol_order=9)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2 3 4
+;; 2 succs { 3 4 }
+;; 3 succs { 4 }
+;; 4 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: if (n_5(D) != 0)
+
+Visiting conditional with predicate: if (n_5(D) != 0)
+
+With known ranges
+	n_5(D): [irange] size_t VARYING
+
+Predicate evaluates to: DON'T KNOW
+Not folded
+Folding statement: _1 = __builtin_object_size (d_7(D), 0);
+Not folded
+Folding statement: __builtin_memcpy (d_7(D), src_8(D), n_5(D));
+   on-exit update d_7(D) in BB3 : [irange] char * [1, +INF]
+   on-exit update src_8(D) in BB3 : [irange] const char * [1, +INF]
+Not folded
+Folding statement: _2 = strlen (d_7(D));
+   on-exit update d_7(D) in BB4 : [irange] char * [1, +INF]
+Not folded
+Folding statement: _3 = (int) _2;
+ Registering value_relation (_3 pe32 _2) (bb4) at _3 = (int) _2;
+Not folded
+Folding statement: g = _3;
+Not folded
+Checking for transitive inferred ranges in BB 4
+Folding statement: return;
+Not folded
+
+=========== BB 2 ============
+Imports: n_5(D)  
+Exports: n_5(D)  
+n_5(D)	[irange] size_t VARYING
+    <bb 2> [local count: 1073741824]:
+    if (n_5(D) != 0)
+      goto <bb 3>; [33.00%]
+    else
+      goto <bb 4>; [67.00%]
+
+2->3  (T) n_5(D) : 	[irange] size_t [1, +INF]
+2->4  (F) n_5(D) : 	[irange] size_t [0, 0]
+
+=========== BB 3 ============
+n_5(D)	[irange] size_t [1, +INF]
+d_7(D)	[irange] char * [1, +INF]
+src_8(D)	[irange] const char * [1, +INF]
+    <bb 3> [local count: 354334800]:
+    _1 = __builtin_object_size (d_7(D), 0);
+    __builtin_memcpy (d_7(D), src_8(D), n_5(D));
+
+
+=========== BB 4 ============
+d_7(D)	[irange] char * [1, +INF]
+Partial equiv (_3 pe32 _2)
+    <bb 4> [local count: 1073741824]:
+    _2 = strlen (d_7(D));
+    _3 = (int) _2;
+    g = _3;
+    return;
+
+_2 : [irange] long unsigned int [0, 9223372036854775805]
+Non-varying global ranges:
+=========================:
+_2  : [irange] long unsigned int [0, 9223372036854775805]
+
+void cpy (char * d, const char * src, size_t n)
+{
+  long unsigned int _1;
+  long unsigned int _2;
+  int _3;
+
+;;   basic block 2, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 3, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:1073741824 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  if (n_5(D) != 0)
+    goto <bb 3>; [33.00%]
+  else
+    goto <bb 4>; [67.00%]
+;;    succ:       3 [33.0% (guessed)]  count:354334800 (estimated locally, freq 0.3300) (TRUE_VALUE,EXECUTABLE)
+;;                4 [67.0% (guessed)]  count:719407024 (estimated locally, freq 0.6700) (FALSE_VALUE,EXECUTABLE)
+
+;;   basic block 3, loop depth 0, count 354334800 (estimated locally, freq 0.3300), maybe hot
+;;    prev block 2, next block 4, flags: (NEW, VISITED)
+;;    pred:       2 [33.0% (guessed)]  count:354334800 (estimated locally, freq 0.3300) (TRUE_VALUE,EXECUTABLE)
+  _1 = __builtin_object_size (d_7(D), 0);
+  __builtin_memcpy (d_7(D), src_8(D), n_5(D));
+;;    succ:       4 [always]  count:354334800 (estimated locally, freq 0.3300) (FALLTHRU,EXECUTABLE)
+
+;;   basic block 4, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 3, next block 1, flags: (NEW, VISITED)
+;;    pred:       2 [67.0% (guessed)]  count:719407024 (estimated locally, freq 0.6700) (FALSE_VALUE,EXECUTABLE)
+;;                3 [always]  count:354334800 (estimated locally, freq 0.3300) (FALLTHRU,EXECUTABLE)
+  _2 = strlen (d_7(D));
+  _3 = (int) _2;
+  g = _3;
+  return;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:46:1
+
+}
+
+
+
+;; Function vec (vec, funcdef_no=9, decl_uid=5695, cgraph_uid=10, symbol_order=10)
+
+;; 2 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2 3 4 5
+;;
+;; Loop 1
+;;  header 4, latch 3
+;;  depth 1, outer 0, finite_p
+;;  upper_bound 2147483647
+;;  likely_upper_bound 2147483647
+;;  iterations by profile: 8.090909 (unreliable, maybe flat) entry count:118111600 (estimated locally, freq 1.0000)
+;;  nodes: 4 3
+;; 2 succs { 4 }
+;; 3 succs { 4 }
+;; 4 succs { 3 5 }
+;; 5 succs { 1 }
+;; Created LCSSA PHI: s_17 = PHI <s_7(4)>
+;; Created LCSSA PHI: .MEM_18 = PHI <.MEM_9(4)>
+
+Updating SSA:
+Registering new PHI nodes in block #4
+Registering new PHI nodes in block #3
+Updating SSA information for statement _4 = *_3;
+Updating SSA information for statement *_5 = _6;
+Updating SSA information for statement s_15 = _6 ^ s_7;
+Registering new PHI nodes in block #5
+Updating SSA information for statement return s_7;
+
+SSA replacement table
+N_i -> { O_1 ... O_j } means that N_i replaces O_1, ..., O_j
+
+s_17 -> { s_7 }
+.MEM_18 -> { .MEM_9 }
+Incremental SSA update started at block: 4
+Number of blocks in CFG: 6
+Number of blocks to update: 3 ( 50%)
+Affected blocks: 3 4 5
+
+
+
+Substituting values and folding statements
+
+ Registering value_relation (i_16 > i_8) (bb3) at i_16 = i_8 + 1;
+Estimating # of iterations of loop 1
+Analyzing # of iterations of loop 1
+  exit condition [0, + , 1](no_overflow) < n_11(D)
+  bounds on difference of bases: -2147483648 ... 2147483647
+  result:
+    zero if n_11(D) < 0
+    # of iterations (unsigned int) n_11(D), bounded by 2147483647
+Analyzing # of iterations of loop 1
+  exit condition [0, + , 1](no_overflow) < n_11(D)
+  bounds on difference of bases: -2147483648 ... 2147483647
+  result:
+    zero if n_11(D) < 0
+    # of iterations (unsigned int) n_11(D), bounded by 2147483647
+Statement (exit)if (i_8 < n_11(D))
+ is executed at most n_11(D) < 0 ? 0 : (unsigned int) n_11(D) (bounded by 2147483647) + 1 times in loop 1.
+Induction variable (int * restrict) b_12(D) + 4 * iteration does not wrap in statement _3 = b_12(D) + _2;
+ in loop 1.
+Statement _3 = b_12(D) + _2;
+ is executed at most 4611686018427387902 (bounded by 4611686018427387902) + 1 times in loop 1.
+Induction variable (int * restrict) a_13(D) + 4 * iteration does not wrap in statement _5 = a_13(D) + _2;
+ in loop 1.
+Statement _5 = a_13(D) + _2;
+ is executed at most 4611686018427387902 (bounded by 4611686018427387902) + 1 times in loop 1.
+Induction variable (int) 1 + 1 * iteration does not wrap in statement i_16 = i_8 + 1;
+ in loop 1.
+Statement i_16 = i_8 + 1;
+ is executed at most 2147483646 (bounded by 2147483646) + 1 times in loop 1.
+Loops range found for i_8: [irange] int [0, +INF] and calculated range :[irange] int [0, +INF]
+Folding PHI node: s_7 = PHI <0(2), s_15(3)>
+No folding possible
+Folding PHI node: i_8 = PHI <0(2), i_16(3)>
+No folding possible
+Folding statement: if (i_8 < n_11(D))
+ Registering value_relation (i_8 < n_11(D)) on (4->3)
+ Registering value_relation (i_8 >= n_11(D)) on (4->5)
+
+Visiting conditional with predicate: if (i_8 < n_11(D))
+
+With known ranges
+	i_8: [irange] int [0, +INF]	n_11(D): [irange] int VARYING
+
+Predicate evaluates to: DON'T KNOW
+Not folded
+ Registering value_relation (s_17 == s_7) (bb5) at s_17 = PHI <s_7(4)>
+Folding PHI node: s_17 = PHI <s_7(4)>
+No folding possible
+Folding statement: return s_17;
+Not folded
+Folding statement: _1 = (long unsigned int) i_8;
+ Registering value_relation (_1 pe32 i_8) (bb3) at _1 = (long unsigned int) i_8;
+Not folded
+Folding statement: _2 = _1 * 4;
+Not folded
+Folding statement: _3 = b_12(D) + _2;
+Not folded
+Folding statement: _4 = *_3;
+   on-exit update _3 in BB3 : [irange] int * [1, +INF]
+Not folded
+Folding statement: _5 = a_13(D) + _2;
+Not folded
+Folding statement: _6 = _4 * 3;
+Not folded
+Folding statement: *_5 = _6;
+   on-exit update _5 in BB3 : [irange] int * [1, +INF]
+Not folded
+Folding statement: s_15 = _6 ^ s_7;
+Not folded
+Checking for transitive inferred ranges in BB 3
+Folding statement: i_16 = i_8 + 1;
+ Registering value_relation (i_16 > i_8) (bb3) at i_16 = i_8 + 1;
+    Intersecting with existing (i_16 > i_8) to produce (i_16 > i_8) No Change.
+Loops range found for i_8: [irange] int [0, +INF] and calculated range :[irange] int [0, +INF]
+ Registering value_relation (i_16 > i_8) (bb3) at i_16 = i_8 + 1;
+    Intersecting with existing (i_16 > i_8) to produce (i_16 > i_8) No Change.
+Not folded
+
+=========== BB 2 ============
+    <bb 2> [local count: 118111600]:
+    goto <bb 4>; [100.00%]
+
+
+=========== BB 3 ============
+_3	[irange] int * [1, +INF]
+_5	[irange] int * [1, +INF]
+i_8	[irange] int [0, 2147483646]
+Partial equiv (_1 pe32 i_8)
+Relational : (i_8 < n_11(D))
+Relational : (i_16 > i_8)
+    <bb 3> [local count: 955630224]:
+    _1 = (long unsigned int) i_8;
+    _2 = _1 * 4;
+    _3 = b_12(D) + _2;
+    _4 = *_3;
+    _5 = a_13(D) + _2;
+    _6 = _4 * 3;
+    *_5 = _6;
+    s_15 = _6 ^ s_7;
+    i_16 = i_8 + 1;
+
+_1 : [irange] long unsigned int [0, 2147483646] MASK 0x7fffffff VALUE 0x0
+_2 : [irange] long unsigned int [0, 8589934584] MASK 0xfffffffffffffffc VALUE 0x0
+i_16 : [irange] int [1, +INF]
+
+=========== BB 4 ============
+Imports: i_8  n_11(D)  
+Exports: i_8  n_11(D)  
+n_11(D)	[irange] int VARYING
+Equivalence set : [s_7]
+    <bb 4> [local count: 1073741824]:
+    # s_7 = PHI <0(2), s_15(3)>
+    # i_8 = PHI <0(2), i_16(3)>
+    if (i_8 < n_11(D))
+      goto <bb 3>; [89.00%]
+    else
+      goto <bb 5>; [11.00%]
+
+i_8 : [irange] int [0, +INF]
+4->3  (T) i_8 : 	[irange] int [0, 2147483646]
+4->3  (T) n_11(D) : 	[irange] int [1, +INF]
+4->5  (F) i_8 : 	[irange] int [0, +INF]
+
+=========== BB 5 ============
+Equivalence set : [s_7, s_17]
+Relational : (i_8 >= n_11(D))
+    <bb 5> [local count: 118111600]:
+    # s_17 = PHI <s_7(4)>
+    return s_17;
+
+Non-varying global ranges:
+=========================:
+_1  : [irange] long unsigned int [0, 2147483646] MASK 0x7fffffff VALUE 0x0
+_2  : [irange] long unsigned int [0, 8589934584] MASK 0xfffffffffffffffc VALUE 0x0
+i_8  : [irange] int [0, +INF]
+i_16  : [irange] int [1, +INF]
+
+int vec (int * restrict a, int * restrict b, int n)
+{
+  int i;
+  int s;
+  long unsigned int _1;
+  long unsigned int _2;
+  int * _3;
+  int _4;
+  int * _5;
+  int _6;
+
+;;   basic block 2, loop depth 0, count 118111600 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 3, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  goto <bb 4>; [100.00%]
+;;    succ:       4 [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE) ../t.c:50:3
+
+;;   basic block 3, loop depth 1, count 955630224 (estimated locally, freq 8.0909), maybe hot
+;;    prev block 2, next block 4, flags: (NEW, VISITED)
+;;    pred:       4 [89.0% (guessed)]  count:955630224 (estimated locally, freq 8.0909) (TRUE_VALUE,EXECUTABLE)
+  _1 = (long unsigned int) i_8;
+  _2 = _1 * 4;
+  _3 = b_12(D) + _2;
+  _4 = *_3;
+  _5 = a_13(D) + _2;
+  _6 = _4 * 3;
+  *_5 = _6;
+  s_15 = _6 ^ s_7;
+  i_16 = i_8 + 1;
+;;    succ:       4 [always]  count:955630224 (estimated locally, freq 8.0909) (FALLTHRU,DFS_BACK,EXECUTABLE)
+
+;;   basic block 4, loop depth 1, count 1073741824 (estimated locally, freq 9.0909), maybe hot
+;;    prev block 3, next block 5, flags: (NEW, VISITED)
+;;    pred:       2 [always]  count:118111600 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE) ../t.c:50:3
+;;                3 [always]  count:955630224 (estimated locally, freq 8.0909) (FALLTHRU,DFS_BACK,EXECUTABLE)
+  # s_7 = PHI <0(2), s_15(3)>
+  # i_8 = PHI <0(2), i_16(3)>
+  if (i_8 < n_11(D))
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+;;    succ:       3 [89.0% (guessed)]  count:955630224 (estimated locally, freq 8.0909) (TRUE_VALUE,EXECUTABLE)
+;;                5 [11.0% (guessed)]  count:118111600 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+
+;;   basic block 5, loop depth 0, count 118111600 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 4, next block 1, flags: (NEW, VISITED)
+;;    pred:       4 [11.0% (guessed)]  count:118111600 (estimated locally, freq 1.0000) (FALSE_VALUE,EXECUTABLE)
+  # s_17 = PHI <s_7(4)>
+  return s_17;
+;;    succ:       EXIT [always]  count:118111600 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:51:10
+
+}
+
+
+
+;; Function unin (unin, funcdef_no=10, decl_uid=5704, cgraph_uid=11, symbol_order=11)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2
+;; 2 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: return 4;
+Not folded
+
+=========== BB 2 ============
+    <bb 2> [local count: 1073741824]:
+    return 4;
+
+Non-varying global ranges:
+=========================:
+
+Recording return range [irange] int [4, 4]
+int unin (int c)
+{
+;;   basic block 2, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 1, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:1073741824 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  return 4;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:57:10
+
+}
+
+
+
+;; Function cx (cx, funcdef_no=11, decl_uid=5708, cgraph_uid=12, symbol_order=12)
+
+;; 1 loops found
+;;
+;; Loop 0
+;;  header 0, latch 1
+;;  depth 0, outer -1
+;;  nodes: 0 1 2
+;; 2 succs { 1 }
+
+Substituting values and folding statements
+
+Folding statement: _5 = z_4(D) * z_4(D);
+Not folded
+Folding statement: _1 = REALPART_EXPR <_5>;
+Not folded
+Folding statement: _2 = _1 + 1.0e+0;
+Not folded
+Folding statement: _3 = IMAGPART_EXPR <_5>;
+Not folded
+Folding statement: _6 = COMPLEX_EXPR <_2, _3>;
+Not folded
+Folding statement: return _6;
+Not folded
+
+=========== BB 2 ============
+    <bb 2> [local count: 1073741824]:
+    _5 = z_4(D) * z_4(D);
+    _1 = REALPART_EXPR <_5>;
+    _2 = _1 + 1.0e+0;
+    _3 = IMAGPART_EXPR <_5>;
+    _6 = COMPLEX_EXPR <_2, _3>;
+    return _6;
+
+Non-varying global ranges:
+=========================:
+
+complex double cx (complex double z)
+{
+  double _1;
+  double _2;
+  double _3;
+  complex double _5;
+  complex double _6;
+
+;;   basic block 2, loop depth 0, count 1073741824 (estimated locally, freq 1.0000), maybe hot
+;;    prev block 0, next block 1, flags: (NEW, VISITED)
+;;    pred:       ENTRY [always]  count:1073741824 (estimated locally, freq 1.0000) (FALLTHRU,EXECUTABLE)
+  _5 = z_4(D) * z_4(D);
+  _1 = REALPART_EXPR <_5>;
+  _2 = _1 + 1.0e+0;
+  _3 = IMAGPART_EXPR <_5>;
+  _6 = COMPLEX_EXPR <_2, _3>;
+  return _6;
+;;    succ:       EXIT [always]  count:1073741824 (estimated locally, freq 1.0000) (EXECUTABLE) ../t.c:59:55
+
+}
+
+

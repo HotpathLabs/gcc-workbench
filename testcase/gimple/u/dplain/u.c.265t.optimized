@@ -1,0 +1,405 @@
+
+;; Function asmf (asmf, funcdef_no=3, decl_uid=5487, cgraph_uid=4, symbol_order=5)
+
+int asmf (int a)
+{
+  int k;
+  int r;
+  int _4;
+
+  <bb 2> [local count: 1073741824]:
+  __asm__("addl %1, %0" : "=r" r_2 : "r" a_1(D));
+  __asm__ __volatile__("incl %0" : "=r" k_3 : "0" a_1(D));
+  _4 = r_2 + k_3;
+  return _4;
+
+}
+
+
+
+;; Function counter (counter, funcdef_no=4, decl_uid=5492, cgraph_uid=5, symbol_order=6)
+
+int counter ()
+{
+  static int count = 0;
+  int count.0_1;
+  int _2;
+
+  <bb 2> [local count: 1073741824]:
+  count.0_1 = count;
+  _2 = count.0_1 + 1;
+  count = _2;
+  return _2;
+
+}
+
+
+
+;; Function shadow (shadow, funcdef_no=5, decl_uid=5496, cgraph_uid=6, symbol_order=7)
+
+Removing basic block 6
+Removing basic block 7
+Removing basic block 8
+Removing basic block 9
+Removing basic block 10
+Removing basic block 11
+int shadow (int n)
+{
+  int i;
+  int i;
+  int s;
+
+  <bb 2> [local count: 118111600]:
+  if (n_5(D) > 0)
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 3> [local count: 955630224]:
+  # s_16 = PHI <s_10(3), 0(2)>
+  # i_20 = PHI <i_11(3), 0(2)>
+  s_10 = s_16 + i_20;
+  i_11 = i_20 + 1;
+  if (n_5(D) != i_11)
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 4>; [11.00%]
+
+  <bb 4> [local count: 955630224]:
+  # s_18 = PHI <s_8(4), s_10(3)>
+  # i_21 = PHI <i_9(4), i_11(3)>
+  s_8 = s_18 - i_21;
+  i_9 = i_21 + -1;
+  if (i_9 != 0)
+    goto <bb 4>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 5> [local count: 118111600]:
+  # s_19 = PHI <s_8(4), 0(2)>
+  g = 5;
+  return s_19;
+
+}
+
+
+
+;; Function cgoto (cgoto, funcdef_no=6, decl_uid=5511, cgraph_uid=7, symbol_order=8)
+
+int cgoto (int k)
+{
+  static void * tab[2] = {&l1, &l2};
+  int _1;
+  void * _2;
+  int _3;
+
+  <bb 2> [local count: 1073741824]:
+  _1 = k_4(D) & 1;
+  _2 = tab[_1];
+  goto _2;
+
+  <bb 3> [local count: 697932184]:
+l1:
+  goto <bb 5>; [100.00%]
+
+  <bb 4> [local count: 375809640]:
+l2:
+
+  <bb 5> [local count: 1073741824]:
+  # _3 = PHI <1(3), 2(4)>
+  return _3;
+
+}
+
+
+
+;; Function ulabel (ulabel, funcdef_no=7, decl_uid=5517, cgraph_uid=8, symbol_order=9)
+
+int ulabel (int n)
+{
+  int t;
+
+  <bb 2> [local count: 118111600]:
+  t_5 = MAX_EXPR <n_3(D), 1>;
+  return t_5;
+
+}
+
+
+
+;; Function mkp (mkp, funcdef_no=8, decl_uid=5522, cgraph_uid=9, symbol_order=10)
+
+struct P mkp (int a)
+{
+  struct P D.5582;
+  int _1;
+
+  <bb 2> [local count: 1073741824]:
+  _1 = a_3(D) + 1;
+  D.5582.x = a_3(D);
+  D.5582.y = _1;
+  return D.5582;
+
+}
+
+
+
+;; Function bits (bits, funcdef_no=9, decl_uid=5527, cgraph_uid=10, symbol_order=11)
+
+int bits (struct B * b, struct B c)
+{
+  <unnamed-unsigned:3> _1;
+  int _2;
+  <unnamed-unsigned:5> _3;
+  int _4;
+  int _8;
+
+  <bb 2> [local count: 1073741824]:
+  b_6(D)->a = 3;
+  _1 = c.a;
+  _2 = (int) _1;
+  _3 = b_6(D)->b;
+  _4 = (int) _3;
+  _8 = _2 + _4;
+  return _8;
+
+}
+
+
+
+;; Function va (va, funcdef_no=10, decl_uid=5530, cgraph_uid=11, symbol_order=12)
+
+Removing basic block 6
+Removing basic block 7
+Removing basic block 8
+int va (int n)
+{
+  unsigned long ivtmp.63;
+  char * ap_lsm.59;
+  int s;
+  char * ap;
+  void * _1;
+  unsigned int _7;
+  int _10;
+  unsigned long _13;
+  unsigned long _22;
+  unsigned long _26;
+
+  <bb 2> [local count: 118111600]:
+  __builtin_va_start (&ap, 0);
+  if (n_6(D) > 0)
+    goto <bb 3>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 3> [local count: 105119324]:
+  ap_lsm.59_2 = ap;
+  ivtmp.63_14 = (unsigned long) ap_lsm.59_2;
+  _13 = (unsigned long) n_6(D);
+  _7 = (unsigned int) _13;
+  _22 = (unsigned long) ap_lsm.59_2;
+  _26 = WIDEN_MULT_PLUS_EXPR <_7, 8, _22>;
+
+  <bb 4> [local count: 955630224]:
+  # s_18 = PHI <s_11(4), 0(3)>
+  # ivtmp.63_24 = PHI <ivtmp.63_16(4), ivtmp.63_14(3)>
+  _1 = (void *) ivtmp.63_24;
+  _10 = MEM[(int *)_1];
+  s_11 = _10 + s_18;
+  ivtmp.63_16 = ivtmp.63_24 + 8;
+  if (ivtmp.63_16 != _26)
+    goto <bb 4>; [89.00%]
+  else
+    goto <bb 5>; [11.00%]
+
+  <bb 5> [local count: 118111600]:
+  # s_19 = PHI <s_11(4), 0(2)>
+  ap ={v} {CLOBBER(eos)};
+  return s_19;
+
+}
+
+
+
+;; Function sj (sj, funcdef_no=11, decl_uid=5541, cgraph_uid=12, symbol_order=14)
+
+Removing basic block 9
+int sj (int x)
+{
+  volatile int v;
+  int v.2_1;
+  int _2;
+  int _3;
+  int _11;
+  int _14;
+
+  <bb 2> [local count: 1073741824]:
+  v ={v} x_8(D);
+
+  <bb 3> [local count: 1073741824]:
+  _11 = setjmp (&jb);
+  goto <bb 5>; [99.96%]
+
+  <bb 4> [local count: 639350]:
+  .ABNORMAL_DISPATCHER (0);
+
+  <bb 5> [local count: 1073312328]:
+  if (_11 != 0)
+    goto <bb 6>; [51.12%]
+  else
+    goto <bb 7>; [48.88%]
+
+  <bb 6> [local count: 548677266]:
+  _14 ={v} v;
+  goto <bb 8>; [100.00%]
+
+  <bb 7> [local count: 524635063]:
+  v.2_1 ={v} v;
+  _2 = v.2_1 + 1;
+  v ={v} _2;
+  ext (&v);
+
+  <bb 8> [local count: 1073102475]:
+  # _3 = PHI <_14(6), _11(7)>
+  return _3;
+
+}
+
+
+
+;; Function nr2 (nr2, funcdef_no=12, decl_uid=5545, cgraph_uid=13, symbol_order=15)
+
+int nr2 (int x)
+{
+  int _2;
+
+  <bb 2> [local count: 1073741824]:
+  if (x_1(D) > 3)
+    goto <bb 3>; [0.04%]
+  else
+    goto <bb 4>; [99.96%]
+
+  <bb 3> [local count: 429496]:
+  die ();
+
+  <bb 4> [local count: 1073312328]:
+  _2 = x_1(D) * 2;
+  return _2;
+
+}
+
+
+
+;; Function glob (glob, funcdef_no=13, decl_uid=5548, cgraph_uid=14, symbol_order=16)
+
+int glob (int i)
+{
+  int _1;
+  int _2;
+  int g.4_3;
+  int _9;
+
+  <bb 2> [local count: 1073741824]:
+  g = i_5(D);
+  _1 = i_5(D) + 1;
+  garr[i_5(D)] = _1;
+  ext (&g);
+  _2 = garr[2];
+  g.4_3 = g;
+  _9 = _2 + g.4_3;
+  return _9;
+
+}
+
+
+
+;; Function arr (arr, funcdef_no=14, decl_uid=5551, cgraph_uid=15, symbol_order=17)
+
+int arr (int i)
+{
+  int a[4];
+  int _1;
+  int _10;
+
+  <bb 2> [local count: 1073741824]:
+  MEM <vector(4) int> [(int *)&a] = { 1, 2, 3, 4 };
+  a[i_7(D)] = 7;
+  ext (&a);
+  _1 = i_7(D) & 3;
+  _10 = a[_1];
+  a ={v} {CLOBBER(eos)};
+  return _10;
+
+}
+
+
+
+;; Function vv (vv, funcdef_no=15, decl_uid=5557, cgraph_uid=16, symbol_order=18)
+
+v4si vv (v4si a, v4si b)
+{
+  vector(4) int _1;
+  v4si _4;
+
+  <bb 2> [local count: 1073741824]:
+  _1 = a_2(D) * b_3(D);
+  _4 = _1 + { 1, 1, 1, 1 };
+  return _4;
+
+}
+
+
+
+;; Function cnd (cnd, funcdef_no=16, decl_uid=5562, cgraph_uid=17, symbol_order=19)
+
+int cnd (int a, int b)
+{
+  int iftmp.5_1;
+  int iftmp.5_4;
+  int iftmp.5_5;
+
+  <bb 2> [local count: 1073741824]:
+  if (a_2(D) > b_3(D))
+    goto <bb 3>; [50.00%]
+  else
+    goto <bb 4>; [50.00%]
+
+  <bb 3> [local count: 536870912]:
+  iftmp.5_5 = a_2(D) - b_3(D);
+  goto <bb 5>; [100.00%]
+
+  <bb 4> [local count: 536870912]:
+  iftmp.5_4 = b_3(D) - a_2(D);
+
+  <bb 5> [local count: 1073741824]:
+  # iftmp.5_1 = PHI <iftmp.5_5(3), iftmp.5_4(4)>
+  return iftmp.5_1;
+
+}
+
+
+
+;; Function ch (ch, funcdef_no=17, decl_uid=5565, cgraph_uid=18, symbol_order=20)
+
+Removing basic block 3
+char ch (const char * s)
+{
+  char _1;
+  char iftmp.6_2;
+
+  <bb 2> [local count: 1073741824]:
+  _1 = *s_4(D);
+  if (_1 == 39)
+    goto <bb 3>; [1.91%]
+  else
+    goto <bb 4>; [98.09%]
+
+  <bb 3> [local count: 20508472]:
+
+  <bb 4> [local count: 1073741824]:
+  # iftmp.6_2 = PHI <-1(3), 120(2)>
+  return iftmp.6_2;
+
+}
+
+

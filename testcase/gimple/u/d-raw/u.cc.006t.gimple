@@ -1,0 +1,239 @@
+int lam (int k)
+gimple_bind <
+  int D.43427;
+  struct ._anon_71 f;
+  typedef struct ._anon_71 ._anon_71;
+
+  gimple_try <GIMPLE_TRY_FINALLY,
+    EVAL <
+      gimple_assign <parm_decl, f.__k, k, NULL, NULL>
+      gimple_call <operator(), D.43427, &f, 3>
+      gimple_return <D.43427>
+    >
+    CLEANUP <
+      gimple_assign <constructor, f, {CLOBBER(eos)}, NULL, NULL>
+    >
+  >
+>
+
+
+int lam(int)::<lambda(int)>::operator() (const struct ._anon_71 * const __closure, int y)
+gimple_bind <
+  int D.43430;
+  const int k [value-expr: __closure->__k];
+
+  gimple_assign <component_ref, _1, __closure->__k, NULL, NULL>
+  gimple_assign <mult_expr, D.43430, y, _1, NULL>
+  gimple_return <D.43430>
+>
+
+
+int pack (int a, int b)
+gimple_bind <
+  int D.43432;
+  int D.39267;
+
+  gimple_try <GIMPLE_TRY_FINALLY,
+    EVAL <
+      gimple_assign <integer_cst, D.39267, 3, NULL, NULL>
+      gimple_call <sum, D.43432, &a, &b, &D.39267>
+      gimple_return <D.43432>
+    >
+    CLEANUP <
+      gimple_assign <constructor, D.39267, {CLOBBER(eos)}, NULL, NULL>
+    >
+  >
+>
+
+
+int sum<int&, int&, int> (int & a#0, int & a#1, int & a#2)
+gimple_bind <
+  int D.43435;
+
+  gimple_assign <mem_ref, _1, *a#0, NULL, NULL>
+  gimple_assign <mem_ref, _2, *a#1, NULL, NULL>
+  gimple_assign <plus_expr, _3, _1, _2, NULL>
+  gimple_assign <mem_ref, _4, *a#2, NULL, NULL>
+  gimple_assign <plus_expr, D.43435, _3, _4, NULL>
+  gimple_return <D.43435>
+>
+
+
+int raii (int x)
+gimple_bind <
+  void * D.39284;
+  int D.43439;
+  struct R r;
+
+  gimple_try <GIMPLE_TRY_FINALLY,
+    EVAL <
+      gimple_call <__ct_comp , NULL, &r, x>
+      gimple_try <GIMPLE_TRY_FINALLY,
+        EVAL <
+          gimple_cond <lt_expr, x, 0, <D.43437>, <D.43438>>
+          gimple_label <<D.43437>>
+          gimple_call <__cxa_allocate_exception, D.39284, 16>
+          gimple_try <GIMPLE_TRY_CATCH,
+            EVAL <
+              gimple_call <__ct_comp , NULL, D.39284, "neg">
+            >
+            CLEANUP <
+              gimple_call <__cxa_free_exception, NULL, D.39284>
+            >
+          >
+          gimple_call <__cxa_throw, NULL, D.39284, &_ZTISt13runtime_error, __dt_comp >
+          gimple_label <<D.43438>>
+          gimple_assign <component_ref, D.43439, r.v, NULL, NULL>
+          gimple_return <D.43439>
+        >
+        CLEANUP <
+          gimple_call <__dt_comp , NULL, &r>
+        >
+      >
+    >
+    CLEANUP <
+      gimple_assign <constructor, r, {CLOBBER(eos)}, NULL, NULL>
+    >
+  >
+>
+
+
+void R::R (struct R * const this, int x)
+gimple_bind <
+  gimple_assign <constructor, *this, {CLOBBER(bob)}, NULL, NULL>
+  gimple_bind <
+    gimple_assign <parm_decl, this->v, x, NULL, NULL>
+  >
+>
+
+
+void R::~R (struct R * const this)
+gimple_bind <
+  gimple_try <GIMPLE_TRY_CATCH,
+    EVAL <
+      gimple_bind <
+        gimple_try <GIMPLE_TRY_FINALLY,
+          EVAL <
+            gimple_assign <integer_cst, this->v, 0, NULL, NULL>
+          >
+          CLEANUP <
+            gimple_assign <constructor, *this, {CLOBBER(eob)}, NULL, NULL>
+          >
+        >
+      >
+    >
+    CLEANUP <
+      gimple_eh_must_not_throw <__cxa_call_terminate>
+    >
+  >
+>
+
+
+int tryf (int x)
+gimple_bind <
+  int D.43447;
+  register struct runtime_error * D.39292;
+
+  gimple_try <GIMPLE_TRY_CATCH,
+    EVAL <
+      gimple_call <raii, D.43447, x>
+      gimple_return <D.43447>
+    >
+    CLEANUP <
+      gimple_catch <struct runtime_error, 
+        CATCH <
+          gimple_bind <
+            const struct runtime_error & e;
+
+            gimple_try <GIMPLE_TRY_FINALLY,
+              EVAL <
+                gimple_call <__builtin_eh_pointer, _1, 0>
+                gimple_call <__cxa_begin_catch, D.39292, _1>
+                gimple_assign <var_decl, e, D.39292, NULL, NULL>
+                gimple_assign <integer_cst, D.43447, -1, NULL, NULL>
+                gimple_return <D.43447>
+              >
+              CLEANUP <
+                gimple_call <__cxa_end_catch, NULL>
+              >
+            >
+          >
+        >
+      >
+      gimple_catch <NULL, 
+        CATCH <
+          gimple_try <GIMPLE_TRY_FINALLY,
+            EVAL <
+              gimple_call <__builtin_eh_pointer, _2, 0>
+              gimple_call <__cxa_begin_catch, NULL, _2>
+              gimple_assign <integer_cst, D.43447, -2, NULL, NULL>
+              gimple_return <D.43447>
+            >
+            CLEANUP <
+              gimple_call <__cxa_end_catch, NULL>
+            >
+          >
+        >
+      >
+    >
+  >
+  gimple_call <__builtin_unreachable, NULL>
+>
+
+
+int callanon (int z)
+gimple_bind <
+  int D.43455;
+
+  gimple_call <anon, D.43455, z>
+  gimple_return <D.43455>
+>
+
+
+int {anonymous}::anon (int z)
+gimple_bind <
+  int D.43457;
+
+  gimple_assign <plus_expr, D.43457, z, 1, NULL>
+  gimple_return <D.43457>
+>
+
+
+int useop (int a)
+gimple_bind <
+  int D.43459;
+  struct Op o;
+
+  gimple_try <GIMPLE_TRY_FINALLY,
+    EVAL <
+      gimple_call <operator(), _1, &o, a>
+      gimple_call <operator<, _2, &o, &o>
+      gimple_assign <nop_expr, _3, _2, NULL, NULL>
+      gimple_assign <plus_expr, D.43459, _1, _3, NULL>
+      gimple_return <D.43459>
+    >
+    CLEANUP <
+      gimple_assign <constructor, o, {CLOBBER(eos)}, NULL, NULL>
+    >
+  >
+>
+
+
+int Op::operator() (const struct Op * const this, int a)
+gimple_bind <
+  int D.43462;
+
+  gimple_assign <plus_expr, D.43462, a, 1, NULL>
+  gimple_return <D.43462>
+>
+
+
+bool Op::operator< (const struct Op * const this, const struct Op & D.39307)
+gimple_bind <
+  bool D.43464;
+
+  gimple_assign <integer_cst, D.43464, 0, NULL, NULL>
+  gimple_return <D.43464>
+>
+
+

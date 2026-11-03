@@ -223,3 +223,41 @@ describe('RTL grammar - reg, subreg and mem flags', () => {
         has('    (label_ref/v:DI 36)', '/v', 'storage.modifier.flag');
     });
 });
+
+describe('findNoiseLines in -slim dumps', () => {
+    it('keeps the slim insn chain visible but fades slim listings in logs', () => {
+        const lines = [
+            'Trying 3 -> 11:',
+            '    3: r99:SI=r104:SI',
+            '      REG_DEAD r104:SI',
+            ';;    total ref usage 81{40d,41u,0e} in 16{16 regular + 0 call} insns.',
+            '    7: NOTE_INSN_BASIC_BLOCK 2',
+            '   52: r114:DI=x0:DI',
+            '      REG_DEAD x0:DI',
+            '',
+        ];
+        assert.deepStrictEqual(findNoiseLines(lines), [0, 1, 2, 3]);
+    });
+});
+
+describe('RTL grammar - slim insn chain', () => {
+    it('colours the slim chain as code and its slim listings in logs as comments', () => {
+        const lines = [
+            'Trying 3 -> 11:',
+            '    3: r99:SI=r104:SI',
+            ';;    total ref usage 81{40d,41u,0e} in 16{16 regular + 0 call} insns.',
+            '    7: NOTE_INSN_BASIC_BLOCK 2',
+            '   52: r114:DI=x0:DI',
+            '      REG_DEAD x0:DI',
+            '   24: pc={(cc:CC!=0)?L22:pc}',
+            '',
+            'Trying 5 -> 6:',
+            '    5: r1:SI=r2:SI',
+        ];
+        assert.deepStrictEqual(commentFlags(lines), [true, true, true, false, false, false, false, false, true, true]);
+        let stack = vsctm.INITIAL;
+        const scopes = lines.slice(0, 5).map(l => { const r = grammar.tokenizeLine(l, stack); stack = r.ruleStack; return r.tokens; });
+        const reg = scopes[4].find(t => lines[4].slice(t.startIndex, t.endIndex) === 'r114')!;
+        assert.ok(reg.scopes.includes('variable.parameter.register.gcc.rtl'));
+    });
+});
